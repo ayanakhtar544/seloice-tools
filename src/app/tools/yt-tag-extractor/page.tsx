@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Youtube, Copy, CheckCircle2, Loader2, AlertCircle, Search, Tags, Hash } from 'lucide-react';
+import { ArrowLeft, Copy, CheckCircle2, Loader2, AlertCircle, Search, Tags, Hash } from 'lucide-react';
 import Link from 'next/link';
 
 interface TagData {

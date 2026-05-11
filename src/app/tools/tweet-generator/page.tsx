@@ -40,11 +40,10 @@ export default function TweetGenerator() {
     setIsDownloading(true);
     
     try {
-      // useCORS: true aur skipFonts add kiya hai safety ke liye
+      // cacheBust aur pixelRatio add kiya hai better quality ke liye
       const dataUrl = await toPng(tweetRef.current, { 
         cacheBust: true, 
         pixelRatio: 3,
-        useCORS: true,
         backgroundColor: 'transparent'
       });
       

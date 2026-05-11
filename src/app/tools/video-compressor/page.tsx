@@ -3,299 +3,193 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Video, UploadCloud, Loader2, Download, X, Settings2, CheckCircle2, Minimize, HardDrive } from 'lucide-react';
-import Link from 'next/link';
-
-// 🔥 FFmpeg imports
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { Video, UploadCloud, Loader2, Download, ArrowLeft, FileVideo, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function VideoCompressor() {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isCompressing, setIsCompressing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [isReady, setIsReady] = useState(false);
-  
-  // Compression Settings
-  const [quality, setQuality] = useState<'high' | 'medium' | 'low'>('medium');
-  
-  // Results
-  const [compressedUrl, setCompressedUrl] = useState<string | null>(null);
-  const [compressedSize, setCompressedSize] = useState<number | null>(null);
-  
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const ffmpegRef = useRef(new FFmpeg());
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+  const [stats, setStats] = useState({ original: 0, compressed: 0 });
 
-  // 🔥 Page load hote hi FFmpeg engine background me ready karna
+  const ffmpegRef = useRef<FFmpeg | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
-    const loadFFmpeg = async () => {
+    loadFFmpeg();
+  }, []);
+
+  const loadFFmpeg = async () => {
+    try {
       const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
-      const ffmpeg = ffmpegRef.current;
-      
-      // Real-time compression progress
+      const ffmpeg = new FFmpeg();
+      ffmpegRef.current = ffmpeg;
+
       ffmpeg.on('progress', ({ progress }) => {
-        // progress kabhi-kabhi 1 se zyada chala jata hai bugs ki wajah se, isliye Min/Max set kiya hai
-        const percentage = Math.min(Math.round(progress * 100), 100);
-        setProgress(percentage);
+        setProgress(Math.min(Math.round(progress * 100), 100));
       });
 
       await ffmpeg.load({
         coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
         wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
       });
-      setIsReady(true);
-    };
-
-    loadFFmpeg().catch(console.error);
-  }, []);
-
-  const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setIsDragging(true); };
-  const handleDragLeave = () => setIsDragging(false);
-  
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault(); setIsDragging(false);
-    const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile && droppedFile.type.includes("video/mp4")) {
-      setFile(droppedFile); setCompressedUrl(null);
-    } else {
-      alert("Bhai, filhal sirf MP4 video allow hai taaki browser crash na ho!");
+      
+      setIsLoaded(true);
+    } catch (error) {
+      console.error("FFmpeg load error:", error);
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile); setCompressedUrl(null);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+      setOutputUrl(null);
+      setProgress(0);
     }
   };
-
-  // 🔥 ASLI COMPRESSION LOGIC (Client-Side)
 
   const handleCompress = async () => {
-    if (!file || !isReady) return;
-    setIsCompressing(true);
+    const ffmpeg = ffmpegRef.current;
+    
+    if (!file || !ffmpeg) {
+      alert("Please wait for the tool to load completely or select a video.");
+      return; 
+    }
+
+    setIsProcessing(true);
     setProgress(0);
+    setOutputUrl(null);
 
     try {
-      const ffmpeg = ffmpegRef.current;
       await ffmpeg.writeFile('input.mp4', await fetchFile(file));
       
-      // 🔥 SENIOR DEV SWEET SPOT (Speed + Compression)
-      // CRF jitna bada hoga, file utni choti hogi. 
-      // Ultrafast speed ke sath hum CRF aggressively set kar rahe hain.
-      let crfValue = '32'; // Medium Quality (Choti file, theek-thaak quality)
-      if (quality === 'high') crfValue = '26'; // Badi file, Achhi quality
-      if (quality === 'low') crfValue = '38';  // Bohot choti file, Low quality
-
-      // Wapas 'ultrafast' laga diya taaki user ko wait na karna pade, bina scaling ke!
-      await ffmpeg.exec([
-        '-i', 'input.mp4', 
-        '-vcodec', 'libx264', 
-        '-crf', crfValue, 
-        '-preset', 'ultrafast', 
-        '-c:a', 'copy', // Audio ko process hone se bacha rahe hain (Speed badhayega)
-        'output.mp4'
-      ]);
+      await ffmpeg.exec(['-i', 'input.mp4', '-vcodec', 'libx264', '-crf', '28', '-preset', 'ultrafast', 'output.mp4']);
       
       const data = await ffmpeg.readFile('output.mp4');
-      const blob = new Blob([(data as Uint8Array).buffer], { type: 'video/mp4' });
       
-      // Agar video already itni compressed thi ki uska size badh gaya, toh error de denge
-      if (blob.size >= file.size) {
-        alert("Bhai, ye video already highly compressed hai! Isko aur chota karenge toh quality puri kharab ho jayegi.");
-        resetTool();
-        return;
-      }
-
+      // 🔥 FIX YAHAN HAI: .buffer hata diya gaya hai taaki TypeScript khush rahe
+      const blob = new Blob([data as any], { type: 'video/mp4' });
+      
       const url = URL.createObjectURL(blob);
-      setCompressedSize(blob.size);
-      setCompressedUrl(url);
-    } catch (err) {
-      console.error("Compression me error:", err);
-      alert("Kuch gadbad ho gayi!");
+      setOutputUrl(url);
+      setStats({
+        original: file.size,
+        compressed: blob.size
+      });
+      
+    } catch (error) {
+      console.error("Error during compression:", error);
+      alert("Something went wrong during compression. Please try a different video.");
     } finally {
-      setIsCompressing(false);
+      setIsProcessing(false);
     }
-  };
-  const handleDownload = () => {
-    if (!compressedUrl || !file) return;
-    const a = document.createElement('a');
-    a.href = compressedUrl;
-    const originalName = file.name.split('.')[0];
-    a.download = `${originalName}_compressed.mp4`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
-  const resetTool = () => {
-    setFile(null);
-    setCompressedUrl(null);
-    setCompressedSize(null);
-    setProgress(0);
-  };
-
-  const formatSize = (bytes: number) => {
-    if (!bytes) return "0 MB";
-    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
-  };
-
-  // Kitna percent data bacha liya (Compression Ratio)
-  const getSavedPercentage = () => {
-    if (!file || !compressedSize) return 0;
-    const saved = ((file.size - compressedSize) / file.size) * 100;
-    return saved > 0 ? saved.toFixed(1) : 0;
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white p-6 relative overflow-hidden">
-      <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-orange-600/10 rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-yellow-600/10 rounded-full blur-[150px] pointer-events-none" />
+    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-orange-500/30 pb-20">
+      <div className="fixed inset-0 z-0 pointer-events-none flex justify-center">
+        <div className="absolute top-[-10%] w-[40rem] h-[40rem] bg-orange-600/10 rounded-full blur-[120px] opacity-40" />
+      </div>
 
-      <div className="w-full max-w-4xl mx-auto z-10 relative pt-4">
-        <Link href="/" className="inline-flex items-center gap-2 text-gray-500 hover:text-orange-400 mb-8 transition-colors">
-          <ArrowLeft size={20} /> Back to Tools
+      <div className="relative z-10 max-w-4xl mx-auto px-4 pt-8 md:pt-16">
+        <Link href="/" className="inline-flex items-center gap-2 text-orange-500 hover:text-orange-400 font-bold text-xs uppercase tracking-widest mb-10 transition-colors bg-orange-500/10 px-4 py-2 rounded-full border border-orange-500/20 w-fit">
+          <ArrowLeft size={16} /> Back to Toolkit
         </Link>
 
-        {/* Hero */}
-        <div className="text-center mb-10">
-          <div className="inline-flex p-4 bg-gradient-to-tr from-orange-600 to-yellow-500 rounded-3xl mb-4 shadow-[0_0_30px_rgba(234,88,12,0.3)]">
-            <Minimize size={40} className="text-white" />
+        <div className="text-center mb-12">
+          <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-600 p-[2px] rounded-2xl mx-auto mb-6 shadow-xl shadow-orange-500/20 rotate-3">
+            <div className="w-full h-full bg-[#111] rounded-[14px] flex items-center justify-center">
+              <Video size={28} className="text-white" />
+            </div>
           </div>
-          <h1 className="text-5xl font-black mb-2 tracking-tight">Video <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-yellow-400">Compressor</span></h1>
-          <p className="text-gray-400">Shrink your MP4 videos up to 80% without losing visible quality.</p>
+          <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter mb-4">VIDEO <span className="text-orange-400">COMPRESSOR</span></h1>
+          <p className="text-gray-400 font-medium max-w-lg mx-auto text-sm md:text-base">
+            Shrink your video file size by up to 80% without losing visible quality. Processed 100% locally in your browser.
+          </p>
         </div>
 
-        <div className="bg-[#111] border border-white/10 rounded-[2rem] p-6 md:p-10 shadow-2xl">
+        <div className="bg-[#111] border border-white/10 rounded-[2rem] p-6 md:p-10 shadow-2xl relative overflow-hidden">
           
-          <AnimatePresence mode="wait">
-            {/* STAGE 1: Upload */}
-            {!file && (
-              <motion.div 
-                key="upload"
-                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                className={`border-2 border-dashed rounded-[2rem] p-12 text-center transition-all ${isDragging ? 'border-orange-500 bg-orange-500/5' : 'border-white/10 bg-black/40 hover:border-white/30 hover:bg-black/60'}`}
-                onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}
-              >
-                <input type="file" accept="video/mp4" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
-                <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                  {isReady ? <UploadCloud size={40} className="text-gray-400" /> : <Loader2 size={40} className="text-orange-500 animate-spin" />}
+          {!isLoaded && (
+            <div className="absolute top-0 left-0 w-full h-1 bg-white/5 overflow-hidden">
+              <motion.div animate={{ x: ["-100%", "100%"] }} transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }} className="w-1/2 h-full bg-orange-500" />
+            </div>
+          )}
+
+          <div 
+            onClick={() => isLoaded && !isProcessing && fileInputRef.current?.click()}
+            className={`border-2 border-dashed rounded-3xl p-10 flex flex-col items-center justify-center text-center transition-all duration-300
+              ${!isLoaded ? 'border-white/5 opacity-50 cursor-not-allowed' : 
+                isProcessing ? 'border-orange-500/20 bg-orange-500/5 cursor-wait' : 
+                'border-white/10 hover:border-orange-500/50 hover:bg-white/[0.02] cursor-pointer'}`}
+          >
+            <input type="file" accept="video/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} disabled={!isLoaded || isProcessing} />
+            
+            {isProcessing ? (
+              <div className="flex flex-col items-center">
+                <Loader2 size={48} className="text-orange-500 animate-spin mb-4" />
+                <h3 className="text-xl font-black mb-2 italic">COMPRESSING VIDEO...</h3>
+                <div className="w-48 h-2 bg-black rounded-full overflow-hidden mt-4 border border-white/10">
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${progress}%` }} className="h-full bg-gradient-to-r from-orange-500 to-red-500" />
                 </div>
-                <h3 className="text-2xl font-bold mb-2">
-                  {isReady ? "Drag & Drop MP4 Video" : "Loading Compressor..."}
-                </h3>
-                <p className="text-gray-500 mb-6">
-                  {isReady ? "Files are compressed entirely on your device for 100% privacy." : "Initializing WASM Engine..."}
-                </p>
+                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-3">{progress}% COMPLETED</p>
+              </div>
+            ) : file ? (
+              <div className="flex flex-col items-center">
+                <FileVideo size={48} className="text-orange-400 mb-4" />
+                <h3 className="text-xl font-bold mb-1 truncate max-w-xs">{file.name}</h3>
+                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mb-6">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
                 <button 
-                  disabled={!isReady}
-                  onClick={() => fileInputRef.current?.click()}
-                  className="bg-white text-black px-8 py-3 rounded-full font-bold hover:scale-105 transition-transform disabled:opacity-50 disabled:hover:scale-100"
+                  onClick={(e) => { e.stopPropagation(); handleCompress(); }}
+                  className="px-8 py-4 rounded-xl bg-orange-600 text-white font-black uppercase tracking-widest text-sm shadow-[0_6px_0_0_#9a3412] active:translate-y-1 active:shadow-none transition-all hover:bg-orange-500"
                 >
-                  Browse Video File
+                  Compress Video
                 </button>
-              </motion.div>
-            )}
-
-            {/* STAGE 2: Selected & Settings */}
-            {file && !compressedUrl && (
-              <motion.div key="process" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-                
-                <div className="bg-black/50 border border-white/10 rounded-2xl p-5 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-orange-500/20 p-3 rounded-xl text-orange-400"><Video size={24} /></div>
-                    <div>
-                      <p className="font-bold truncate max-w-[200px] md:max-w-[400px]">{file.name}</p>
-                      <p className="text-xs text-gray-500">Original Size: {formatSize(file.size)}</p>
-                    </div>
-                  </div>
-                  {!isCompressing && (
-                    <button onClick={resetTool} className="p-2 text-gray-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all"><X size={20}/></button>
-                  )}
-                </div>
-
-                {!isCompressing && (
-                  <div>
-                    <h4 className="font-bold flex items-center gap-2 mb-4"><Settings2 size={18} className="text-orange-500" /> Compression Quality</h4>
-                    <div className="grid grid-cols-3 gap-3">
-                      {['high', 'medium', 'low'].map((lvl) => (
-                        <button
-                          key={lvl}
-                          onClick={() => setQuality(lvl as any)}
-                          className={`p-4 rounded-xl border transition-all text-center ${quality === lvl ? 'bg-orange-500/10 border-orange-500 text-orange-400' : 'bg-black/50 border-white/10 text-gray-400 hover:border-white/30'}`}
-                        >
-                          <p className="font-bold capitalize">{lvl}</p>
-                          <p className="text-[10px] uppercase mt-1">
-                            {lvl === 'high' ? 'Large File' : lvl === 'medium' ? 'Balanced' : 'Small File'}
-                          </p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="pt-2">
-                  {isCompressing ? (
-                    <div className="space-y-3">
-                      <div className="flex justify-between text-sm font-bold">
-                        <span className="text-orange-400 flex items-center gap-2"><Loader2 size={16} className="animate-spin" /> Compressing Video... (Browser tab open rakhna)</span>
-                        <span>{progress}%</span>
-                      </div>
-                      <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-orange-500 to-yellow-500 transition-all duration-300" style={{ width: `${progress}%` }}></div>
-                      </div>
-                    </div>
-                  ) : (
-                    <button 
-                      onClick={handleCompress}
-                      className="w-full bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-500 hover:to-yellow-500 text-white py-4 rounded-2xl font-black text-xl transition-all shadow-lg shadow-orange-600/20 flex items-center justify-center gap-2"
-                    >
-                      <Minimize size={24} /> Compress Video Now
-                    </button>
-                  )}
-                </div>
-              </motion.div>
-            )}
-
-            {/* STAGE 3: Done & Comparison */}
-            {compressedUrl && (
-              <motion.div key="success" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-6">
-                
-                <h3 className="text-3xl font-black mb-2 flex items-center justify-center gap-3">
-                  <CheckCircle2 size={30} className="text-green-500" /> Done! You Saved {getSavedPercentage()}% Space
+              </div>
+            ) : (
+              <div className="flex flex-col items-center">
+                <UploadCloud size={48} className="text-gray-600 mb-4" />
+                <h3 className="text-xl font-black mb-2 italic text-gray-300">
+                  {!isLoaded ? "LOADING ENGINE..." : "CLICK TO UPLOAD VIDEO"}
                 </h3>
-                <p className="text-gray-400 mb-8">Video compressed successfully. Compare sizes below.</p>
-                
-                {/* ⚖️ NAYA: Before vs After Size Comparison */}
-                <div className="flex items-center justify-center gap-4 mb-10 max-w-lg mx-auto">
-                   <div className="flex-1 bg-white/5 border border-white/10 rounded-2xl p-5 text-center">
-                      <p className="text-xs text-gray-500 font-bold tracking-widest mb-1">ORIGINAL</p>
-                      <p className="text-2xl font-black text-white">{formatSize(file?.size || 0)}</p>
-                   </div>
-                   <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center border border-white/10 shrink-0">
-                      <ArrowLeft size={20} className="text-gray-500 rotate-180" />
-                   </div>
-                   <div className="flex-1 bg-orange-500/10 border border-orange-500/30 rounded-2xl p-5 text-center relative overflow-hidden">
-                      <div className="absolute top-0 right-0 bg-orange-500 text-black text-[9px] font-black px-2 py-1 rounded-bl-lg">- {getSavedPercentage()}%</div>
-                      <p className="text-xs text-orange-400 font-bold tracking-widest mb-1">COMPRESSED</p>
-                      <p className="text-2xl font-black text-white">{formatSize(compressedSize || 0)}</p>
-                   </div>
+                <p className="text-sm text-gray-500 font-medium max-w-xs mx-auto">
+                  {!isLoaded ? "Downloading WASM compression core." : "Supports MP4, MOV, WEBM and more."}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <AnimatePresence>
+            {outputUrl && !isProcessing && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mt-8 bg-orange-500/10 border border-orange-500/20 rounded-2xl p-6">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center text-orange-400 shrink-0">
+                      <CheckCircle2 size={24} />
+                    </div>
+                    <div>
+                      <h4 className="font-black italic text-lg text-orange-100">COMPRESSION DONE</h4>
+                      <p className="text-xs text-orange-500/80 font-bold uppercase tracking-widest">Saved {(100 - (stats.compressed / stats.original) * 100).toFixed(0)}% space!</p>
+                    </div>
+                  </div>
+                  <a href={outputUrl} download={`compressed_${file?.name || 'video.mp4'}`} className="w-full sm:w-auto px-6 py-3 rounded-xl bg-orange-500 text-black font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-orange-400 transition-colors">
+                    <Download size={16} /> Download Video
+                  </a>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button 
-                    onClick={handleDownload}
-                    className="bg-white text-black px-10 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform flex items-center justify-center gap-2 shadow-xl shadow-white/10"
-                  >
-                    <Download size={20} /> Download Compressed MP4
-                  </button>
-                  <button 
-                    onClick={resetTool}
-                    className="bg-white/10 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/20 transition-all"
-                  >
-                    Compress Another
-                  </button>
+                <div className="grid grid-cols-2 gap-4 border-t border-orange-500/20 pt-6">
+                  <div className="text-center">
+                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">Original Size</p>
+                    <p className="text-xl font-black text-gray-300">{(stats.original / (1024 * 1024)).toFixed(2)} MB</p>
+                  </div>
+                  <div className="text-center border-l border-orange-500/20">
+                    <p className="text-[10px] text-orange-500/80 font-black uppercase tracking-widest mb-1">New Size</p>
+                    <p className="text-xl font-black text-orange-400">{(stats.compressed / (1024 * 1024)).toFixed(2)} MB</p>
+                  </div>
                 </div>
               </motion.div>
             )}

@@ -84,7 +84,8 @@ export default function ConverterComponent() {
         await ffmpeg.writeFile(inputName, await fetchFile(file));
         await ffmpeg.exec(['-i', inputName, outputName]);
         const data = await ffmpeg.readFile(outputName);
-        const blob = new Blob([(data as Uint8Array).buffer], { type: targetFormat === 'mp3' ? 'audio/mp3' : `${fileCategory}/${targetFormat}` });
+        const uint8Data = typeof data === 'string' ? new TextEncoder().encode(data) : new Uint8Array(data);
+        const blob = new Blob([uint8Data], { type: targetFormat === 'mp3' ? 'audio/mp3' : `${fileCategory}/${targetFormat}` });
         setConvertedUrl(URL.createObjectURL(blob));
         setIsConverting(false);
       }

@@ -195,7 +195,7 @@ export default function LandingPage() {
                     <div className={`w-12 h-12 md:w-16 md:h-16 ${tool.color} rounded-xl md:rounded-[1.3rem] p-[2px] mb-4 md:mb-8 shadow-lg group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
                       <div className="w-full h-full bg-[#111] rounded-[10px] md:rounded-[1.1rem] flex items-center justify-center text-white relative overflow-hidden">
                         <div className={`absolute inset-0 ${tool.color} opacity-20`} />
-                        {React.cloneElement(tool.icon as React.ReactElement, { className: "w-5 h-5 md:w-7 md:h-7 relative z-10" })}
+                         {React.cloneElement(tool.icon as React.ReactElement<{ className?: string }>, { className: "w-5 h-5 md:w-7 md:h-7 relative z-10" })}
                       </div>
                     </div>
 

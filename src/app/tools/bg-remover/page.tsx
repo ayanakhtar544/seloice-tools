@@ -33,12 +33,13 @@ export default function BackgroundRemover() {
     
     try {
       // PRO FIX: Dynamic Import (Ye error ko jad se khatam kar dega)
-      const imgly = await import('@imgly/background-removal');
-      const removeBg = imgly.default || imgly.removeBackground;
+      const imglyModule = await import('@imgly/background-removal');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const removeBg = (imglyModule as any).default ?? (imglyModule as any).removeBackground;
 
       // Magic happens here!
       const imageBlob = await removeBg(originalFile, {
-        progress: (key, current, total) => {
+        progress: (key: string, current: number, total: number) => {
           if (key.includes('fetch')) {
              setProgressText(`Downloading AI Magic... ${Math.round((current / total) * 100)}%`);
           } else {

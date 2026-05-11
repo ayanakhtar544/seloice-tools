@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { ArrowLeft, Hash, Copy, Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -46,7 +46,7 @@ export default function HashtagGenerator() {
   };
 
   // Framer Motion Variants for Staggered Animation
-  const container = {
+  const container: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -54,9 +54,9 @@ export default function HashtagGenerator() {
     }
   };
 
-  const item = {
+  const item: Variants = {
     hidden: { opacity: 0, scale: 0.8, y: 20 },
-    show: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 200 } }
+    show: { opacity: 1, scale: 1, y: 0, transition: { type: "spring" as const, stiffness: 200 } }
   };
 
   return (
