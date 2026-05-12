@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import SmartLinks from './SmartLinks';
-import { ArrowLeft, ChevronRight, Sparkles, Zap, Video, Type, Image as ImageIcon, Twitter, Link as LinkIcon, Share2, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Sparkles, Zap, Video, Type, Image as ImageIcon, Link as LinkIcon, Share2, ShieldCheck } from 'lucide-react';
 
 interface ToolLayoutProps {
   title: string;
@@ -99,8 +99,7 @@ export default function ToolLayout({ title, description, children, icon, color =
             </div>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 text-[#1DA1F2] rounded-xl text-xs font-bold transition-colors">
-              <Twitter size={14} /> Tweet
+            <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-[#1DA1F2]/10 hover:bg-[#1DA1F2]/20 text-[#1DA1F2] rounded-xl text-xs font-bold transition-colors">Tweet
             </button>
             <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-xl text-xs font-bold transition-colors">
               <LinkIcon size={14} /> Copy Link
