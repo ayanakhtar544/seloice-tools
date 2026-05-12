@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React from 'react';
 import Link from 'next/link';
 import { Sparkles, Zap, MessageCircle, Mail } from 'lucide-react';
@@ -12,9 +13,14 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 mb-16">
         
         <div className="md:col-span-5 text-center md:text-left">
-          <Link href="/" className="inline-flex items-center justify-center md:justify-start gap-2 font-black text-3xl tracking-tighter italic mb-6 hover:opacity-80 transition-opacity">
-            <Sparkles className="text-indigo-500" /> SELOICE
-          </Link>
+          <Link href="/" className="flex items-center gap-3 font-black text-xl md:text-2xl tracking-tighter italic text-white hover:opacity-80 transition-opacity">
+          <img 
+            src="/favicon.ico" 
+            alt="Seloice Logo" 
+            className="w-8 h-8 md:w-10 md:h-10 object-contain" 
+          />
+          <span className="hidden sm:block">SELOICE</span>
+        </Link>
           <p className="text-gray-500 max-w-sm mx-auto md:mx-0 mb-8 leading-relaxed font-medium">
             Building the ultimate operating system for modern creators. Faster edits, better growth, zero cost.
           </p>

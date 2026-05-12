@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -77,8 +78,13 @@ export default function Navbar() {
             ? 'w-full max-w-full h-20 mt-[-16px] md:mt-[-24px] rounded-none bg-black/90' 
             : 'w-[92%] max-w-6xl h-16 rounded-full bg-[#0a0a0a]/80'}`}
       >
-        <Link href="/" className="flex items-center gap-2 font-black text-xl md:text-2xl tracking-tighter italic text-white hover:opacity-80 transition-opacity">
-          <Sparkles className="text-indigo-500 fill-indigo-500/20" size={20} /> SELOICE
+       <Link href="/" className="flex items-center gap-3 font-black text-xl md:text-2xl tracking-tighter italic text-white hover:opacity-80 transition-opacity">
+          <img 
+            src="/favicon.ico" 
+            alt="Seloice Logo" 
+            className="w-8 h-8 md:w-10 md:h-10 object-contain" 
+          />
+          <span className="hidden sm:block">SELOICE</span>
         </Link>
         
         <div className="hidden lg:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-gray-400">
@@ -148,9 +154,6 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link href="/login" className="hidden md:block text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors">
-            Login
-          </Link>
           <Link href="/#tools" className="px-6 py-2.5 rounded-full bg-white text-black font-black text-xs md:text-sm shadow-[0_4px_0_0_#d1d5db] active:translate-y-1 active:shadow-none hover:bg-gray-100 transition-all">
             GET STARTED
           </Link>
