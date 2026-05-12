@@ -1,45 +1,46 @@
 // File: src/app/api/transcribe/route.ts
 import { NextResponse } from 'next/server';
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const formData = await req.formData();
-    const file = formData.get('file');
+    const formData = await request.formData();
+    const file = formData.get('file') as Blob | null;
 
     if (!file) {
-      return NextResponse.json({ error: "Koi file nahi mili bhai!" }, { status: 400 });
+      return NextResponse.json({ error: "No audio file provided" }, { status: 400 });
     }
 
-    // Yahan apni GROQ API Key daalni hai (Step 3 me bataunga kaise milegi)
-    const GROQ_API_KEY = process.env.GROQ_API_KEY;
-
-    if (!GROQ_API_KEY) {
-      return NextResponse.json({ error: "GROQ API Key nahi mila!" }, { status: 500 });
+    if (!process.env.GROQ_API_KEY) {
+      console.error("GROQ_API_KEY is missing in environment variables.");
+      return NextResponse.json({ error: "API key is missing in .env.local" }, { status: 500 });
     }
 
-    // Groq ko bhejne ke liye data prepare kar rahe hain
     const groqFormData = new FormData();
-    groqFormData.append('file', file);
-    groqFormData.append('model', 'whisper-large-v3'); // Duniya ka sabse best free transcription model
+    // 🔥 SENIOR DEV FIX: Next.js file name hata deta hai, hum manually 'audio.mp3' bhejenge
+    groqFormData.append('file', file, 'audio.mp3'); 
+    groqFormData.append('model', 'whisper-large-v3');
+    groqFormData.append('response_format', 'json');
 
     const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
       },
-      body: groqFormData
+      body: groqFormData,
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      throw new Error(data.error?.message || "Groq API se error aaya hai");
+      // Ye humein exact error batayega ki Groq ne reject kyun kiya
+      const errorText = await response.text();
+      console.error("Groq API Error DETAILS:", errorText);
+      return NextResponse.json({ error: errorText }, { status: response.status });
     }
 
-    // Transcription success! Text wapas bhej rahe hain
-    return NextResponse.json({ text: data.text });
-    
+    const data = await response.json();
+    return NextResponse.json({ text: data.text }, { status: 200 });
+
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Server Crash Error:", error);
+    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
   }
 }

@@ -2,168 +2,124 @@
 "use client";
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence, type Variants } from 'framer-motion';
-import { ArrowLeft, Hash, Copy, Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Hash, ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2, TrendingUp, Target, Gem } from 'lucide-react';
 import Link from 'next/link';
 
-// Simple offline hashtag logic (Zero Cost API!)
-const generateTags = (keyword: string) => {
-  const base = keyword.toLowerCase().replace(/[^a-z0-9]/g, '');
-  if (!base) return [];
-  
-  return [
-    `#${base}`, `#${base}life`, `#${base}tips`, `#viral${base}`, 
-    `#${base}hacks`, `#explore${base}`, `#${base}community`, 
-    `#${base}goals`, `#trending${base}`, `#${base}oftheday`,
-    `#${base}lover`, `#${base}world`, `#instadaily`, `#fyp`
-  ];
-};
+interface HashtagData {
+  viral: string[];
+  niche: string[];
+  lowComp: string[];
+}
 
 export default function HashtagGenerator() {
-  const [keyword, setKeyword] = useState('');
-  const [hashtags, setHashtags] = useState<string[]>([]);
+  const [topic, setTopic] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [copiedAll, setCopiedAll] = useState(false);
+  const [hashtags, setHashtags] = useState<HashtagData | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const handleGenerate = () => {
-    if (!keyword.trim()) return;
-    
+  const handleGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!topic.trim()) return;
+
     setIsGenerating(true);
-    setHashtags([]);
-    setCopiedAll(false);
+    setHashtags(null);
 
-    // Fake delay to give that "AI processing" premium feel
-    setTimeout(() => {
-      setHashtags(generateTags(keyword));
+    try {
+      const response = await fetch('/api/generate-hashtags', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error);
+      setHashtags(data);
+    } catch (err: any) {
+      alert("Error: " + err.message);
+    } finally {
       setIsGenerating(false);
-    }, 1200);
-  };
-
-  const copyAll = () => {
-    navigator.clipboard.writeText(hashtags.join(' '));
-    setCopiedAll(true);
-    setTimeout(() => setCopiedAll(false), 2000);
-  };
-
-  // Framer Motion Variants for Staggered Animation
-  const container: Variants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.05 }
     }
   };
 
-  const item: Variants = {
-    hidden: { opacity: 0, scale: 0.8, y: 20 },
-    show: { opacity: 1, scale: 1, y: 0, transition: { type: "spring" as const, stiffness: 200 } }
+  const copyTags = (tags: string[], id: string) => {
+    navigator.clipboard.writeText(tags.join(' '));
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white selection:bg-fuchsia-500/30 relative overflow-hidden flex flex-col items-center p-6">
-      
-      {/* Background Glowing Orbs (Modern UI Touch) */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-fuchsia-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-600/20 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen bg-[#050505] text-white font-sans pb-20">
+      <div className="fixed inset-0 z-0 flex justify-center pointer-events-none">
+        <div className="absolute top-[-10%] w-[40rem] h-[40rem] bg-emerald-600/10 rounded-full blur-[120px] opacity-40" />
+      </div>
 
-      <div className="w-full max-w-3xl pt-10 z-10">
-        
-        {/* Back Button */}
-        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-fuchsia-400 transition-colors mb-10 group w-fit">
-          <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-          <span className="font-medium">Back to Tools</span>
+      <div className="relative z-10 max-w-5xl mx-auto px-4 pt-8 md:pt-16">
+        <Link href="/" className="inline-flex items-center gap-2 text-emerald-500 hover:text-emerald-400 font-bold text-xs uppercase tracking-widest mb-10 bg-emerald-500/10 px-4 py-2 rounded-full border border-emerald-500/20">
+          <ArrowLeft size={16} /> Back to Toolkit
         </Link>
 
-        {/* Hero Section */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <div className="inline-flex items-center justify-center p-4 bg-gradient-to-br from-fuchsia-500/10 to-blue-500/10 border border-white/5 rounded-2xl mb-6 shadow-[0_0_30px_rgba(217,70,239,0.15)]">
-            <Hash size={36} className="text-fuchsia-400" />
+        <div className="text-center mb-12">
+          <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-600 p-[2px] rounded-2xl mx-auto mb-6 shadow-xl shadow-emerald-500/20 rotate-3">
+            <div className="w-full h-full bg-[#111] rounded-[14px] flex items-center justify-center">
+              <Hash size={28} className="text-white" />
+            </div>
           </div>
-          <h1 className="text-5xl font-extrabold mb-4 tracking-tight">
-            Smart <span className="bg-gradient-to-r from-fuchsia-400 to-blue-400 bg-clip-text text-transparent">Hashtag AI</span>
-          </h1>
-          <p className="text-gray-400 text-lg max-w-xl mx-auto">
-            Type your niche and instantly get a curated list of viral hashtags optimized for Instagram & TikTok algorithms.
-          </p>
-        </motion.div>
+          <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter mb-4 uppercase">HASHTAG <span className="text-emerald-400">GENERATOR</span></h1>
+          <p className="text-gray-400 font-medium max-w-lg mx-auto text-sm md:text-base">Generate 30+ viral, niche, and low-competition hashtags tailored for your content.</p>
+        </div>
 
-        {/* Glassmorphic Input Box */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ delay: 0.1 }}
-          className="relative group mb-10"
-        >
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-fuchsia-500 to-blue-500 rounded-2xl blur opacity-30 group-hover:opacity-60 transition duration-500"></div>
-          <div className="relative bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/10 p-2 rounded-2xl flex flex-col md:flex-row gap-3">
-            <div className="flex-1 flex items-center px-4 py-3">
-              <Sparkles size={20} className="text-fuchsia-400 mr-3" />
+        <div className="bg-[#111] border border-white/10 rounded-[2rem] p-6 md:p-10 shadow-2xl max-w-2xl mx-auto mb-12">
+          <form onSubmit={handleGenerate} className="space-y-6">
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-emerald-500 uppercase tracking-widest mb-4">
+                <Sparkles size={16} /> Topic or Keywords
+              </label>
               <input 
-                type="text" 
-                placeholder="E.g., Fitness, Coding, Travel..." 
-                className="bg-transparent border-none outline-none w-full text-white text-lg placeholder:text-gray-600"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+                type="text"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="e.g., street food photography, tech reviews..."
+                className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all outline-none"
               />
             </div>
             <button 
-              onClick={handleGenerate}
-              disabled={isGenerating || !keyword}
-              className="bg-white text-black hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed px-8 py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 whitespace-nowrap"
+              disabled={isGenerating || !topic.trim()}
+              className="w-full py-4 rounded-xl bg-emerald-500 text-black font-black uppercase tracking-widest text-sm shadow-[0_6px_0_0_#059669] active:translate-y-1 active:shadow-none transition-all hover:bg-emerald-400 flex items-center justify-center gap-2"
             >
-              {isGenerating ? <Loader2 size={20} className="animate-spin" /> : 'Generate Tags'}
+              {isGenerating ? <><Loader2 size={18} className="animate-spin" /> ANALYZING...</> : <><Hash size={18} /> GENERATE HASHTAGS</>}
             </button>
-          </div>
-        </motion.div>
+          </form>
+        </div>
 
-        {/* Results Area */}
         <AnimatePresence>
-          {hashtags.length > 0 && !isGenerating && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }} 
-              animate={{ opacity: 1, height: 'auto' }} 
-              exit={{ opacity: 0, height: 0 }}
-              className="bg-[#111]/50 backdrop-blur-md border border-white/5 rounded-3xl p-8 shadow-2xl"
-            >
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-xl font-semibold text-gray-200">Your Custom Tags</h3>
-                <button 
-                  onClick={copyAll}
-                  className="flex items-center gap-2 text-sm font-medium bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg transition-colors border border-white/5"
-                >
-                  {copiedAll ? <CheckCircle2 size={16} className="text-green-400" /> : <Copy size={16} />}
-                  {copiedAll ? 'Copied All!' : 'Copy All'}
-                </button>
-              </div>
-
-              {/* Staggered Chips */}
-              <motion.div 
-                variants={container}
-                initial="hidden"
-                animate="show"
-                className="flex flex-wrap gap-3"
-              >
-                {hashtags.map((tag, index) => (
-                  <motion.div
-                    key={index}
-                    variants={item}
-                    whileHover={{ scale: 1.05, backgroundColor: 'rgba(217, 70, 239, 0.15)', borderColor: 'rgba(217, 70, 239, 0.5)' }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-gray-300 cursor-pointer transition-colors shadow-sm select-all"
-                  >
-                    {tag}
-                  </motion.div>
-                ))}
-              </motion.div>
+          {hashtags && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { id: 'viral', name: 'Viral Reach', icon: <TrendingUp />, tags: hashtags.viral, color: 'text-blue-400' },
+                { id: 'niche', name: 'Niche Specific', icon: <Target />, tags: hashtags.niche, color: 'text-emerald-400' },
+                { id: 'lowComp', name: 'Hidden Gems', icon: <Gem />, tags: hashtags.lowComp, color: 'text-purple-400' }
+              ].map((cat) => (
+                <div key={cat.id} className="bg-black/40 border border-white/10 rounded-2xl p-6 flex flex-col h-full">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center ${cat.color}`}>{cat.icon}</div>
+                      <h3 className="font-black italic text-sm text-white uppercase">{cat.name}</h3>
+                    </div>
+                    <button onClick={() => copyTags(cat.tags, cat.id)} className="text-gray-500 hover:text-white transition-colors">
+                      {copiedId === cat.id ? <CheckCircle2 size={18} className="text-emerald-500" /> : <Copy size={18} />}
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-auto">
+                    {cat.tags.map((tag, i) => (
+                      <span key={i} className="text-[11px] font-bold text-gray-400 bg-white/5 px-2 py-1 rounded-md border border-white/5">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </motion.div>
           )}
         </AnimatePresence>
-
       </div>
     </div>
   );

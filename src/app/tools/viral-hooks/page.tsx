@@ -3,125 +3,212 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Copy, CheckCircle2, Zap } from 'lucide-react';
+import { Zap, ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2, AlertCircle, Eye, Flame, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 
-// Hamara khud ka offline database (Zero Cost!)
-const hooksDatabase = {
-  "Tech & Coding": [
-    "Stop using [Tool Name]! Use this hidden website instead...",
-    "3 secret VS Code shortcuts that will save you 100 hours.",
-    "I built a SaaS in 24 hours. Here is the exact blueprint.",
-    "This new AI tool is going to replace junior developers.",
-    "Why 99% of programmers fail their first coding interview."
-  ],
-  "Finance & Hustle": [
-    "How to make your first ₹10,000 online (Zero skills needed).",
-    "Stop saving your money in the bank. Do this instead in 2026.",
-    "The biggest lie you've been told about making money online.",
-    "3 side hustles that actually work right now.",
-    "I tried dropshipping for 30 days. Here is the harsh truth."
-  ],
-  "Vlogs & Lifestyle": [
-    "I made a huge mistake...",
-    "A day in the life of a 17-year-old entrepreneur.",
-    "Why I stopped doing [Habit] (And you should too).",
-    "The harsh reality of living in [City Name].",
-    "I completely changed my morning routine. Here's what happened."
-  ],
-  "Education & Study": [
-    "How I cracked [Exam Name] with just 3 months of prep.",
-    "Stop studying like this. The 80/20 rule explained.",
-    "3 websites every student MUST know about.",
-    "How to remember 10x more of what you read.",
-    "The secret study technique Harvard students use."
-  ]
-};
+// TypeScript interfaces
+interface HooksData {
+  curiosity: string[];
+  fomo: string[];
+  story: string[];
+}
 
-// Object.keys se hum saari categories nikal rahe hain (Tech, Finance, etc.)
-const categories = Object.keys(hooksDatabase);
+export default function ViralHooks() {
+  const [topic, setTopic] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [hooks, setHooks] = useState<HooksData | null>(null);
+  const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-export default function ViralHooksGenerator() {
-  const [activeCategory, setActiveCategory] = useState(categories[0]);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const handleGenerate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!topic.trim()) return;
 
-  // Copy karne ka function
-  const copyToClipboard = (text: string, index: number) => {
+    setIsGenerating(true);
+    setError(null);
+    setHooks(null);
+
+    try {
+      const response = await fetch('/api/generate-hooks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => null);
+        throw new Error(errData?.error || "Failed to generate hooks");
+      }
+
+      const data = await response.json();
+      setHooks(data);
+      
+      // Auto-scroll to results
+      setTimeout(() => {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }, 100);
+
+    } catch (err: any) {
+      console.error("Error:", err);
+      setError(err.message);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
-    setCopiedIndex(index);
-    // 2 second baad 'Copied!' ka tick wapas normal icon ban jayega
+    setCopiedIndex(id);
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white selection:bg-orange-500/30 p-6">
-      <div className="max-w-4xl mx-auto pt-10">
+    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-yellow-500/30 pb-20">
+      
+      {/* Background Glow */}
+      <div className="fixed inset-0 z-0 pointer-events-none flex justify-center">
+        <div className="absolute top-[-10%] w-[40rem] h-[40rem] bg-yellow-600/10 rounded-full blur-[120px] opacity-40" />
+      </div>
+
+      <div className="relative z-10 max-w-5xl mx-auto px-4 pt-8 md:pt-16">
         
-        {/* Back Button */}
-        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-8 group">
-          <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-          <span>Back to Tools</span>
+        <Link href="/" className="inline-flex items-center gap-2 text-yellow-500 hover:text-yellow-400 font-bold text-xs uppercase tracking-widest mb-10 transition-colors bg-yellow-500/10 px-4 py-2 rounded-full border border-yellow-500/20 w-fit">
+          <ArrowLeft size={16} /> Back to Toolkit
         </Link>
 
-        {/* Header Section */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center gap-4 mb-4">
-            <div className="p-3 bg-orange-500/10 text-orange-500 rounded-xl">
-              <Zap size={32} />
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-amber-600 p-[2px] rounded-2xl mx-auto mb-6 shadow-xl shadow-yellow-500/20 rotate-3">
+            <div className="w-full h-full bg-[#111] rounded-[14px] flex items-center justify-center">
+              <Zap size={28} className="text-white fill-yellow-500" />
             </div>
-            <h1 className="text-4xl font-bold">Viral Hooks Generator</h1>
           </div>
-          <p className="text-gray-400 text-lg mb-10">
-            Pehle 3 seconds sabse zaroori hote hain. Apne niche ke hisaab se proven viral hooks copy karo aur views badhao.
+          <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter mb-4">VIRAL <span className="text-yellow-500">HOOKS</span></h1>
+          <p className="text-gray-400 font-medium max-w-lg mx-auto text-sm md:text-base">
+            Stop the scroll. Generate highly engaging, psychology-backed video intros in seconds using AI.
           </p>
-        </motion.div>
+        </div>
 
-        {/* Category Filter Tabs */}
-        <div className="flex flex-wrap gap-3 mb-8">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
-              className={`px-6 py-2 rounded-full font-medium transition-all ${
-                activeCategory === category 
-                  ? 'bg-orange-500 text-white' 
-                  : 'bg-[#111] text-gray-400 border border-white/10 hover:border-orange-500/50'
-              }`}
+        {/* Input Card */}
+        <div className="bg-[#111] border border-white/10 rounded-[2rem] p-6 md:p-10 shadow-2xl relative overflow-hidden mb-12 max-w-2xl mx-auto">
+          <form onSubmit={handleGenerate} className="flex flex-col gap-6">
+            <div>
+              <label className="flex items-center gap-2 text-sm font-bold text-yellow-500 uppercase tracking-widest mb-4">
+                <Sparkles size={16} /> What is your video about?
+              </label>
+              <textarea 
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="e.g., 3 tips to lose belly fat without giving up pizza..."
+                className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition-all resize-none min-h-[120px]"
+                maxLength={200}
+              />
+              <div className="text-right mt-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                {topic.length}/200
+              </div>
+            </div>
+
+            {error && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl flex items-center gap-3 text-sm font-medium">
+                <AlertCircle size={18} /> {error}
+              </div>
+            )}
+
+            <button 
+              type="submit"
+              disabled={isGenerating || !topic.trim()}
+              className="w-full py-4 rounded-xl bg-yellow-500 text-black font-black uppercase tracking-widest text-sm shadow-[0_6px_0_0_#ca8a04] active:translate-y-1 active:shadow-none transition-all hover:bg-yellow-400 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {category}
+              {isGenerating ? (
+                <><Loader2 size={18} className="animate-spin" /> WRITING HOOKS...</>
+              ) : (
+                <><Zap size={18} className="fill-black" /> GENERATE 9 HOOKS</>
+              )}
             </button>
-          ))}
+          </form>
         </div>
 
-        {/* Hooks List (Dynamic based on Category) */}
-        <div className="space-y-4">
-          <AnimatePresence mode="wait">
-            {hooksDatabase[activeCategory as keyof typeof hooksDatabase].map((hook, index) => (
-              <motion.div
-                key={`${activeCategory}-${index}`}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 10 }}
-                transition={{ delay: index * 0.05 }}
-                className="bg-[#111] border border-white/10 p-5 rounded-2xl flex items-center justify-between gap-4 group hover:border-orange-500/30 transition-colors"
-              >
-                <p className="text-lg text-gray-200">{hook}</p>
-                
-                <button
-                  onClick={() => copyToClipboard(hook, index)}
-                  className="p-3 bg-[#1a1a1a] rounded-xl text-gray-400 hover:text-orange-500 hover:bg-orange-500/10 transition-all flex-shrink-0"
-                  title="Copy to clipboard"
-                >
-                  {copiedIndex === index ? (
-                    <CheckCircle2 size={20} className="text-green-500" />
-                  ) : (
-                    <Copy size={20} />
-                  )}
-                </button>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+        {/* Results Area */}
+        <AnimatePresence>
+          {hooks && !isGenerating && (
+            <motion.div 
+              initial={{ opacity: 0, y: 40 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            >
+              
+              {/* Category 1: Curiosity */}
+              <div className="bg-black/40 border border-white/10 rounded-2xl p-6 flex flex-col">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                    <Eye size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-black italic text-lg text-white">CURIOSITY</h3>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Makes them wonder</p>
+                  </div>
+                </div>
+                <div className="space-y-4 flex-1">
+                  {hooks.curiosity.map((hook, i) => (
+                    <div key={`curiosity-${i}`} className="bg-[#111] p-4 rounded-xl border border-white/5 hover:border-blue-500/30 transition-colors group relative">
+                      <p className="text-gray-300 text-sm font-medium pr-8">{hook}</p>
+                      <button onClick={() => copyToClipboard(hook, `curiosity-${i}`)} className="absolute top-4 right-4 text-gray-500 hover:text-blue-400 transition-colors">
+                        {copiedIndex === `curiosity-${i}` ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Copy size={16} />}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Category 2: FOMO */}
+              <div className="bg-black/40 border border-white/10 rounded-2xl p-6 flex flex-col">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center text-red-400">
+                    <Flame size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-black italic text-lg text-white">FOMO / FEAR</h3>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Urgency to watch</p>
+                  </div>
+                </div>
+                <div className="space-y-4 flex-1">
+                  {hooks.fomo.map((hook, i) => (
+                    <div key={`fomo-${i}`} className="bg-[#111] p-4 rounded-xl border border-white/5 hover:border-red-500/30 transition-colors group relative">
+                      <p className="text-gray-300 text-sm font-medium pr-8">{hook}</p>
+                      <button onClick={() => copyToClipboard(hook, `fomo-${i}`)} className="absolute top-4 right-4 text-gray-500 hover:text-red-400 transition-colors">
+                        {copiedIndex === `fomo-${i}` ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Copy size={16} />}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Category 3: Story */}
+              <div className="bg-black/40 border border-white/10 rounded-2xl p-6 flex flex-col">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+                    <BookOpen size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-black italic text-lg text-white">STORY / RELATABLE</h3>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Builds connection</p>
+                  </div>
+                </div>
+                <div className="space-y-4 flex-1">
+                  {hooks.story.map((hook, i) => (
+                    <div key={`story-${i}`} className="bg-[#111] p-4 rounded-xl border border-white/5 hover:border-emerald-500/30 transition-colors group relative">
+                      <p className="text-gray-300 text-sm font-medium pr-8">{hook}</p>
+                      <button onClick={() => copyToClipboard(hook, `story-${i}`)} className="absolute top-4 right-4 text-gray-500 hover:text-emerald-400 transition-colors">
+                        {copiedIndex === `story-${i}` ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Copy size={16} />}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
     </div>

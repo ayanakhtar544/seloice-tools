@@ -1,4 +1,4 @@
- // File: src/app/page.tsx
+// File: src/app/page.tsx
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -7,9 +7,11 @@ import {
   Download, Type, Music, Video, RefreshCcw, Scissors, Image as ImageIcon, 
   Hash, Sparkles, Zap, Maximize, Mic, QrCode, Shield, Grid, MessageSquare,
   Palette, Layout, ChevronRight, Star, Users, Mail, ArrowUpRight, Globe, Smartphone,
-  CheckCircle2, Plus, Minus, MessageCircle
+  CheckCircle2, Plus, Minus, MessageCircle, Subtitles
 } from 'lucide-react';
 import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 // ==========================================
 // 1. ADVANCED DATA STRUCTURES
@@ -23,9 +25,12 @@ const categories = [
       { name: 'YT Download', icon: <Download />, href: '/tools/yt-downloader', color: 'bg-red-500', desc: '4K/8K High speed download.', badge: 'HOT' },
       { name: 'Reel Saver', icon: <Download />, href: '/tools/reel-downloader', color: 'bg-pink-500', desc: 'No watermark IG reels.' },
       { name: 'Compressor', icon: <Video />, href: '/tools/video-compressor', color: 'bg-orange-500', desc: '80% size reduction, 0 quality loss.', badge: 'NEW' },
-      { name: 'AI Captions', icon: <Type />, href: '/tools/smart-captions', color: 'bg-indigo-500', desc: 'Auto subtitles for shorts.' },
+      // 🔥 Yahan humne naya AUTO CAPTIONS add kiya hai
+      { name: 'Auto Captions', icon: <Subtitles />, href: '/tools/auto-captions', color: 'bg-cyan-600', desc: 'Burn Pro captions directly into video.', badge: 'PRO' },
+      // 🔥 Aur purane wale ko MP4 TO TEXT bana diya
+      { name: 'MP4 to Text', icon: <Type />, href: '/tools/mp4-to-text', color: 'bg-indigo-500', desc: 'Extract AI transcriptions from video.' },
       { name: 'Reel Fitter', icon: <Maximize />, href: '/tools/reel-fitter', color: 'bg-sky-500', desc: '9:16 Auto portrait resize.' },
-      { name: 'Watermark', icon: <Shield />, href: '/tools/watermark-adder', color: 'bg-cyan-500', desc: 'Custom brand protection.' },
+      { name: 'Watermark', icon: <Shield />, href: '/tools/watermark-adder', color: 'bg-teal-500', desc: 'Custom brand protection.' },
     ]
   },
   {
@@ -63,7 +68,7 @@ const categories = [
 ];
 
 const faqs = [
-  { q: "Is Seloice Tools completely free?", a: "Yes! All 22+ tools are 100% free to use. No credit cards, no hidden fees, and absolutely no watermarks on your exports." },
+  { q: "Is Seloice Tools completely free?", a: "Yes! All tools are 100% free to use. No credit cards, no hidden fees, and absolutely no watermarks on your exports." },
   { q: "Do you store my videos or photos?", a: "Never. We use advanced browser-based WASM technology. This means your files are processed locally on your own device and are never uploaded to our servers." },
   { q: "Does it work on mobile phones?", a: "Absolutely. Our platform is mobile-first. You can download reels, compress videos, and generate captions directly from your iPhone or Android browser." },
   { q: "Is there any limit on file size?", a: "Because processing happens locally on your device, the file size limit depends on your device's RAM. Most modern phones and PCs handle up to 1GB effortlessly." }
@@ -112,22 +117,7 @@ export default function LandingPage() {
       </div>
 
       {/* --- DYNAMIC HEADER --- */}
-      <header className="fixed top-0 left-0 right-0 z-[100] flex justify-center items-center pointer-events-none pt-4 md:pt-6">
-        <nav className={`pointer-events-auto flex items-center justify-between px-6 transition-all duration-500 ease-out border border-white/10 shadow-2xl backdrop-blur-2xl
-            ${isScrolled ? 'w-full max-w-full h-20 mt-[-16px] md:mt-[-24px] rounded-none bg-black/90' : 'w-[92%] max-w-6xl h-16 rounded-full bg-white/[0.04]'}`}>
-          <div className="flex items-center gap-2 font-black text-xl md:text-2xl tracking-tighter italic">
-            <Sparkles className="text-indigo-500 fill-indigo-500/20" size={20} /> SELOICE
-          </div>
-          <div className="hidden lg:flex items-center gap-10 text-xs font-black uppercase tracking-widest text-gray-400">
-            <a href="#tools" className="hover:text-white transition-colors">All Tools</a>
-            <a href="#features" className="hover:text-white transition-colors">Features</a>
-            <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
-          </div>
-          <button className="px-6 py-2.5 rounded-full bg-white text-black font-black text-xs md:text-sm shadow-[0_4px_0_0_#d1d5db] active:translate-y-1 active:shadow-none hover:bg-gray-100 transition-all">
-            GET STARTED
-          </button>
-        </nav>
-      </header>
+      <Navbar />
 
       {/* --- LIVE ACTIVITY TICKER (SaaS Credibility) --- */}
       <div className="w-full bg-indigo-600/10 border-b border-indigo-500/20 overflow-hidden relative z-50 pt-[80px] md:pt-[90px] pb-2 px-4 flex justify-center">
@@ -176,7 +166,6 @@ export default function LandingPage() {
               <p className="text-xs font-bold uppercase tracking-widest text-gray-600 hidden md:block">{cat.tools.length} Tools Available</p>
             </div>
 
-            {/* 🔥 Responsive Grid: Mobile 2, Tablet 3, Laptop 4 */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
               {cat.tools.map((tool, i) => (
                 <Link href={tool.href} key={i}>
@@ -268,14 +257,24 @@ export default function LandingPage() {
             <div key={i} className="bg-[#111] border border-white/10 rounded-2xl overflow-hidden transition-all duration-300">
               <button 
                 onClick={() => setActiveFaq(activeFaq === i ? null : i)}
-                className="w-full px-6 py-6 text-left flex justify-between items-center focus:outline-none"
+                aria-expanded={activeFaq === i}
+                aria-controls={`faq-answer-${i}`}
+                className="w-full px-6 py-6 text-left flex justify-between items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-2xl"
               >
                 <span className="font-bold text-base md:text-lg text-gray-200">{faq.q}</span>
                 {activeFaq === i ? <Minus className="text-indigo-400 flex-shrink-0" /> : <Plus className="text-gray-500 flex-shrink-0" />}
               </button>
               <AnimatePresence>
                 {activeFaq === i && (
-                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                  <motion.div 
+                    id={`faq-answer-${i}`}
+                    initial={{ height: 0, opacity: 0 }} 
+                    animate={{ height: 'auto', opacity: 1 }} 
+                    exit={{ height: 0, opacity: 0 }} 
+                    className="overflow-hidden"
+                    role="region"
+                    aria-labelledby={`faq-question-${i}`}
+                  >
                     <p className="px-6 pb-6 text-sm md:text-base text-gray-400 leading-relaxed">{faq.a}</p>
                   </motion.div>
                 )}
@@ -285,62 +284,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* --- ULTRA FOOTER (No Twitter, Highly Professional) --- */}
-      <footer className="bg-[#050505] border-t border-white/10 pt-24 pb-12 mt-12 relative z-10">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8 mb-16">
-          
-          <div className="md:col-span-5 text-center md:text-left">
-            <div className="flex items-center justify-center md:justify-start gap-2 font-black text-3xl tracking-tighter italic mb-6">
-              <Sparkles className="text-indigo-500" /> SELOICE
-            </div>
-            <p className="text-gray-500 max-w-sm mx-auto md:mx-0 mb-8 leading-relaxed font-medium">
-              Building the ultimate operating system for modern creators. Faster edits, better growth, zero cost.
-            </p>
-            {/* Social Links without Twitter */}
-            <div className="flex justify-center md:justify-start gap-4">
-              <a href="#" className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-indigo-500 hover:text-white transition-all"><MessageCircle size={20}/></a>
-              <a href="#" className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-emerald-500 hover:text-white transition-all"><Mail size={20}/></a>
-            </div>
-          </div>
-          
-          <div className="md:col-span-2 text-center md:text-left">
-            <h4 className="font-black text-xs uppercase tracking-[0.2em] mb-6 text-white">Product</h4>
-            <ul className="space-y-4 text-gray-500 font-bold text-sm">
-              <li><Link href="#tools" className="hover:text-indigo-400 transition-colors">All 22 Tools</Link></li>
-              <li><Link href="/tools/video-compressor" className="hover:text-indigo-400 transition-colors">Video Compressor</Link></li>
-              <li><Link href="/tools/yt-downloader" className="hover:text-indigo-400 transition-colors">YT Downloader</Link></li>
-              <li><Link href="/tools/bg-remover" className="hover:text-indigo-400 transition-colors">Background Remover</Link></li>
-            </ul>
-          </div>
-
-          <div className="md:col-span-2 text-center md:text-left">
-            <h4 className="font-black text-xs uppercase tracking-[0.2em] mb-6 text-white">Company</h4>
-            <ul className="space-y-4 text-gray-500 font-bold text-sm">
-              <li><a href="#" className="hover:text-indigo-400 transition-colors">About Us</a></li>
-              <li><a href="#" className="hover:text-indigo-400 transition-colors">Blog</a></li>
-              <li><a href="#" className="hover:text-indigo-400 transition-colors">Discord Community</a></li>
-              <li><a href="#" className="hover:text-indigo-400 transition-colors">Brand Assets</a></li>
-            </ul>
-          </div>
-          
-          <div className="md:col-span-3 text-center md:text-left">
-             <h4 className="font-black text-xs uppercase tracking-[0.2em] mb-6 text-white">Legal & Support</h4>
-             <ul className="space-y-4 text-gray-500 font-bold text-sm">
-              <li><Link href="/privacy" className="hover:text-indigo-400 transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="hover:text-indigo-400 transition-colors">Terms of Service</Link></li>
-              <li><Link href="/contact" className="hover:text-indigo-400 transition-colors">Contact Us</Link></li>
-              <li><Link href="/contact" className="hover:text-indigo-400 transition-colors">Report a Bug</Link></li>
-            </ul>
-          </div>
-        </div>
-        
-        <div className="max-w-7xl mx-auto px-6 pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-center">
-          <p className="text-gray-600 text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">© 2026 SELOICE TOOLS. All rights reserved.</p>
-          <div className="flex items-center justify-center gap-2 text-gray-600 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] bg-white/5 px-4 py-2 rounded-full">
-            BUILT WITH <Zap size={14} className="text-indigo-500"/> FOR CREATORS
-          </div>
-        </div>
-      </footer>
+      {/* --- ULTRA FOOTER --- */}
+      <Footer />
     </div>
   );
 }

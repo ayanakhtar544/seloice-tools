@@ -8,7 +8,7 @@ const UniversalConverter = dynamic(
   { 
     ssr: false, // 🔥 YE HAI REAL JADU (No Server Side Rendering)
     loading: () => (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white">
+      <div className="w-full  bg-[#050505] flex items-center justify-center text-white">
         <Loader2 className="animate-spin text-indigo-500" size={40} />
       </div>
     )
