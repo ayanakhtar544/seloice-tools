@@ -155,7 +155,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-4">
           <Link href="/#tools" className="px-6 py-2.5 rounded-full bg-white text-black font-black text-xs md:text-sm shadow-[0_4px_0_0_#d1d5db] active:translate-y-1 active:shadow-none hover:bg-gray-100 transition-all">
-            GET STARTED
+            TOOLS
           </Link>
         </div>
       </nav>

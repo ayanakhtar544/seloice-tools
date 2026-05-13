@@ -7,14 +7,14 @@ import {
   Download, Type, Music, Video, RefreshCcw, Scissors, Image as ImageIcon, 
   Hash, Sparkles, Zap, Maximize, Mic, QrCode, Shield, Grid, MessageSquare,
   Palette, Layout, ChevronRight, Star, Users, Mail, ArrowUpRight, Globe, Smartphone,
-  CheckCircle2, Plus, Minus, MessageCircle, Subtitles
+  CheckCircle2, Plus, Minus, MessageCircle, Subtitles, AudioWaveform, Wand2
 } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 // ==========================================
-// 1. ADVANCED DATA STRUCTURES
+// 1. UPDATED DATA STRUCTURES
 // ==========================================
 
 const categories = [
@@ -25,9 +25,7 @@ const categories = [
       { name: 'YT Download', icon: <Download />, href: '/tools/yt-downloader', color: 'bg-red-500', desc: '4K/8K High speed download.', badge: 'HOT' },
       { name: 'Reel Saver', icon: <Download />, href: '/tools/reel-downloader', color: 'bg-pink-500', desc: 'No watermark IG reels.' },
       { name: 'Compressor', icon: <Video />, href: '/tools/video-compressor', color: 'bg-orange-500', desc: '80% size reduction, 0 quality loss.', badge: 'NEW' },
-      // 🔥 Yahan humne naya AUTO CAPTIONS add kiya hai
       { name: 'Auto Captions', icon: <Subtitles />, href: '/tools/auto-captions', color: 'bg-cyan-600', desc: 'Burn Pro captions directly into video.', badge: 'PRO' },
-      // 🔥 Aur purane wale ko MP4 TO TEXT bana diya
       { name: 'MP4 to Text', icon: <Type />, href: '/tools/mp4-to-text', color: 'bg-indigo-500', desc: 'Extract AI transcriptions from video.' },
       { name: 'Reel Fitter', icon: <Maximize />, href: '/tools/reel-fitter', color: 'bg-sky-500', desc: '9:16 Auto portrait resize.' },
       { name: 'Watermark', icon: <Shield />, href: '/tools/watermark-adder', color: 'bg-teal-500', desc: 'Custom brand protection.' },
@@ -41,7 +39,7 @@ const categories = [
       { name: 'Viral Hooks', icon: <Zap />, href: '/tools/viral-hooks', color: 'bg-yellow-500', desc: 'AI scroll-stopping intros.', badge: 'AI' },
       { name: 'Title Maker', icon: <Type />, href: '/tools/yt-title-generator', color: 'bg-red-400', desc: 'High CTR YouTube titles.' },
       { name: 'Tag Stealer', icon: <Hash />, href: '/tools/yt-tag-extractor', color: 'bg-orange-500', desc: 'Extract hidden YT tags.' },
-      { name: 'Threads Maker', icon: <MessageSquare />, href: '/tools/thread-generator', color: 'bg-blue-500', desc: 'Convert videos to viral threads.' },
+      { name: 'Threads Maker', icon: <MessageSquare />, href: '/tools/tweet-generator', color: 'bg-blue-500', desc: 'Convert videos to viral threads.' },
       { name: 'QR Builder', icon: <QrCode />, href: '/tools/qr-generator', color: 'bg-gray-400', desc: 'Custom branded QR codes.' },
     ]
   },
@@ -49,6 +47,8 @@ const categories = [
     name: 'Image & Design',
     icon: <ImageIcon size={20} />,
     tools: [
+      // 🔥 Naya Advanced Photo Editor add kar diya
+      { name: 'Photo Editor', icon: <Wand2 />, href: '/tools/photo-editor', color: 'bg-indigo-600', desc: 'Pro layers, filters & advanced crop.', badge: 'NEW' },
       { name: 'BG Remover', icon: <Scissors />, href: '/tools/bg-remover', color: 'bg-purple-500', desc: 'AI background cutout.' },
       { name: 'Image Conv.', icon: <ImageIcon />, href: '/tools/image-converter', color: 'bg-violet-600', desc: 'WebP, PNG, JPG locally.' },
       { name: 'Grid Maker', icon: <Grid />, href: '/tools/grid-maker', color: 'bg-pink-400', desc: 'IG profile grid slicer.' },
@@ -60,13 +60,14 @@ const categories = [
     name: 'Audio & Text',
     icon: <Music size={20} />,
     tools: [
+      // 🔥 Naya Advanced Audio Editor add kar diya
+      { name: 'Audio Editor', icon: <AudioWaveform />, href: '/tools/audio-editor', color: 'bg-emerald-600', desc: 'Precision trim, EQ & AI voice FX.', badge: 'PRO' },
       { name: 'MP4 to MP3', icon: <Music />, href: '/tools/mp4-to-mp3', color: 'bg-emerald-500', desc: 'Clear audio extraction.' },
       { name: 'Speech 2 Text', icon: <Mic />, href: '/tools/speech-to-text', color: 'bg-green-500', desc: 'Accurate transcriptions.', badge: 'PRO' },
       { name: 'File Conv.', icon: <RefreshCcw />, href: '/tools/file-converter', color: 'bg-blue-500', desc: 'WAV, MP3, OGG conversion.' },
     ]
   }
 ];
-
 const faqs = [
   { q: "Is Seloice Tools completely free?", a: "Yes! All tools are 100% free to use. No credit cards, no hidden fees, and absolutely no watermarks on your exports." },
   { q: "Do you store my videos or photos?", a: "Never. We use advanced browser-based WASM technology. This means your files are processed locally on your own device and are never uploaded to our servers." },
@@ -197,7 +198,7 @@ export default function LandingPage() {
                     </p>
 
                     <div className="flex items-center justify-between pt-3 md:pt-5 border-t border-white/5 mt-auto">
-                      <span className="text-[9px] md:text-[11px] font-black uppercase tracking-widest text-indigo-500/80 group-hover:text-indigo-400 transition-colors">Launch Tool</span>
+                      <span className="text-[9px] md:text-[11px] font-black uppercase tracking-widest text-indigo-500/80 group-hover:text-indigo-400 transition-colors">Open Tool</span>
                       <ArrowUpRight size={16} className="text-gray-600 group-hover:text-indigo-400 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
                     </div>
                   </div>
