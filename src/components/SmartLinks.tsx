@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Link as LinkIcon, Sparkles } from 'lucide-react';
-import blogPosts from '@/data/blog-posts.json';
+import { getPublishedBlogs } from '@/lib/blogService';
 
 interface SmartLinksProps {
   currentTool?: string; // The base tool slug, if on a tool page
@@ -32,34 +32,50 @@ const toolDirectory = [
 ];
 
 export default function SmartLinks({ currentTool, currentBlog }: SmartLinksProps) {
+  const [blogPosts, setBlogPosts] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function loadData() {
+      const data = await getPublishedBlogs();
+      setBlogPosts(data);
+      setLoading(false);
+    }
+    loadData();
+  }, []);
+
   // If we're on a tool, find related blogs
   let relatedBlogs: any[] = [];
   let relatedTools: any[] = [];
 
-  if (currentTool) {
-    relatedBlogs = blogPosts.filter(b => b.relatedTools.includes(currentTool));
-    // Find tools in the same category
-    const toolInfo = toolDirectory.find(t => t.slug === currentTool);
-    if (toolInfo) {
-      relatedTools = toolDirectory.filter(t => t.category === toolInfo.category && t.slug !== currentTool);
+  if (!loading) {
+    if (currentTool) {
+      relatedBlogs = blogPosts.filter(b => b.relatedTools?.includes(currentTool));
+      // Find tools in the same category
+      const toolInfo = toolDirectory.find(t => t.slug === currentTool);
+      if (toolInfo) {
+        relatedTools = toolDirectory.filter(t => t.category === toolInfo.category && t.slug !== currentTool);
+      }
+    }
+
+    // If we're on a blog, find tools it mentions
+    if (currentBlog) {
+      const blogInfo = blogPosts.find(b => b.slug === currentBlog);
+      if (blogInfo) {
+        relatedTools = toolDirectory.filter(t => blogInfo.relatedTools?.includes(t.slug));
+      }
+    }
+
+    // Fallbacks to ensure we always show internal links
+    if (relatedTools.length === 0) {
+      relatedTools = toolDirectory.slice(0, 3); // Pick first 3
+    }
+    if (relatedBlogs.length === 0 && blogPosts.length > 0) {
+      relatedBlogs = [blogPosts[0]]; // Pick latest blog
     }
   }
 
-  // If we're on a blog, find tools it mentions
-  if (currentBlog) {
-    const blogInfo = blogPosts.find(b => b.slug === currentBlog);
-    if (blogInfo) {
-      relatedTools = toolDirectory.filter(t => blogInfo.relatedTools.includes(t.slug));
-    }
-  }
-
-  // Fallbacks to ensure we always show internal links
-  if (relatedTools.length === 0) {
-    relatedTools = toolDirectory.slice(0, 3); // Pick first 3
-  }
-  if (relatedBlogs.length === 0 && blogPosts.length > 0) {
-    relatedBlogs = [blogPosts[0]]; // Pick latest blog
-  }
+  if (loading) return null; // Or a skeleton
 
   return (
     <div className="w-full bg-[#111] border border-white/10 rounded-2xl p-6 mt-12 mb-12">

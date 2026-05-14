@@ -76,8 +76,43 @@ export async function getBlogBySlug(slug: string) {
 export async function getAllBlogsAdmin() {
   try {
     const blogsRef = collection(db, 'blogs');
-    const q = query(blogsRef, where('status', '==', 'Published'));
-    const snapshot = await getDocs(q);
+    const snapshot = await getDocs(blogsRef);
     return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  } catch (error) { return []; }
+  } catch (error) { 
+    console.error("Fetch Error:", error);
+    return []; 
+  }
+}
+
+export async function getPublishedBlogs() {
+  try {
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents:runQuery`;
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        structuredQuery: {
+          from: [{ collectionId: 'blogs' }],
+          where: {
+            fieldFilter: { field: { fieldPath: 'status' }, op: 'EQUAL', value: { stringValue: 'Published' } }
+          },
+          orderBy: [{ field: { fieldPath: 'createdAt' }, direction: 'DESCENDING' }]
+        }
+      }),
+      cache: 'no-store'
+    });
+
+    const data = await response.json();
+    
+    if (!data || !Array.isArray(data)) return [];
+
+    return data
+      .filter(item => item.document)
+      .map(item => parseFirestoreDocument(item.document));
+  } catch (error) {
+    console.error("[ERROR] Published Blogs Fetch Failed:", error);
+    return [];
+  }
 }
