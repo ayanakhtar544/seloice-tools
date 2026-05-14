@@ -66,12 +66,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <head>
         {/* Google AdSense Verification */}
-  <Script
-    async
-    strategy="afterInteractive"
-    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7632798085856544"
-    crossOrigin="anonymous"
-  />
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7632798085856544"
+          crossOrigin="anonymous"
+        />
         {/* Global SEO Schema */}
         <script
           type="application/ld+json"
