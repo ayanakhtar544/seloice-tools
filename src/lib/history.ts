@@ -1,5 +1,4 @@
 // File: src/lib/history.ts
-"use client";
 
 export interface HistoryItem {
   id: string;

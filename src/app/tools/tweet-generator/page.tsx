@@ -17,6 +17,7 @@ export default function TweetGenerator() {
   const [isVerified, setIsVerified] = useState(true);
   const [theme, setTheme] = useState<'dark' | 'light' | 'dim'>('dim');
   const [isDownloading, setIsDownloading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -52,8 +53,7 @@ export default function TweetGenerator() {
       link.href = dataUrl;
       link.click();
     } catch (err) {
-      console.error('Error generating image', err);
-      alert("Bhai, image generate hone me dikkat aayi. Ek baar page refresh karke try kar.");
+      setError("Failed to generate image. Please refresh and try again.");
     } finally {
       setIsDownloading(false);
     }
@@ -83,6 +83,13 @@ export default function TweetGenerator() {
           </div>
           <h1 className="text-5xl font-extrabold mb-4 tracking-tight">Viral <span className="bg-gradient-to-r from-blue-400 to-sky-400 bg-clip-text text-transparent">Tweet Generator</span></h1>
         </motion.div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm font-medium text-center">
+            {error}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Controls Panel */}

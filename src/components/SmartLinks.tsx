@@ -92,7 +92,7 @@ export default function SmartLinks({ currentTool, currentBlog }: SmartLinksProps
             <ul className="space-y-3">
               {relatedBlogs.map(b => (
                 <li key={b.slug}>
-                  <Link href={`/blog/${b.slug}`} className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors group">
+                  <Link href={`/blogs/${b.slug}`} className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors group">
                     <LinkIcon size={14} className="text-gray-600 group-hover:text-pink-400" />
                     <span className="group-hover:underline line-clamp-1">{b.title}</span>
                   </Link>

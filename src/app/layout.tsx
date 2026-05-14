@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import AnalyticsWrapper from "@/components/AnalyticsWrapper";
 import CookieBanner from "@/components/CookieBanner";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
@@ -14,7 +16,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://seloice.com"), // Ye add kar de
+  metadataBase: new URL("https://seloice.com"), 
   title: "Seloice Tools | All-in-One AI Toolkit for Creators",
   description: "The ultimate free toolkit for YouTube and Instagram creators. Download reels, compress videos, extract tags, and convert files instantly with Seloice Tools.",
   keywords: ["Seloice Tools", "YouTube Downloader", "Reel Downloader", "Video Compressor", "AI Captions", "Creator Toolkit"],
@@ -23,7 +25,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Seloice Tools | Creator Operating System",
-    description: "24+ Professional tools to grow your social media instantly. Edit faster, rank higher, and build your audience.",
+    description: "26+ Professional tools to grow your social media instantly. Edit faster, rank higher, and build your audience.",
     url: "https://seloice.com",
     siteName: "Seloice Tools",
     images: [
@@ -40,7 +42,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Seloice Tools | The Ultimate Creator Toolkit",
-    description: "24+ Professional tools to grow your social media instantly.",
+    description: "26+ Professional tools to grow your social media instantly.",
     images: ["/api/og?title=Seloice%20Tools%20%7C%20Creator%20OS&badge=100%25%20Free%20Toolkit"],
     creator: "@seloice",
   },
@@ -63,6 +65,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <head>
+        {/* Google AdSense Verification */}
+  <Script
+    async
+    strategy="afterInteractive"
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7632798085856544"
+    crossOrigin="anonymous"
+  />
         {/* Global SEO Schema */}
         <script
           type="application/ld+json"
@@ -103,8 +112,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={`${inter.variable} font-sans bg-[#050505] text-white antialiased overflow-x-hidden`}>
+        {/* Analytics & AdSense load ONLY after cookie consent via AnalyticsWrapper */}
         <AnalyticsWrapper />
-        {children}
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
         <CookieBanner />
       </body>
     </html>

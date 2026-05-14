@@ -22,6 +22,7 @@ export default function EasyAudioStudio() {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [activeTab, setActiveTab] = useState<'tune' | 'eq' | 'trim' | 'export'>('tune');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
   
   // Playback States
   const [isPlaying, setIsPlaying] = useState(false);
@@ -235,7 +236,7 @@ export default function EasyAudioStudio() {
       const finalBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
       const regions = regionsPluginRef.current.getRegions().sort((a:any, b:any) => a.start - b.start);
-      if (regions.length === 0) { alert("Timeline khali hai! Kuch trim toh karo."); return; }
+      if (regions.length === 0) { setExportError("Your timeline is empty. Add or keep at least one audio block before exporting."); setIsProcessing(false); return; }
 
       let totalDur = 0;
       regions.forEach((r:any) => { totalDur += (r.end - r.start); });
@@ -297,7 +298,7 @@ export default function EasyAudioStudio() {
       link.download = `seloice_audio_${Date.now()}.${format === 'mp3' ? 'mp3' : 'wav'}`; 
       link.click();
 
-    } catch (err) { alert("Export me error aaya!"); console.error(err); } 
+    } catch (err) { setExportError("Export failed. Please try a different file or reload the page."); } 
     finally { setIsProcessing(false); }
   };
 
@@ -458,6 +459,9 @@ export default function EasyAudioStudio() {
                          <Download size={36} className="text-emerald-500 mx-auto mb-2" />
                          <h3 className="font-black text-sm uppercase text-emerald-400">Ready to Download</h3>
                          <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Select your format below.</p>
+                         {exportError && (
+                            <p className="mt-3 text-[10px] text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">{exportError}</p>
+                         )}
                       </div>
 
                       <button onClick={() => handleExport('wav')} disabled={isProcessing} className="w-full py-5 rounded-2xl bg-white text-black font-black uppercase tracking-widest text-sm shadow-[0_6px_0_0_#d1d5db] active:translate-y-1 active:shadow-none transition-all hover:bg-gray-200 flex items-center justify-center gap-2 disabled:opacity-50">

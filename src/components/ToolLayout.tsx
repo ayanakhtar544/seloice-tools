@@ -1,7 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
 import SmartLinks from './SmartLinks';
-import { ArrowLeft, ChevronRight, Sparkles, Zap, Video, Type, Image as ImageIcon, Link as LinkIcon, Share2, ShieldCheck } from 'lucide-react';
+import ResponsiveAd from './ResponsiveAd';
+import ErrorBoundary from './ErrorBoundary';
+import { ArrowLeft, ChevronRight, Sparkles, Zap, Video, Type, Image as ImageIcon, Link as LinkIcon, Share2, ShieldCheck, AlertCircle, RefreshCw } from 'lucide-react';
 
 interface ToolLayoutProps {
   title: string;
@@ -86,7 +88,31 @@ export default function ToolLayout({ title, description, children, icon, color =
           </div>
           <style>{`@keyframes slide { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }`}</style>
           
-          {children}
+          <ErrorBoundary fallback={
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="w-16 h-16 rounded-3xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-6">
+                <AlertCircle size={32} className="text-red-400" />
+              </div>
+              <h3 className="text-xl font-black text-white mb-2 uppercase">Tool Load Failed</h3>
+              <p className="text-sm text-gray-400 max-w-sm mb-8 leading-relaxed">
+                Something went wrong while loading this tool. Please try refreshing the page.
+              </p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="flex items-center gap-2 px-6 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all"
+              >
+                <RefreshCw size={14} /> Refresh Page
+              </button>
+            </div>
+          }>
+            {children}
+          </ErrorBoundary>
+        </div>
+
+        {/* Ad Unit: Below tool interface — natural content break, high viewability */}
+        {/* Only renders after user accepts cookies (consent-gated inside ResponsiveAd) */}
+        <div className="mb-10">
+          <ResponsiveAd variant="rectangle" />
         </div>
 
         {/* Use Cases Section */}

@@ -24,6 +24,7 @@ export default function BackgroundRemover() {
   const [originalUrl, setOriginalUrl] = useState<string | null>(null);
   const [processedUrl, setProcessedUrl] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const [isImageReady, setIsImageReady] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -39,6 +40,7 @@ export default function BackgroundRemover() {
     setOriginalFile(file);
     setOriginalUrl(URL.createObjectURL(file));
     setProcessedUrl(null);
+    setError(null);
     setBgColor('transparent');
     setIsImageReady(false);
     setRetryCount(0);
@@ -49,6 +51,7 @@ export default function BackgroundRemover() {
     
     setIsProcessing(true);
     setProcessedUrl(null);
+    setError(null);
     setIsImageReady(false);
     setRetryCount(0);
 
@@ -67,7 +70,7 @@ export default function BackgroundRemover() {
       setProcessedUrl(data.url);
       
     } catch (err: any) {
-      alert(err.message || "Something went wrong!");
+      setError(err.message || "Something went wrong during processing.");
       setIsProcessing(false);
     }
   };
@@ -111,6 +114,11 @@ export default function BackgroundRemover() {
             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> Back
           </Link>
           <div className="text-center">
+            {error && (
+              <div className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm font-medium text-center">
+                {error}
+              </div>
+            )}
             <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter uppercase leading-none">
               BG <span className="text-emerald-500">REMOVER</span> <span className="text-white/20 uppercase text-2xl md:text-3xl block md:inline not-italic tracking-widest font-light ml-2">v2.0</span>
             </h1>
@@ -255,7 +263,7 @@ export default function BackgroundRemover() {
                                  }, 3000); 
                                } else {
                                  setIsProcessing(false);
-                                 alert("Bhai, Cloudinary processing nahi kar paa raha! Dashboard me jake 'Cloudinary AI Background Removal' Add-on zaroor enable kar lena.");
+                                 setError("AI processing failed. Please ensure your Cloudinary account has the 'AI Background Removal' add-on enabled.");
                                }
                             }}
                           />

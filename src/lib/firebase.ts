@@ -13,30 +13,29 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID, // Analytics ID
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase (Singleton pattern taaki baar baar load na ho)
+// Singleton pattern — prevents re-initialization on hot reload
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-// Initialize Core Services
 const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// Safe Analytics Initialization (Only on Client Side)
+// Safe analytics — client-only, silent on failure (ad blockers, etc.)
 let analytics: Analytics | null = null;
 
 if (typeof window !== "undefined") {
-  // Check if browser supports Analytics (ad blockers can block it)
-  isSupported().then((supported) => {
-    if (supported) {
-      analytics = getAnalytics(app);
-      console.log("Firebase Analytics is active! 🚀");
-    }
-  }).catch((err) => {
-      console.error("Firebase Analytics failed to initialize", err);
-  });
+  isSupported()
+    .then((supported) => {
+      if (supported) {
+        analytics = getAnalytics(app);
+      }
+    })
+    .catch(() => {
+      // Silently ignore — analytics is non-critical
+    });
 }
 
 export { db, auth, storage, analytics };

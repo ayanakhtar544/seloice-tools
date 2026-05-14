@@ -10,6 +10,7 @@ import Link from 'next/link';
 export default function HistoryDrawer() {
   const [isOpen, setIsOpen] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
     // Initial load
@@ -24,9 +25,8 @@ export default function HistoryDrawer() {
   }, []);
 
   const handleClear = () => {
-    if (confirm("Are you sure you want to clear your local history?")) {
-      clearHistory();
-    }
+    clearHistory();
+    setShowConfirm(false);
   };
 
   const formatTime = (ts: number) => {
@@ -112,12 +112,32 @@ export default function HistoryDrawer() {
 
               {history.length > 0 && (
                 <div className="p-4 border-t border-white/5 bg-[#0a0a0a]">
-                  <button 
-                    onClick={handleClear}
-                    className="w-full py-3 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-                  >
-                    <Trash2 size={14} /> Clear History
-                  </button>
+                  {!showConfirm ? (
+                    <button 
+                      onClick={() => setShowConfirm(true)}
+                      className="w-full py-3 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                    >
+                      <Trash2 size={14} /> Clear History
+                    </button>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-[10px] text-gray-500 text-center uppercase font-bold tracking-widest">Are you sure?</p>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={handleClear}
+                          className="flex-1 py-3 rounded-xl bg-red-600 text-white font-bold text-xs uppercase tracking-widest transition-all"
+                        >
+                          Yes, Clear
+                        </button>
+                        <button 
+                          onClick={() => setShowConfirm(false)}
+                          className="flex-1 py-3 rounded-xl bg-white/5 text-gray-400 font-bold text-xs uppercase tracking-widest transition-all"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </motion.div>

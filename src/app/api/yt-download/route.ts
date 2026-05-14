@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Sahi YouTube link daal bhai!" }, { status: 400 });
     }
 
-    console.log(`🔥 Fetching Formats for: ${url} | Trimming: ${isTrimming}`);
+     // console.log(`🔥 Fetching Formats for: ${url} | Trimming: ${isTrimming}`);
 
     let title = "Seloice Pro Video";
     let thumbnail = "";
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
             // ✂️ Agar trimming ON hai toh parameters add karo
             if (isTrimming && startTime && endTime) {
                API_ENDPOINT += `&start=${startTime}&end=${endTime}`;
-               console.log(`✂️ Trim Order Sent: From ${startTime} to ${endTime}`);
+                // console.log(`✂️ Trim Order Sent: From ${startTime} to ${endTime}`);
             }
 
             const res = await fetch(API_ENDPOINT, {
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
             }
         }
     } catch (e) {
-        console.log("⚠️ API Error.");
+         // console.log("⚠️ API Error.");
     }
 
     if (allFormats.length === 0) {

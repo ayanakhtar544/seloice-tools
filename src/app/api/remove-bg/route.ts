@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Image kahan hai bhai?" }, { status: 400 });
     }
 
-    console.log("🚀 Ansari Bhaiya's Free-API-First Engine Started...");
+     // console.log("🚀 Ansari Bhaiya's Free-API-First Engine Started...");
 
     let processedUrl = "";
 
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     // 🔥 PRIORITY 1: AEMT API (Fastest Free Public)
     // ==============================================================
     try {
-      console.log("⚙️ Trying Priority 1 (AEMT)...");
+       // console.log("⚙️ Trying Priority 1 (AEMT)...");
       const apiData1 = new FormData();
       apiData1.append('image', imageFile);
 
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
         if (data1.url) processedUrl = data1.url;
       }
     } catch (e) {
-      console.log("⚠️ Priority 1 Failed.");
+       // console.log("⚠️ Priority 1 Failed.");
     }
 
     // ==============================================================
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     // ==============================================================
     if (!processedUrl) {
       try {
-        console.log("⚙️ Trying Priority 2 (SIPUTZX)...");
+         // console.log("⚙️ Trying Priority 2 (SIPUTZX)...");
         const apiData2 = new FormData();
         apiData2.append('image', imageFile); 
 
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
           if (data2.data && data2.data.url) processedUrl = data2.data.url;
         }
       } catch (e) {
-        console.log("⚠️ Priority 2 Failed.");
+         // console.log("⚠️ Priority 2 Failed.");
       }
     }
 
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     // ==============================================================
     if (!processedUrl) {
         try {
-          console.log("⚙️ Trying Priority 3 (VREDEN)...");
+           // console.log("⚙️ Trying Priority 3 (VREDEN)...");
           const apiData3 = new FormData();
           apiData3.append('image', imageFile); 
   
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
             processedUrl = `data:${type3};base64,${Buffer.from(buffer).toString('base64')}`;
           }
         } catch (e) {
-          console.log("⚠️ Priority 3 Failed.");
+           // console.log("⚠️ Priority 3 Failed.");
         }
       }
 
@@ -82,7 +82,7 @@ export async function POST(req: Request) {
     // 🛡️ LAST RESORT: CLOUDINARY (Agar saari Free APIs marr jayein)
     // ==============================================================
     if (!processedUrl) {
-      console.log("🛡️ Sab Free APIs fail ho gayi. Shifting to Cloudinary...");
+       // console.log("🛡️ Sab Free APIs fail ho gayi. Shifting to Cloudinary...");
       
       const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME;
       const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || process.env.CLOUDINARY_UPLOAD_PRESET;
@@ -106,7 +106,7 @@ export async function POST(req: Request) {
 
       // The Magic Bypass for unsigned upload
       processedUrl = data.secure_url.replace('/upload/', '/upload/e_background_removal/');
-      console.log("✅ Cloudinary Success!");
+       // console.log("✅ Cloudinary Success!");
     }
 
     return NextResponse.json({ success: true, url: processedUrl });

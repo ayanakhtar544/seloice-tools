@@ -12,7 +12,7 @@ export async function GET(req: Request) {
       return new NextResponse("URL is missing", { status: 400 });
     }
 
-    console.log("🔥 Forcing Download for:", title);
+     // console.log("🔥 Forcing Download for:", title);
 
     // Original link se file stream fetch karna
     const response = await fetch(videoUrl);

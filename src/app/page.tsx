@@ -12,6 +12,7 @@ import {
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import ResponsiveAd from '@/components/ResponsiveAd';
 
 // ==========================================
 // 1. UPDATED DATA STRUCTURES
@@ -160,10 +161,6 @@ export default function LandingPage() {
               readOnly
               className="w-full bg-transparent border-none outline-none text-white px-4 py-3 cursor-pointer placeholder:text-gray-600 font-medium"
             />
-            <div className="hidden md:flex items-center gap-1 bg-white/5 border border-white/10 rounded-md px-2 py-1">
-              <span className="text-[10px] text-gray-500 font-bold">⌘</span>
-              <span className="text-[10px] text-gray-500 font-bold">K</span>
-            </div>
           </div>
         </motion.div>
 
@@ -176,6 +173,12 @@ export default function LandingPage() {
           <Link href="/tools/bg-remover" className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-gray-300 hover:text-white hover:bg-white/10 transition-colors">BG Remover</Link>
         </motion.div>
       </section>
+
+      {/* --- AD UNIT: Between Hero and Tools Grid --- */}
+      {/* Leaderboard placement — natural break, high viewability, policy-safe */}
+      <div className="max-w-4xl mx-auto px-4 py-4">
+        <ResponsiveAd variant="leaderboard" />
+      </div>
 
       {/* --- MEGA TOOLS GRID --- */}
       <main id="tools" className="relative py-12 px-4 md:px-8 max-w-[1440px] mx-auto space-y-24 md:space-y-36 z-10">

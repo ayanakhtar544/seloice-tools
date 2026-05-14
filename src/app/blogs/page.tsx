@@ -9,7 +9,7 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Creator Growth Blog | Seloice Tools',
   description: 'Learn how to go viral, monetize your audience, and optimize your videos with our expert creator guides.',
-  alternates: { canonical: 'https://seloice.com/blog' }
+  alternates: { canonical: 'https://seloice.com/blogs' }
 };
 
 export default function BlogIndexPage() {
@@ -34,7 +34,7 @@ export default function BlogIndexPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {publishedPosts.map((post: any) => (
-            <Link key={post.slug} href={`/blog/${post.slug}`}>
+            <Link key={post.slug} href={`/blogs/${post.slug}`}>
               <article className="group bg-[#0a0a0a] border border-white/10 rounded-[2rem] p-8 h-full flex flex-col hover:bg-[#111] hover:border-indigo-500/30 transition-all cursor-pointer relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-[50px] opacity-0 group-hover:opacity-100 transition-opacity" />
                 
