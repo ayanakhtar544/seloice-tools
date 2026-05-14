@@ -1,66 +1,47 @@
+// File: src/components/Navbar.tsx
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Sparkles, Download, Video, Type, Scissors, 
-  Hash, Zap, Search, ChevronDown, Music, Image as ImageIcon,
-  Layout, Mic, Maximize, MessageSquare
+  Search, ChevronDown, X, ArrowRight, Image as ImageIcon, 
+  Mic2, Video, FileText, Zap, Layout, Hash, Download, Type
 } from 'lucide-react';
+import HistoryDrawer from './HistoryDrawer';
 
-const megaMenuCategories = [
-  {
-    title: 'Download Tools',
-    icon: <Download size={18} className="text-red-400" />,
-    items: [
-      { name: 'Instagram Reel Downloader', icon: <Download />, href: '/tools/reel-downloader', desc: 'No watermark IG reels' },
-      { name: 'YouTube Downloader', icon: <Download />, href: '/tools/yt-downloader', desc: '4K/8K High speed' },
-      { name: 'Shorts Downloader', icon: <Download />, href: '/tools/yt-downloader', desc: 'YT Shorts without watermark' },
-      { name: 'Thumbnail Downloader', icon: <ImageIcon />, href: '/tools/thumbnail-extractor', desc: 'Get HD YouTube covers' },
-    ]
-  },
-  {
-    title: 'Editing Tools',
-    icon: <Video size={18} className="text-orange-400" />,
-    items: [
-      { name: 'MP4 to MP3', icon: <Music />, href: '/tools/mp4-to-mp3', desc: 'Extract clean audio' },
-      { name: 'Video Compressor', icon: <Video />, href: '/tools/video-compressor', desc: 'Reduce size, keep quality' },
-      { name: 'Video Splitter', icon: <Scissors />, href: '/tools/video-compressor', desc: 'Cut and trim videos' },
-      { name: 'Merge Videos', icon: <Layout />, href: '/tools/video-compressor', desc: 'Combine multiple clips' },
-      { name: 'Reel Resizer', icon: <Maximize />, href: '/tools/reel-fitter', desc: 'Auto fit to 9:16' },
-      { name: 'Video to GIF', icon: <ImageIcon />, href: '/tools/file-converter', desc: 'Create memes instantly' },
-    ]
-  },
-  {
-    title: 'AI Tools',
-    icon: <Zap size={18} className="text-indigo-400" />,
-    items: [
-      { name: 'Subtitle Generator', icon: <Type />, href: '/tools/auto-captions', desc: 'Burn subtitles into video' },
-      { name: 'Speech to Text', icon: <Mic />, href: '/tools/speech-to-text', desc: 'Accurate transcription' },
-      { name: 'Caption Generator', icon: <MessageSquare />, href: '/tools/tweet-generator', desc: 'Viral social media copy' },
-      { name: 'Viral Hooks', icon: <Zap />, href: '/tools/viral-hooks', desc: 'Stop the scroll' },
-      { name: 'Hashtag Generator', icon: <Hash />, href: '/tools/hashtag-generator', desc: 'Get trending tags' },
-      { name: 'Title Generator', icon: <Type />, href: '/tools/yt-title-generator', desc: 'High CTR titles' },
-    ]
-  },
-  {
-    title: 'Utility Tools',
-    icon: <Scissors size={18} className="text-purple-400" />,
-    items: [
-      { name: 'Background Remover', icon: <Scissors />, href: '/tools/bg-remover', desc: 'AI background cutout' },
-      { name: 'Auto Crop', icon: <Maximize />, href: '/tools/safe-zone', desc: 'Crop for social media' },
-      { name: 'Audio Extractor', icon: <Music />, href: '/tools/mp4-to-mp3', desc: 'Rip audio from video' },
-      { name: 'SEO Tags Extractor', icon: <Hash />, href: '/tools/yt-tag-extractor', desc: 'Steal competitor tags' },
-    ]
-  }
+// ==========================================
+// 🚀 ALL 24 TOOLS DATA (For Search & Mega Menu)
+// ==========================================
+const allTools = [
+  { name: 'Instagram Reel Downloader', href: '/tools/reel-downloader', desc: 'No watermark IG reels' },
+  { name: 'YouTube Downloader', href: '/tools/yt-downloader', desc: '4K/8K High speed download' },
+  { name: 'Thumbnail Downloader', href: '/tools/thumbnail-extractor', desc: 'Get HD YouTube covers' },
+  { name: 'Photo Editor', href: '/tools/photo-editor', desc: 'Pro layers, filters & advance crop' },
+  { name: 'Audio Editor', href: '/tools/audio-editor', desc: 'Precision trim, EQ & AI voice FX' },
+  { name: 'MP4 to MP3', href: '/tools/mp4-to-mp3', desc: 'Extract clean audio' },
+  { name: 'Video Compressor', href: '/tools/video-compressor', desc: '80% size reduction' },
+  { name: 'Reel Resizer', href: '/tools/reel-fitter', desc: 'Auto fit to 9:16' },
+  { name: 'Subtitle Generator', href: '/tools/auto-captions', desc: 'Burn subtitles into video' },
+  { name: 'Speech to Text', href: '/tools/speech-to-text', desc: 'Accurate transcription' },
+  { name: 'Caption Generator', href: '/tools/tweet-generator', desc: 'Viral social media copy' },
+  { name: 'Viral Hooks', href: '/tools/viral-hooks', desc: 'Stop the scroll' },
+  { name: 'Hashtag Generator', href: '/tools/hashtag-generator', desc: 'Get trending tags' },
+  { name: 'Title Generator', href: '/tools/yt-title-generator', desc: 'High CTR titles' },
+  { name: 'Background Remover', href: '/tools/bg-remover', desc: 'AI background cutout' },
+  { name: 'Auto Crop', href: '/tools/safe-zone', desc: 'Crop for social media' },
+  { name: 'SEO Tags Extractor', href: '/tools/yt-tag-extractor', desc: 'Steal competitor tags' },
+  { name: 'QR Builder', href: '/tools/qr-generator', desc: 'Custom branded QR' },
+  { name: 'Image Converter', href: '/tools/image-converter', desc: 'WebP, PNG, JPG locally' },
 ];
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 40);
@@ -68,97 +49,208 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  return (
-    <header className="fixed top-0 left-0 right-0 z-[100] flex justify-center items-center pt-4 md:pt-6 font-sans">
-      <nav 
-        aria-label="Main Navigation"
-        onMouseLeave={() => setIsToolsOpen(false)}
-        className={`flex items-center justify-between px-6 transition-all duration-500 ease-out border border-white/10 shadow-2xl backdrop-blur-2xl
-          ${isScrolled 
-            ? 'w-full max-w-full h-20 mt-[-16px] md:mt-[-24px] rounded-none bg-black/90' 
-            : 'w-[92%] max-w-6xl h-16 rounded-full bg-[#0a0a0a]/80'}`}
-      >
-       <Link href="/" className="flex items-center gap-3 font-black text-xl md:text-2xl tracking-tighter italic text-white hover:opacity-80 transition-opacity">
-          <img 
-            src="/favicon.ico" 
-            alt="Seloice Logo" 
-            className="w-8 h-8 md:w-10 md:h-10 object-contain" 
-          />
-          <span className="hidden sm:block">SELOICE</span>
-        </Link>
-        
-        <div className="hidden lg:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-gray-400">
-          <Link href="/" className="hover:text-white transition-colors">Home</Link>
-          <Link href="/#features" className="hover:text-white transition-colors">Features</Link>
-          <Link href="/#pricing" className="hover:text-white transition-colors">Pricing</Link>
-          
-          <div 
-            className="relative h-16 flex items-center cursor-pointer group"
-            onMouseEnter={() => setIsToolsOpen(true)}
-          >
-            <span className={`flex items-center gap-1 transition-colors ${isToolsOpen ? 'text-white' : 'hover:text-white'}`}>
-              Tools <ChevronDown size={14} className={`transition-transform duration-300 ${isToolsOpen ? 'rotate-180' : ''}`} />
-            </span>
-            
-            {/* Mega Menu Dropdown */}
-            <AnimatePresence>
-              {isToolsOpen && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="absolute top-[4.5rem] left-1/2 -translate-x-1/2 w-[800px] bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] cursor-default"
-                >
-                  <div className="mb-6 relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-                    <input 
-                      type="text" 
-                      aria-label="Search tools"
-                      placeholder="Search for a tool..." 
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-[#111] border border-white/5 rounded-xl py-3 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition-colors"
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-4 gap-6">
-                    {megaMenuCategories.map((cat, idx) => (
-                      <div key={idx} className="flex flex-col">
-                        <div className="flex items-center gap-2 mb-4">
-                          {cat.icon}
-                          <h4 className="text-white font-black italic tracking-tight">{cat.title}</h4>
-                        </div>
-                        <ul className="space-y-3">
-                          {cat.items.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())).map((item, i) => (
-                            <li key={i}>
-                              <Link href={item.href} className="group/item flex items-start gap-3 p-2 -mx-2 rounded-lg hover:bg-white/5 transition-colors">
-                                <div className="mt-0.5 text-gray-500 group-hover/item:text-indigo-400 transition-colors">
-                                  {React.cloneElement(item.icon as React.ReactElement<{ className?: string, size?: number }>, { size: 14 })}
-                                </div>
-                                <div>
-                                  <div className="text-gray-300 group-hover/item:text-white text-xs font-bold capitalize tracking-normal transition-colors">{item.name}</div>
-                                  <div className="text-[10px] text-gray-600 font-medium normal-case tracking-normal mt-0.5 line-clamp-1">{item.desc}</div>
-                                </div>
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
+  useEffect(() => {
+    if (isSearchOpen) setTimeout(() => searchInputRef.current?.focus(), 100);
+  }, [isSearchOpen]);
 
-        <div className="flex items-center gap-4">
-          <Link href="/#tools" className="px-6 py-2.5 rounded-full bg-white text-black font-black text-xs md:text-sm shadow-[0_4px_0_0_#d1d5db] active:translate-y-1 active:shadow-none hover:bg-gray-100 transition-all">
-            TOOLS
+  useEffect(() => {
+    const handleOpenSearch = () => setIsSearchOpen(true);
+    window.addEventListener('open_search', handleOpenSearch);
+    return () => window.removeEventListener('open_search', handleOpenSearch);
+  }, []);
+
+  const filteredTools = allTools.filter(tool => 
+    tool.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <>
+      <header className="fixed top-0 left-0 right-0 z-[100] flex justify-center items-center pt-3 md:pt-6 font-sans">
+        <nav 
+          onMouseLeave={() => setIsToolsOpen(false)}
+          className={`relative flex items-center justify-between px-4 sm:px-6 transition-all duration-500 ease-out border border-white/10 shadow-2xl backdrop-blur-xl
+            ${isScrolled 
+              ? 'w-full max-w-full h-16 sm:h-20 mt-[-12px] md:mt-[-24px] rounded-none bg-black/90' 
+              : 'w-[95%] max-w-6xl h-14 sm:h-16 rounded-full bg-[#0a0a0a]/80'}`}
+        >
+          {/* 🚀 BOLD LOGO (Mobile Optimized) */}
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 font-black text-lg sm:text-2xl tracking-tighter italic text-white hover:opacity-80 transition-opacity">
+            <img src="/favicon.ico" alt="Seloice Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
+            <span>SELOICE</span>
           </Link>
-        </div>
-      </nav>
-    </header>
+          
+          <div className="hidden lg:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-gray-400 h-full">
+            <Link href="/" className="hover:text-white transition-colors h-full flex items-center">Home</Link>
+            <Link href="/#features" className="hover:text-white transition-colors h-full flex items-center">Features</Link>
+            
+            {/* 🛠️ TOOLS MEGA MENU TRIGGER */}
+            <div 
+              className="relative h-full flex items-center cursor-pointer group"
+              onMouseEnter={() => setIsToolsOpen(true)}
+            >
+              {/* Click triggers navigation, hover triggers dropdown */}
+              <Link href="/tools" className={`flex items-center gap-1 transition-colors h-full ${isToolsOpen ? 'text-white' : 'hover:text-white'}`}>
+                Tools <ChevronDown size={14} className={`transition-transform duration-300 ${isToolsOpen ? 'rotate-180' : ''}`} />
+              </Link>
+
+              {/* THE MEGA DROPDOWN */}
+              <AnimatePresence>
+                {isToolsOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.98 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-[110%] left-1/2 -translate-x-1/2 w-[700px] bg-[#0a0a0a] border border-white/10 rounded-3xl p-6 shadow-[0_20px_60px_rgba(0,0,0,0.8)] cursor-default grid grid-cols-2 gap-8 before:content-[''] before:absolute before:-top-4 before:left-0 before:w-full before:h-4"
+                  >
+                     {/* Col 1 */}
+                     <div className="space-y-6">
+                        <div>
+                           <h4 className="text-[10px] text-gray-500 mb-3 flex items-center gap-2"><ImageIcon size={14}/> Studio Design</h4>
+                           <div className="flex flex-col gap-2">
+                             <MenuLink href="/tools/photo-editor" name="Photo Studio Pro" />
+                             <MenuLink href="/tools/bg-remover" name="AI BG Remover" />
+                             <MenuLink href="/tools/image-converter" name="Image Converter" />
+                           </div>
+                        </div>
+                        <div>
+                           <h4 className="text-[10px] text-gray-500 mb-3 flex items-center gap-2"><Mic2 size={14}/> Audio & Voice</h4>
+                           <div className="flex flex-col gap-2">
+                             <MenuLink href="/tools/audio-editor" name="Audio Studio Pro" />
+                             <MenuLink href="/tools/mp4-to-mp3" name="MP4 to MP3" />
+                             <MenuLink href="/tools/speech-to-text" name="Speech to Text AI" />
+                           </div>
+                        </div>
+                     </div>
+
+                     {/* Col 2 */}
+                     <div className="space-y-6">
+                        <div>
+                           <h4 className="text-[10px] text-gray-500 mb-3 flex items-center gap-2"><Download size={14}/> Video & Social</h4>
+                           <div className="flex flex-col gap-2">
+                             <MenuLink href="/tools/yt-downloader" name="YT / Shorts Downloader" />
+                             <MenuLink href="/tools/reel-downloader" name="Reel Downloader" />
+                             <MenuLink href="/tools/video-compressor" name="Video Compressor" />
+                             <MenuLink href="/tools/auto-captions" name="Auto Captions AI" />
+                           </div>
+                        </div>
+                        <div className="pt-4 border-t border-white/5">
+                           <Link href="/tools" className="group flex items-center justify-between p-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 transition-all">
+                              <div>
+                                 <h4 className="text-emerald-400 text-xs">Explore All 24+ Tools</h4>
+                                 <p className="text-[9px] text-emerald-500/70 font-normal normal-case">The complete creator suite.</p>
+                              </div>
+                              <ArrowRight size={16} className="text-emerald-400 group-hover:translate-x-1 transition-transform" />
+                           </Link>
+                        </div>
+                     </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* 🔍 Search Button */}
+            <button 
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all"
+            >
+              <Search size={16} className="sm:w-[18px] sm:h-[18px]" />
+            </button>
+
+            {/* History Drawer */}
+            <HistoryDrawer />
+
+            {/* Direct Link to Tools Page */}
+            <Link href="/tools" className="px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-white text-black font-black text-[10px] sm:text-xs shadow-[0_4px_0_0_#d1d5db] active:translate-y-1 active:shadow-none hover:bg-gray-100 transition-all uppercase tracking-widest whitespace-nowrap">
+              All Tools
+            </Link>
+          </div>
+        </nav>
+      </header>
+
+      {/* --- SEARCH OVERLAY MODAL --- */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl flex flex-col items-center pt-16 sm:pt-20 px-4 sm:px-6"
+          >
+            <button 
+              onClick={() => { setIsSearchOpen(false); setSearchQuery(""); }}
+              className="absolute top-4 right-4 sm:top-8 sm:right-8 p-3 sm:p-4 text-gray-400 hover:text-white hover:bg-white/10 rounded-full transition-all"
+            >
+              <X size={24} className="sm:w-8 sm:h-8" />
+            </button>
+
+            <div className="w-full max-w-3xl">
+              <motion.div 
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="relative mb-8 sm:mb-12"
+              >
+                <Search className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 text-emerald-500" size={24} />
+                <input 
+                  ref={searchInputRef}
+                  type="text" 
+                  placeholder="Search 24+ tools..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-white/5 border-b-2 border-emerald-500/30 py-6 sm:py-8 pl-14 sm:pl-20 pr-6 sm:pr-8 text-xl sm:text-4xl font-bold text-white placeholder:text-gray-600 outline-none focus:border-emerald-500 transition-all"
+                />
+              </motion.div>
+
+              {/* SEARCH RESULTS GRID */}
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 max-h-[65vh] overflow-y-auto pr-2 sm:pr-4 no-scrollbar pb-10"
+              >
+                {filteredTools.length > 0 ? (
+                  filteredTools.map((tool, i) => (
+                    <Link 
+                      key={i} 
+                      href={tool.href}
+                      onClick={() => { setIsSearchOpen(false); setSearchQuery(""); }}
+                      className="group flex items-center justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white/5 border border-white/5 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all"
+                    >
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform shrink-0">
+                          <Zap size={18} className="sm:w-5 sm:h-5" />
+                        </div>
+                        <div>
+                          <h4 className="text-white font-black uppercase italic tracking-tight text-xs sm:text-sm group-hover:text-emerald-400 transition-colors line-clamp-1">{tool.name}</h4>
+                          <p className="text-[9px] sm:text-[10px] text-gray-500 font-medium normal-case line-clamp-1">{tool.desc}</p>
+                        </div>
+                      </div>
+                      <ArrowRight size={16} className="text-gray-700 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0" />
+                    </Link>
+                  ))
+                ) : (
+                  <div className="col-span-1 sm:col-span-2 py-10 sm:py-20 text-center">
+                    <p className="text-gray-600 font-black uppercase tracking-widest italic text-xs sm:text-sm">No tools found for "{searchQuery}"</p>
+                  </div>
+                )}
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+// Sub Component for Mega Menu Links
+function MenuLink({ href, name }: { href: string, name: string }) {
+  return (
+    <Link href={href} className="group flex items-center justify-between py-2 px-3 rounded-lg hover:bg-white/5 transition-colors">
+       <span className="text-gray-300 group-hover:text-white font-bold text-xs">{name}</span>
+       <ArrowRight size={12} className="text-gray-600 group-hover:text-emerald-400 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
+    </Link>
   );
 }

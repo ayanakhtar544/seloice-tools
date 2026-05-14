@@ -7,7 +7,7 @@ import {
   Download, Type, Music, Video, RefreshCcw, Scissors, Image as ImageIcon, 
   Hash, Sparkles, Zap, Maximize, Mic, QrCode, Shield, Grid, MessageSquare,
   Palette, Layout, ChevronRight, Star, Users, Mail, ArrowUpRight, Globe, Smartphone,
-  CheckCircle2, Plus, Minus, MessageCircle, Subtitles, AudioWaveform, Wand2
+  CheckCircle2, Plus, Minus, MessageCircle, Subtitles, AudioWaveform, Wand2, Search
 } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
@@ -144,14 +144,36 @@ export default function LandingPage() {
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-500 to-pink-500 drop-shadow-2xl">FULL POTENTIAL.</span>
         </motion.h1>
         
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="text-gray-400 text-base md:text-xl max-w-3xl mb-14 font-medium px-4 leading-relaxed">
-          Access 22+ professional-grade media tools directly in your browser. <strong className="text-gray-200">Zero installations. Zero watermarks. 100% Free.</strong> Edit faster than ever before.
+        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="text-gray-400 text-base md:text-xl max-w-3xl mb-12 font-medium px-4 leading-relaxed">
+          Access 24+ professional-grade media tools directly in your browser. <strong className="text-gray-200">Zero installations. Zero watermarks. 100% Free.</strong>
         </motion.p>
         
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="flex flex-col sm:flex-row gap-5 w-full sm:w-auto px-4">
-          <a href="#tools" className="px-12 py-5 rounded-2xl bg-indigo-600 text-white font-black text-lg md:text-xl shadow-[0_8px_0_0_#3730a3] hover:bg-indigo-500 active:translate-y-2 active:shadow-none transition-all flex items-center justify-center gap-3">
-             EXPLORE 22 TOOLS <ChevronRight />
-          </a>
+        {/* FAST TOOL SEARCH (INLINE) */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="w-full max-w-2xl mx-auto mb-8 relative group">
+          <div className="absolute inset-0 bg-indigo-500/20 blur-xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity" />
+          <div className="relative bg-[#111] border border-white/10 group-focus-within:border-indigo-500/50 rounded-full flex items-center p-2 pr-4 shadow-2xl transition-all">
+            <div className="pl-4 text-gray-500"><Search size={20} /></div>
+            <input 
+              type="text" 
+              placeholder="What do you want to build today? (e.g. download reel)" 
+              onClick={() => window.dispatchEvent(new Event('open_search'))}
+              readOnly
+              className="w-full bg-transparent border-none outline-none text-white px-4 py-3 cursor-pointer placeholder:text-gray-600 font-medium"
+            />
+            <div className="hidden md:flex items-center gap-1 bg-white/5 border border-white/10 rounded-md px-2 py-1">
+              <span className="text-[10px] text-gray-500 font-bold">⌘</span>
+              <span className="text-[10px] text-gray-500 font-bold">K</span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* TRENDING PILLS */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }} className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 px-4">
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-widest mr-2 flex items-center gap-1"><Zap size={14} className="text-yellow-500" /> Trending:</span>
+          <Link href="/tools/yt-title-generator" className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-gray-300 hover:text-white hover:bg-white/10 transition-colors">YT Titles</Link>
+          <Link href="/tools/auto-captions" className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-gray-300 hover:text-white hover:bg-white/10 transition-colors">Auto Captions</Link>
+          <Link href="/tools/reel-downloader" className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-gray-300 hover:text-white hover:bg-white/10 transition-colors">Reel Downloader</Link>
+          <Link href="/tools/bg-remover" className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-gray-300 hover:text-white hover:bg-white/10 transition-colors">BG Remover</Link>
         </motion.div>
       </section>
 

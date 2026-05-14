@@ -28,14 +28,14 @@ for (const dir of toolDirs) {
         const title = encodeURIComponent(titleMatch[1]);
         content = content.replace(/openGraph: \{([^}]+)\}/, (match, p1) => {
             if (!p1.includes('images:')) {
-                return `openGraph: {${p1}    images: [{ url: \`https://seloicetools.com/api/og?title=${title}\`, width: 1200, height: 630 }],\n  }`;
+                return `openGraph: {${p1}    images: [{ url: \`https://seloice.com/api/og?title=${title}\`, width: 1200, height: 630 }],\n  }`;
             }
             return match;
         });
 
         content = content.replace(/twitter: \{([^}]+)\}/, (match, p1) => {
             if (!p1.includes('images:')) {
-                return `twitter: {${p1}    images: [\`https://seloicetools.com/api/og?title=${title}\`],\n  }`;
+                return `twitter: {${p1}    images: [\`https://seloice.com/api/og?title=${title}\`],\n  }`;
             }
             return match;
         });

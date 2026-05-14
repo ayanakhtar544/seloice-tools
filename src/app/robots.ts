@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/api/'],
     },
-    sitemap: 'https://seloicetools.com/sitemap.xml',
+    sitemap: 'https://seloice.com/sitemap.xml',
   };
 }

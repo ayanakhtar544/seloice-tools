@@ -26,7 +26,7 @@ export default function Contact() {
               <Mail className="text-indigo-500 mt-1" />
               <div>
                 <h3 className="text-white font-black uppercase tracking-widest text-sm mb-1">Email Us</h3>
-                <p className="text-gray-400">hello@seloicetools.com</p>
+                <p className="text-gray-400">hello@seloice.com</p>
                 <p className="text-xs text-gray-500 mt-2">We usually reply within 24 hours.</p>
               </div>
             </div>
@@ -34,7 +34,7 @@ export default function Contact() {
             <div className="bg-[#111] border border-white/10 p-8 rounded-3xl flex items-start gap-4">
               <div>
                 <h3 className="text-white font-black uppercase tracking-widest text-sm mb-1">Twitter / X</h3>
-                <p className="text-gray-400">@SeloiceTools</p>
+                <p className="text-gray-400">@seloice</p>
                 <p className="text-xs text-gray-500 mt-2">DMs are open for feature requests.</p>
               </div>
             </div>

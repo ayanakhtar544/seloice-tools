@@ -5,20 +5,20 @@ export const metadata: Metadata = {
   title: 'Tweet Generator | Seloice Tools',
   description: 'Free online Tweet Generator tool for creators. Optimize and enhance your social media content instantly with Seloice Tools without watermarks.',
   alternates: {
-    canonical: 'https://seloicetools.com/tools/tweet-generator',
+    canonical: 'https://seloice.com/tools/tweet-generator',
   },
   openGraph: {
     title: 'Tweet Generator | Seloice Tools',
     description: 'Free online Tweet Generator tool for creators. Optimize and enhance your social media content instantly with Seloice Tools without watermarks.',
-    url: 'https://seloicetools.com/tools/tweet-generator',
+    url: 'https://seloice.com/tools/tweet-generator',
     type: 'website',
-      images: [{ url: `https://seloicetools.com/api/og?title=Tweet%20Generator%20%7C%20Seloice%20Tools`, width: 1200, height: 630 }],
+      images: [{ url: `https://seloice.com/api/og?title=Tweet%20Generator%20%7C%20Seloice%20Tools`, width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Tweet Generator | Seloice Tools',
     description: 'Free online Tweet Generator tool for creators. Optimize and enhance your social media content instantly with Seloice Tools without watermarks.',
-      images: [`https://seloicetools.com/api/og?title=Tweet%20Generator%20%7C%20Seloice%20Tools`],
+      images: [`https://seloice.com/api/og?title=Tweet%20Generator%20%7C%20Seloice%20Tools`],
   },
 };
 
@@ -42,7 +42,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           "ratingValue": "4.9",
           "ratingCount": "2644"
         },
-        "url": "https://seloicetools.com/tools/tweet-generator"
+        "url": "https://seloice.com/tools/tweet-generator"
       },
       {
         "@type": "BreadcrumbList",
@@ -51,19 +51,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://seloicetools.com"
+            "item": "https://seloice.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "Tools",
-            "item": "https://seloicetools.com/#tools"
+            "item": "https://seloice.com/#tools"
           },
           {
             "@type": "ListItem",
             "position": 3,
             "name": "Tweet Generator",
-            "item": "https://seloicetools.com/tools/tweet-generator"
+            "item": "https://seloice.com/tools/tweet-generator"
           }
         ]
       }

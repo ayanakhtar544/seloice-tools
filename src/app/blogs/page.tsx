@@ -9,7 +9,7 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Creator Growth Blog | Seloice Tools',
   description: 'Learn how to go viral, monetize your audience, and optimize your videos with our expert creator guides.',
-  alternates: { canonical: 'https://seloicetools.com/blog' }
+  alternates: { canonical: 'https://seloice.com/blog' }
 };
 
 export default function BlogIndexPage() {

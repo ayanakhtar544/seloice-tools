@@ -8,7 +8,7 @@ const generateLayout = (toolSlug) => {
   // Convert slug (e.g. video-compressor) to Title (e.g. Video Compressor)
   const title = toolSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   const description = `Free online ${title} tool for creators. Optimize and enhance your social media content instantly with Seloice Tools without watermarks.`;
-  const url = `https://seloicetools.com/tools/${toolSlug}`;
+  const url = `https://seloice.com/tools/${toolSlug}`;
 
   return `import type { Metadata } from 'next';
 import React from 'react';
@@ -56,13 +56,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://seloicetools.com"
+            "item": "https://seloice.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "Tools",
-            "item": "https://seloicetools.com/#tools"
+            "item": "https://seloice.com/#tools"
           },
           {
             "@type": "ListItem",

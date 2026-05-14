@@ -10,6 +10,8 @@ interface ToolLayoutProps {
   icon?: React.ReactNode;
   color?: string; // e.g., 'cyan', 'indigo', 'emerald'
   toolSlug?: string; // Passed for SmartLinks
+  faqs?: { q: string, a: string }[];
+  useCases?: { title: string, desc: string }[];
 }
 
 const recentTools = [
@@ -18,7 +20,7 @@ const recentTools = [
   { name: 'BG Remover', icon: <ImageIcon size={16}/>, href: '/tools/bg-remover', color: 'purple' },
 ];
 
-export default function ToolLayout({ title, description, children, icon, color = 'indigo', toolSlug }: ToolLayoutProps) {
+export default function ToolLayout({ title, description, children, icon, color = 'indigo', toolSlug, faqs, useCases }: ToolLayoutProps) {
   // Map color names to Tailwind classes dynamically or use pre-defined mapping
   const colorMap: Record<string, { bg: string, text: string, border: string, from: string, to: string, shadow: string }> = {
     cyan: { bg: 'bg-cyan-500', text: 'text-cyan-400', border: 'border-cyan-500', from: 'from-cyan-400', to: 'to-blue-600', shadow: 'shadow-cyan-500/20' },
@@ -87,6 +89,36 @@ export default function ToolLayout({ title, description, children, icon, color =
           {children}
         </div>
 
+        {/* Use Cases Section */}
+        {useCases && useCases.length > 0 && (
+          <div className="mb-16">
+            <h3 className="text-2xl font-black italic uppercase mb-6 flex items-center gap-2"><Sparkles className={theme.text} /> Best Use Cases</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {useCases.map((uc, i) => (
+                <div key={i} className="bg-[#111] border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-colors">
+                  <h4 className={`font-bold mb-2 ${theme.text}`}>{uc.title}</h4>
+                  <p className="text-gray-400 text-sm leading-relaxed">{uc.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* FAQs Section */}
+        {faqs && faqs.length > 0 && (
+          <div className="mb-16">
+            <h3 className="text-2xl font-black italic uppercase mb-6 flex items-center gap-2"><Zap className={theme.text} /> Frequently Asked Questions</h3>
+            <div className="space-y-3">
+              {faqs.map((faq, i) => (
+                <div key={i} className="bg-[#111] border border-white/5 rounded-2xl p-5">
+                  <h4 className="font-bold text-gray-200 mb-2">{faq.q}</h4>
+                  <p className="text-gray-400 text-sm leading-relaxed">{faq.a}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Social Share / Viral Loops */}
         <div className="flex flex-col sm:flex-row items-center justify-between bg-indigo-900/20 border border-indigo-500/20 rounded-2xl p-5 mb-16 gap-4">
           <div className="flex items-center gap-3">
@@ -110,10 +142,13 @@ export default function ToolLayout({ title, description, children, icon, color =
         {/* Smart Internal Linking Engine */}
         <SmartLinks currentTool={toolSlug} />
 
-        {/* Try Other Tools Section */}
+        {/* Try Other Tools Section (Viral Loop) */}
         <div className="border-t border-white/10 pt-12 pb-8">
           <div className="flex items-center justify-between mb-8">
-             <h3 className="text-xl md:text-2xl font-black italic uppercase flex items-center gap-2"><Zap className="text-indigo-500" /> Try Other Tools</h3>
+             <div>
+               <h3 className="text-xl md:text-2xl font-black italic uppercase flex items-center gap-2"><Zap className="text-indigo-500" /> Creators Also Use</h3>
+               <p className="text-sm text-gray-500 font-medium mt-1">Boost your workflow with these related tools.</p>
+             </div>
              <Link href="/#tools" className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-colors">View All</Link>
           </div>
           

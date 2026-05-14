@@ -14,13 +14,13 @@ export default function Footer() {
         
         <div className="md:col-span-5 text-center md:text-left">
           <Link href="/" className="flex items-center gap-3 font-black text-xl md:text-2xl tracking-tighter italic text-white hover:opacity-80 transition-opacity">
-          <img 
-            src="/favicon.ico" 
-            alt="Seloice Logo" 
-            className="w-8 h-8 md:w-10 md:h-10 object-contain" 
-          />
-          <span className="hidden sm:block">SELOICE</span>
-        </Link>
+            <img 
+              src="/favicon.ico" 
+              alt="Seloice Logo" 
+              className="w-8 h-8 md:w-10 md:h-10 object-contain" 
+            />
+            <span className="hidden sm:block">SELOICE</span>
+          </Link>
           <p className="text-gray-500 max-w-sm mx-auto md:mx-0 mb-8 leading-relaxed font-medium">
             Building the ultimate operating system for modern creators. Faster edits, better growth, zero cost.
           </p>
@@ -33,7 +33,9 @@ export default function Footer() {
         <div className="md:col-span-2 text-center md:text-left">
           <h4 className="font-black text-xs uppercase tracking-[0.2em] mb-6 text-white">Quick Links</h4>
           <ul className="space-y-4 text-gray-500 font-bold text-sm">
-            <li><Link href="/#tools" className="hover:text-indigo-400 transition-colors">All 22 Tools</Link></li>
+            {/* 🔥 ADDED BLOG LINK HERE */}
+            <li><Link href="/blogs" className="text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-2 justify-center md:justify-start">Seloice Insights <span className="text-[8px] bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">BLOG</span></Link></li>
+            <li><Link href="/tools" className="hover:text-indigo-400 transition-colors">All 26+ Tools</Link></li>
             <li><Link href="/#features" className="hover:text-indigo-400 transition-colors">Features</Link></li>
             <li><Link href="/#pricing" className="hover:text-indigo-400 transition-colors">Pricing</Link></li>
             <li><Link href="/#faq" className="hover:text-indigo-400 transition-colors">FAQ</Link></li>

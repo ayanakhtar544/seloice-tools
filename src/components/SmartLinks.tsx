@@ -12,10 +12,23 @@ interface SmartLinksProps {
 const toolDirectory = [
   { slug: 'reel-downloader', name: 'Instagram Reel Downloader', category: 'Download' },
   { slug: 'yt-downloader', name: 'YouTube Downloader', category: 'Download' },
+  { slug: 'thumbnail-extractor', name: 'Thumbnail Downloader', category: 'Download' },
+  { slug: 'photo-editor', name: 'Photo Editor', category: 'Design' },
+  { slug: 'audio-editor', name: 'Audio Editor', category: 'Audio' },
   { slug: 'mp4-to-mp3', name: 'MP4 to MP3', category: 'Audio' },
   { slug: 'video-compressor', name: 'Video Compressor', category: 'Video' },
+  { slug: 'reel-fitter', name: 'Reel Resizer', category: 'Video' },
   { slug: 'auto-captions', name: 'Auto Captions', category: 'AI' },
+  { slug: 'speech-to-text', name: 'Speech to Text', category: 'Audio' },
+  { slug: 'tweet-generator', name: 'Caption Generator', category: 'AI' },
   { slug: 'viral-hooks', name: 'Viral Hooks', category: 'AI' },
+  { slug: 'hashtag-generator', name: 'Hashtag Generator', category: 'SEO' },
+  { slug: 'yt-title-generator', name: 'Title Generator', category: 'SEO' },
+  { slug: 'bg-remover', name: 'Background Remover', category: 'Design' },
+  { slug: 'safe-zone', name: 'Auto Crop', category: 'Design' },
+  { slug: 'yt-tag-extractor', name: 'SEO Tags Extractor', category: 'SEO' },
+  { slug: 'qr-generator', name: 'QR Builder', category: 'Misc' },
+  { slug: 'image-converter', name: 'Image Converter', category: 'Design' },
 ];
 
 export default function SmartLinks({ currentTool, currentBlog }: SmartLinksProps) {

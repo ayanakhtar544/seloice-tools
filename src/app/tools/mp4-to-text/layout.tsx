@@ -5,20 +5,20 @@ export const metadata: Metadata = {
   title: 'Mp4 To Text | Seloice Tools',
   description: 'Free online Mp4 To Text tool for creators. Optimize and enhance your social media content instantly with Seloice Tools without watermarks.',
   alternates: {
-    canonical: 'https://seloicetools.com/tools/mp4-to-text',
+    canonical: 'https://seloice.com/tools/mp4-to-text',
   },
   openGraph: {
     title: 'Mp4 To Text | Seloice Tools',
     description: 'Free online Mp4 To Text tool for creators. Optimize and enhance your social media content instantly with Seloice Tools without watermarks.',
-    url: 'https://seloicetools.com/tools/mp4-to-text',
+    url: 'https://seloice.com/tools/mp4-to-text',
     type: 'website',
-      images: [{ url: `https://seloicetools.com/api/og?title=Mp4%20To%20Text%20%7C%20Seloice%20Tools`, width: 1200, height: 630 }],
+      images: [{ url: `https://seloice.com/api/og?title=Mp4%20To%20Text%20%7C%20Seloice%20Tools`, width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Mp4 To Text | Seloice Tools',
     description: 'Free online Mp4 To Text tool for creators. Optimize and enhance your social media content instantly with Seloice Tools without watermarks.',
-      images: [`https://seloicetools.com/api/og?title=Mp4%20To%20Text%20%7C%20Seloice%20Tools`],
+      images: [`https://seloice.com/api/og?title=Mp4%20To%20Text%20%7C%20Seloice%20Tools`],
   },
 };
 
@@ -42,7 +42,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           "ratingValue": "4.9",
           "ratingCount": "4895"
         },
-        "url": "https://seloicetools.com/tools/mp4-to-text"
+        "url": "https://seloice.com/tools/mp4-to-text"
       },
       {
         "@type": "BreadcrumbList",
@@ -51,19 +51,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://seloicetools.com"
+            "item": "https://seloice.com"
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": "Tools",
-            "item": "https://seloicetools.com/#tools"
+            "item": "https://seloice.com/#tools"
           },
           {
             "@type": "ListItem",
             "position": 3,
             "name": "Mp4 To Text",
-            "item": "https://seloicetools.com/tools/mp4-to-text"
+            "item": "https://seloice.com/tools/mp4-to-text"
           }
         ]
       }

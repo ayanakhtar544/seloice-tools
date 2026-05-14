@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://seloicetools.com';
+  const baseUrl = 'https://seloice.com';
 
   const sitemapData: MetadataRoute.Sitemap = [
     {
