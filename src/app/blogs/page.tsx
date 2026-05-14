@@ -1,75 +1,203 @@
-import React from 'react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+// File: src/app/admin/blogs/page.tsx
+"use client";
+
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowRight, BookOpen } from 'lucide-react';
-import blogPosts from '@/data/blog-db.json';
-import { Metadata } from 'next';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, deleteDoc, doc, orderBy, query } from 'firebase/firestore';
+import { Plus, Search, Edit3, Trash2, Eye, Heart, FileText, Loader2, Sparkles } from 'lucide-react';
+import AdminSidebar from '@/components/admin/AdminSidebar';
 
-export const metadata: Metadata = {
-  title: 'Creator Growth Blog | Seloice Tools',
-  description: 'Learn how to go viral, monetize your audience, and optimize your videos with our expert creator guides.',
-  alternates: { canonical: 'https://seloice.com/blogs' }
-};
+// 🛠️ TypeScript Interface
+interface Blog {
+  id: string;
+  title: string;
+  slug: string;
+  status: string;
+  category: string;
+  views?: number;
+  likes?: number;
+  createdAt?: any;
+}
 
-export default function BlogIndexPage() {
-  const publishedPosts = blogPosts.filter((post: any) => post.status === 'published');
+export default function AdminBlogsPage() {
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
+
+  // 🚀 SENIOR DEV FETCH LOGIC: Get all blogs safely
+  const fetchBlogs = async () => {
+    setLoading(true);
+    try {
+      const blogsRef = collection(db, 'blogs');
+      // Agar Firebase mein index nahi hai, toh orderBy hata dena baad me
+      const q = query(blogsRef, orderBy('createdAt', 'desc')); 
+      const snapshot = await getDocs(q);
+      
+      const fetchedBlogs = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Blog[];
+      
+      setBlogs(fetchedBlogs);
+    } catch (error) {
+      console.error("[ERROR] Blogs fetch fail ho gaye:", error);
+      // Fallback fallback fetch without orderBy if index is missing
+      try {
+        const fallbackSnapshot = await getDocs(collection(db, 'blogs'));
+        setBlogs(fallbackSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Blog[]);
+      } catch (fallbackError) {
+        alert("Blogs load nahi ho paaye. Check your connection!");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBlogs();
+  }, []);
+
+  // 🚀 DELETE LOGIC
+  const handleDelete = async (id: string, title: string) => {
+    if (!window.confirm(`Kya tum sach mein "${title}" ko delete karna chahte ho? Ye wapas nahi aayega!`)) return;
+    
+    setIsDeleting(id);
+    try {
+      await deleteDoc(doc(db, 'blogs', id));
+      setBlogs(blogs.filter(blog => blog.id !== id));
+      alert("Blog successfully delete ho gaya! 🗑️");
+    } catch (error) {
+      console.error("Delete Error:", error);
+      alert("Delete karne mein problem aayi.");
+    } finally {
+      setIsDeleting(null);
+    }
+  };
+
+  // 🔍 SEARCH FILTER
+  const filteredBlogs = blogs.filter(blog => 
+    blog.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    blog.category?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white selection:bg-indigo-500/30 font-sans flex flex-col">
-      <Navbar />
-      
-      <main className="flex-grow pt-32 pb-24 px-4 max-w-5xl mx-auto w-full">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-pink-500/10 to-indigo-500/10 border border-pink-500/30 text-pink-400 text-xs font-black uppercase tracking-widest mb-8">
-            <BookOpen size={14} className="fill-pink-400/20" /> The Creator Library
+    <div className="min-h-screen bg-[#030305] text-white flex">
+      {/* Sidebar */}
+      <AdminSidebar />
+
+      {/* Main Content */}
+      <main className="flex-1 p-8 md:p-12 h-screen overflow-y-auto no-scrollbar">
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+          <div>
+            <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-2 flex items-center gap-3">
+              Manage <span className="text-emerald-500 italic">Blogs</span>
+              <Sparkles className="text-emerald-500 w-8 h-8" />
+            </h1>
+            <p className="text-gray-500 font-medium">Control your entire content ecosystem from here.</p>
           </div>
-          <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter mb-4 uppercase">
-            Growth <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-indigo-500">Guides</span>
-          </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto font-medium">
-            Expert tutorials, monetization strategies, and viral growth hacks for modern content creators.
-          </p>
+          
+          <Link href="/admin/blogs/new">
+            <button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_30px_rgba(16,185,129,0.4)] hover:-translate-y-1">
+              <Plus size={18} /> Create New Post
+            </button>
+          </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {publishedPosts.map((post: any) => (
-            <Link key={post.slug} href={`/blogs/${post.slug}`}>
-              <article className="group bg-[#0a0a0a] border border-white/10 rounded-[2rem] p-8 h-full flex flex-col hover:bg-[#111] hover:border-indigo-500/30 transition-all cursor-pointer relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-[50px] opacity-0 group-hover:opacity-100 transition-opacity" />
-                
-                {post.image && (
-                  <div className="w-full h-48 mb-6 rounded-xl overflow-hidden border border-white/10 relative">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  </div>
-                )}
-                
-                <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-indigo-400 mb-4">
-                  <span>{post.category}</span>
-                  <span className="w-1 h-1 rounded-full bg-gray-600" />
-                  <span className="text-gray-500">{post.readTime}</span>
-                </div>
-                
-                <h2 className="text-2xl font-black text-gray-100 group-hover:text-white mb-3 line-clamp-2 leading-tight">
-                  {post.title}
-                </h2>
-                
-                <p className="text-gray-500 text-sm mb-8 line-clamp-3">
-                  {post.description}
-                </p>
+        {/* Action Bar (Search) */}
+        <div className="bg-white/[0.02] border border-white/5 p-4 rounded-3xl mb-8 flex items-center gap-4 focus-within:border-emerald-500/50 transition-colors">
+          <Search className="text-gray-500 ml-2" size={20} />
+          <input 
+            type="text" 
+            placeholder="Search by title or category..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-transparent border-none outline-none text-white placeholder:text-gray-600 font-medium text-sm"
+          />
+        </div>
 
-                <div className="mt-auto flex items-center justify-between pt-6 border-t border-white/5">
-                  <div className="text-xs font-bold text-gray-400">{post.author}</div>
-                  <ArrowRight className="text-gray-600 group-hover:text-indigo-400 transition-colors" size={18} />
-                </div>
-              </article>
+        {/* Content Section */}
+        {loading ? (
+          // ⏳ Loading Skeleton
+          <div className="flex flex-col items-center justify-center py-32 space-y-4">
+            <Loader2 className="animate-spin text-emerald-500 w-12 h-12" />
+            <p className="text-gray-500 font-bold tracking-widest uppercase text-xs">Fetching your awesome content...</p>
+          </div>
+        ) : filteredBlogs.length === 0 ? (
+          // 📭 Empty State
+          <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-16 flex flex-col items-center justify-center text-center">
+            <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6">
+              <FileText className="text-gray-600 w-12 h-12" />
+            </div>
+            <h3 className="text-2xl font-bold mb-2">No blogs found</h3>
+            <p className="text-gray-500 max-w-sm mb-8">You haven't written any posts that match your search yet. Start typing!</p>
+            <Link href="/admin/blogs/new">
+              <button className="text-emerald-500 font-bold hover:text-emerald-400 transition-colors underline underline-offset-4">
+                Write your first blog
+              </button>
             </Link>
-          ))}
-        </div>
-      </main>
+          </div>
+        ) : (
+          // 📝 Data Grid / Table
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredBlogs.map((blog) => (
+              <div key={blog.id} className="group bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] p-6 rounded-3xl transition-all duration-300 flex flex-col">
+                
+                {/* Status & Category Badge */}
+                <div className="flex items-center justify-between mb-4">
+                  <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${
+                    blog.status?.toLowerCase() === 'published' 
+                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                      : 'bg-orange-500/10 text-orange-400 border border-orange-500/20'
+                  }`}>
+                    {blog.status || 'Draft'}
+                  </span>
+                  <span className="text-xs text-gray-500 font-bold uppercase tracking-widest">
+                    {blog.category || 'Tech'}
+                  </span>
+                </div>
 
-      <Footer />
+                {/* Title */}
+                <h3 className="text-lg font-bold leading-tight mb-6 line-clamp-2 text-gray-100 group-hover:text-emerald-400 transition-colors">
+                  {blog.title}
+                </h3>
+
+                <div className="mt-auto">
+                  {/* Stats Row */}
+                  <div className="flex items-center gap-6 text-sm text-gray-500 mb-6 font-medium">
+                    <div className="flex items-center gap-2">
+                      <Eye size={16} /> {blog.views || 0}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Heart size={16} className="text-rose-500/50" /> {blog.likes || 0}
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                    <Link href={`/admin/blogs/edit/${blog.id}`} className="text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-xs font-bold uppercase">
+                      <Edit3 size={14} /> Edit
+                    </Link>
+                    
+                    <button 
+                      onClick={() => handleDelete(blog.id, blog.title)}
+                      disabled={isDeleting === blog.id}
+                      className="text-gray-500 hover:text-rose-500 transition-colors flex items-center gap-2 text-xs font-bold uppercase disabled:opacity-50"
+                    >
+                      {isDeleting === blog.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />} 
+                      Delete
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

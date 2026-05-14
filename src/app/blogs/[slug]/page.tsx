@@ -26,9 +26,8 @@ interface Blog {
   ogDescription?: string;
   author?: string;
   coverImage?: string;
-  createdAt?: {
-    toDate: () => Date;
-  };
+  // 🔥 THE FIX 1: Ab createdAt function nahi, normal string hai
+  createdAt?: string; 
 }
 
 // ==========================================
@@ -62,7 +61,8 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
       siteName: 'Seloice Ecosystem',
       images: [{ url: blog.coverImage || 'https://seloice.com/default-og.jpg', width: 1200, height: 630, alt: title }],
       type: 'article',
-      publishedTime: blog.createdAt?.toDate().toISOString(),
+      // 🔥 THE FIX 2: toDate() hata diya, direct string use ki hai
+      publishedTime: blog.createdAt || new Date().toISOString(),
       authors: [blog.author || 'Abushahma'],
     },
     twitter: {
@@ -83,8 +83,8 @@ export default async function BlogPostPage(props: { params: Promise<{ slug: stri
 
   if (!blog) return notFound();
 
-  // Safely handle Firebase Timestamps
-  const publishDate = blog.createdAt?.toDate().toISOString() || new Date().toISOString();
+  // 🔥 THE FIX 3: toDate() hata diya yahan se bhi
+  const publishDate = blog.createdAt || new Date().toISOString();
 
   // 🧠 1. ARTICLE SCHEMA
   const articleSchema = {

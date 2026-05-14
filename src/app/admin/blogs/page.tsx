@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Eye, Heart, Calendar } from 'lucide-react';
-import { getPublishedBlogs } from '@/lib/blogService';
+
 
 export default function PublicBlogFeed() {
   const [blogs, setBlogs] = useState<any[]>([]);
@@ -61,4 +61,8 @@ export default function PublicBlogFeed() {
       </div>
     </div>
   );
+}
+
+function getPublishedBlogs() {
+  throw new Error('Function not implemented.');
 }

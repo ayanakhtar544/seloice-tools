@@ -1,58 +1,89 @@
 // File: src/app/api/generate-blog/route.ts
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
-
-const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-const genAI = new GoogleGenerativeAI(apiKey!);
 
 export async function POST(req: Request) {
   try {
+    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    if (!apiKey) throw new Error("API Key .env.local file mein nahi mil rahi hai!");
+
     const { topic } = await req.json();
+
+    const prompt = `You are an expert SEO Content Writer. Write a highly engaging blog about: "${topic}".
+    CRITICAL: You MUST respond ONLY with a raw JSON object. Do NOT wrap it in markdown.
+    Format exactly like this:
+    {"title": "Title", "slug": "slug", "metaTitle": "SEO Title", "metaDescription": "Desc", "excerpt": "Short", "content": "HTML Content", "category": "Tutorial", "tags": ["tag1"], "faqs": [], "relatedTools": [], "ogDescription": "OG"}`;
+
+    console.log(`[SYSTEM] Fetching available models for your API Key...`);
+
+    // 🚀 STEP 1: API ko call karke Models ki list nikaalo
+    const listModelsUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+    const listRes = await fetch(listModelsUrl);
+    const listData = await listRes.json();
+
+    if (!listRes.ok) {
+      throw new Error(`ListModels Error: ${listData.error?.message}`);
+    }
+
+    // Sirf wahi models filter karo jo text generation ('generateContent') support karte hain aur jinke naam me 'gemini' hai
+    const validModels = (listData.models || []).filter((m: any) => 
+      m.name.includes("gemini") && 
+      m.supportedGenerationMethods?.includes("generateContent")
+    );
+
+    if (validModels.length === 0) {
+      throw new Error("Tumhari API Key par koi bhi valid Gemini Text model enable nahi hai!");
+    }
+
+    // Terminal me list print karo taaki hume pata chale key me kya-kya hai
+    console.log("✅ Valid Models for your Key:", validModels.map((m: any) => m.name));
+
+    // Sabse best model auto-select karo
+    let selectedModelName = validModels[0].name; // Default pehla model
     
-    // We use gemini-1.5-pro for better long-form content generation if possible, else flash
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-pro",
-      generationConfig: {
-        responseMimeType: "application/json",
+    // Priority set kar rahe hain: Flash -> Pro -> Normal
+    for (const m of validModels) {
+      if (m.name.includes("1.5-flash")) {
+        selectedModelName = m.name;
+        break; // Flash mil gaya toh ruk jao, ye sabse fast hai
+      } else if (m.name.includes("1.5-pro")) {
+        selectedModelName = m.name;
       }
+    }
+
+    console.log(`[SYSTEM] Dynamically Selected Model: ${selectedModelName} 🔥`);
+
+    // 🚀 STEP 2: Selected model se Blog Generate karo
+    // Note: selectedModelName me 'models/gemini-xxx' already likha hoga
+    const generateUrl = `https://generativelanguage.googleapis.com/v1beta/${selectedModelName}:generateContent?key=${apiKey}`;
+
+    const response = await fetch(generateUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }]
+      })
     });
 
-    const prompt = `You are an elite, Staff-level SEO Content Architect and Expert Copywriter. 
-Your goal is to write a highly engaging, viral, and SEO-optimized blog post about the following topic: "${topic}".
-The content must feel human-written, creator-focused, and highly actionable.
+    const data = await response.json();
 
-You MUST return a strict JSON object with the following schema:
-{
-  "title": "A highly clickable, viral H1 title",
-  "metaTitle": "SEO optimized title under 60 characters",
-  "metaDescription": "Compelling meta description under 160 characters designed for high CTR",
-  "slug": "seo-friendly-url-slug",
-  "excerpt": "A short, engaging hook/summary for the blog index page (2-3 sentences)",
-  "content": "The full blog article in valid, clean HTML format. Include an engaging introduction, multiple H2 and H3 tags, actionable bullet points, and a strong conclusion with a Call to Action (CTA). DO NOT use markdown, strictly HTML tags (<h1>, <h2>, <p>, <ul>, <li>, <strong>, <em>, <br/>). Do not include the main title inside the content body, start directly with the intro paragraph.",
-  "faqs": [
-    {
-      "question": "A common user question related to the topic?",
-      "answer": "A clear, concise, and helpful answer."
+    if (!response.ok) {
+      throw new Error(`Generation Error: ${data.error?.message || "Unknown Error"}`);
     }
-  ],
-  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
-  "category": "Choose one: Tutorial, Case Study, Guide, Tool Review, Creator Strategy, Automation",
-  "relatedTools": ["yt-title-generator", "hashtag-generator", "video-compressor"],
-  "ogDescription": "OpenGraph description optimized for social sharing (Twitter, LinkedIn, Facebook)."
-}
 
-IMPORTANT: Ensure the JSON is perfectly valid. Do not wrap it in markdown code blocks if responseMimeType handles it, but since we are enforcing it via prompt, make absolutely sure it parses correctly. Make the 'content' field massive, detailed, and extremely valuable.`;
+    let text = data.candidates[0].content.parts[0].text;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
-    
-    // Safety parse
-    const cleanText = text.replace(/```json|```/gi, "").trim();
-    
-    return NextResponse.json(JSON.parse(cleanText));
+    // 🚀 BULLETPROOF JSON EXTRACTION
+    const startIndex = text.indexOf('{');
+    const endIndex = text.lastIndexOf('}');
+    if (startIndex !== -1 && endIndex !== -1) { 
+      text = text.substring(startIndex, endIndex + 1); 
+    }
+
+    console.log("[SUCCESS] Magic Complete! JSON Data frontend ko bhej diya.");
+    return NextResponse.json(JSON.parse(text));
+
   } catch (error: any) {
-    console.error("Final Error Trace:", error);
-    return NextResponse.json({ error: "AI Error", details: error.message }, { status: 500 });
+    console.error("Dynamic API Error:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

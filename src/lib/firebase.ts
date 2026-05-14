@@ -1,7 +1,7 @@
 // File: src/lib/firebase.ts
 
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getAnalytics, isSupported, Analytics } from "firebase/analytics";
@@ -17,9 +17,13 @@ const firebaseConfig = {
 };
 
 // Singleton pattern — prevents re-initialization on hot reload
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-const db = getFirestore(app);
+// 🚀 SENIOR DEV FIX: Removed experimentalAutoDetectLongPolling to prevent clashes
+const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+});
+
 const auth = getAuth(app);
 const storage = getStorage(app);
 

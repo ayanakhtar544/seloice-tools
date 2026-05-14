@@ -21,36 +21,44 @@ export default function AddNewBlog() {
     ogDescription: '', coverImage: '', author: 'Abushahma', status: 'Published'
   });
 
-  // 🪄 AI GENERATION LOGIC
+  // 🪄 AI GENERATION FUNCTION
   const generateWithAi = async () => {
-    if (!aiTopic) return alert("Please enter a topic for the AI to generate!");
+    if (!aiTopic) return alert("Pehle topic likho! (Jaise: Best SEO Tips 2026)");
+    
     setIsAiLoading(true);
     try {
       const res = await fetch('/api/generate-blog', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic: aiTopic }),
       });
+      
       const data = await res.json();
       
-      if (data.error) throw new Error(data.details || data.error);
+      // Agar backend se error aya toh throw karo
+      if (!res.ok) throw new Error(data.error || "Failed to fetch from Gemini");
 
+      // Form fill karo
       setFormData({
         ...formData,
         title: data.title || '',
         metaTitle: data.metaTitle || '',
         metaDescription: data.metaDescription || '',
-        slug: data.slug || data.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
+        slug: data.slug || data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
         excerpt: data.excerpt || '',
         content: data.content || '',
         category: data.category || 'Tutorial',
-        tags: data.tags || [],
-        faqs: data.faqs || [],
-        relatedTools: data.relatedTools || [],
+        tags: Array.isArray(data.tags) ? data.tags : [],
+        faqs: Array.isArray(data.faqs) ? data.faqs : [],
+        relatedTools: Array.isArray(data.relatedTools) ? data.relatedTools : [],
         ogDescription: data.ogDescription || ''
       });
+
+      alert("✨ Magic Complete! Saare fields auto-fill ho gaye.");
+
     } catch (err: any) {
-      console.error(err);
-      alert("AI Generation failed! " + err.message);
+      console.error("AI Error:", err);
+      alert("AI Generation Fail Ho Gaya! Error: " + err.message);
     } finally {
       setIsAiLoading(false);
     }
@@ -58,73 +66,72 @@ export default function AddNewBlog() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.title || !formData.content) return alert("Title aur Content zaroori hai!");
+
     setLoading(true);
     try {
-      await addDoc(collection(db, "blogs"), { ...formData, views: 0, likes: 0, createdAt: serverTimestamp() });
-      router.push('/admin/page');
-    } catch (err) { alert("Error publishing!"); } finally { setLoading(false); }
+      const finalSlug = formData.slug || formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      await addDoc(collection(db, "blogs"), { 
+        ...formData, 
+        slug: finalSlug,
+        views: 0, likes: 0, 
+        createdAt: serverTimestamp() 
+      });
+      alert("✅ Blog Successfully Published!");
+      router.push('/admin'); 
+    } catch (err: any) { 
+      alert("Publish Error: " + err.message); 
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#030305] text-white flex">
-      <AdminSidebar />
+      <AdminSidebar/>
       <main className="flex-1 p-8 h-screen overflow-y-auto no-scrollbar">
         <div className="flex items-center justify-between mb-10">
           <h1 className="text-3xl font-black uppercase tracking-tighter">NEW <span className="text-emerald-500 italic">POST</span></h1>
           <div className="flex gap-3">
-             <button onClick={() => setFormData({...formData, status: 'Draft'})} className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all">
-                <Save size={16} /> Save Draft
-             </button>
              <button onClick={handleSubmit} disabled={loading} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)]">
-                {loading ? "Publishing..." : <><Send size={16} /> Go Live</>}
+                {loading ? "Publishing..." : <><Send size="{16}"/> Go Live</>}
              </button>
           </div>
         </div>
 
         <div className="max-w-4xl space-y-6">
            
-           {/* AI Magic Box */}
-           <div className="bg-purple-900/20 border border-purple-500/30 p-8 rounded-[2rem] space-y-4 relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 blur-[100px] rounded-full" />
-             <h3 className="text-purple-400 font-bold uppercase tracking-widest text-xs flex items-center gap-2"><Sparkles size={16}/> AI Auto-Generator</h3>
+           
+           <div className="bg-purple-900/20 border border-purple-500/30 p-8 rounded-[2rem] space-y-4">
+             <h3 className="text-purple-400 font-bold uppercase tracking-widest text-xs flex items-center gap-2"><Sparkles size="{16}"/> AI Auto-Generator</h3>
              <div className="flex gap-4">
                 <input 
-                  type="text" placeholder="Enter topic (e.g., Best YouTube Titles 2026)..." 
+                  type="text" placeholder="Enter topic..." 
                   value={aiTopic} onChange={(e) => setAiTopic(e.target.value)}
-                  className="flex-1 bg-black border border-purple-500/20 p-5 rounded-2xl text-lg font-bold outline-none focus:border-purple-500 transition-all placeholder:text-gray-600"
+                  className="flex-1 bg-black border border-purple-500/20 p-5 rounded-2xl text-lg font-bold outline-none focus:border-purple-500"
                 />
+                
                 <button 
+                  type="button" 
                   onClick={generateWithAi} 
                   disabled={isAiLoading}
-                  className="bg-purple-600 hover:bg-purple-500 px-8 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-[0_0_20px_rgba(147,51,234,0.3)] flex items-center gap-2 whitespace-nowrap"
+                  className="bg-purple-600 hover:bg-purple-500 px-8 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center gap-2 whitespace-nowrap"
                 >
-                  {isAiLoading ? <Loader2 className="animate-spin" size={16}/> : 'Generate Magic'}
+                  {isAiLoading ? <Loader2 className="animate-spin" size="{16}"/> : 'Generate Magic'}
                 </button>
              </div>
            </div>
 
-           {/* Manual / Auto-filled form */}
+           
            <div className="bg-white/[0.02] border border-white/5 p-8 rounded-[2rem] space-y-6">
-              
               <div className="grid grid-cols-2 gap-6">
                  <div className="space-y-2">
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">H1 Title</label>
-                    <input type="text" placeholder="Post Title" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="w-full bg-black border border-white/10 p-4 rounded-xl text-sm font-bold outline-none focus:border-emerald-500" />
+                    <input type="text" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="w-full bg-black border border-white/10 p-4 rounded-xl text-sm font-bold outline-none focus:border-emerald-500" />
                  </div>
                  <div className="space-y-2">
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">URL Slug</label>
-                    <input type="text" placeholder="url-slug" value={formData.slug} onChange={(e) => setFormData({...formData, slug: e.target.value})} className="w-full bg-black border border-white/10 p-4 rounded-xl text-sm outline-none focus:border-emerald-500" />
-                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                 <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Meta Title (SEO)</label>
-                    <input type="text" value={formData.metaTitle} onChange={(e) => setFormData({...formData, metaTitle: e.target.value})} className="w-full bg-black border border-white/10 p-4 rounded-xl text-sm outline-none focus:border-emerald-500" />
-                 </div>
-                 <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Category</label>
-                    <input type="text" value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} className="w-full bg-black border border-white/10 p-4 rounded-xl text-sm outline-none focus:border-emerald-500" />
+                    <input type="text" value={formData.slug} onChange={(e) => setFormData({...formData, slug: e.target.value})} className="w-full bg-black border border-white/10 p-4 rounded-xl text-sm outline-none focus:border-emerald-500" />
                  </div>
               </div>
 
@@ -134,17 +141,9 @@ export default function AddNewBlog() {
               </div>
 
               <div className="space-y-2">
-                 <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Tags (Comma separated)</label>
-                 <input type="text" value={formData.tags.join(', ')} onChange={(e) => setFormData({...formData, tags: e.target.value.split(',').map(t=>t.trim())})} className="w-full bg-black border border-white/10 p-4 rounded-xl text-sm outline-none focus:border-emerald-500" />
-              </div>
-
-              <div className="space-y-2">
-                 <label className="text-xs font-bold text-emerald-500 uppercase tracking-widest flex items-center justify-between">
-                    <span>Main Content (HTML)</span>
-                    <span className="text-[10px] text-gray-500">{formData.content.length} chars</span>
-                 </label>
+                 <label className="text-xs font-bold text-emerald-500 uppercase tracking-widest">Main Content (HTML)</label>
                  <textarea 
-                   rows={15} placeholder="HTML Content..." 
+                   rows={15} 
                    value={formData.content} onChange={(e) => setFormData({...formData, content: e.target.value})}
                    className="w-full bg-black border border-white/10 p-6 rounded-3xl text-sm font-mono leading-relaxed outline-none focus:border-emerald-500 text-gray-400"
                  />
@@ -152,7 +151,7 @@ export default function AddNewBlog() {
 
               <div className="space-y-2">
                  <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Cover Image URL</label>
-                 <input type="text" placeholder="https://..." value={formData.coverImage} onChange={(e) => setFormData({...formData, coverImage: e.target.value})} className="w-full bg-black border border-white/10 p-4 rounded-xl text-sm outline-none" />
+                 <input type="text" value={formData.coverImage} onChange={(e) => setFormData({...formData, coverImage: e.target.value})} className="w-full bg-black border border-white/10 p-4 rounded-xl text-sm outline-none" />
               </div>
            </div>
         </div>
