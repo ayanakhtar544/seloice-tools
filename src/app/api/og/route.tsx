@@ -1,7 +1,9 @@
+// File: src/app/api/og/route.tsx
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
-export const runtime = 'edge';
+// 🔥 THE FIX: 'edge' runtime hata diya gaya hai taaki Vercel 50MB Node.js limit use kare
+// export const runtime = 'edge'; 
 
 export async function GET(req: NextRequest) {
   try {
