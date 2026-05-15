@@ -4,7 +4,11 @@ import "./globals.css";
 import AnalyticsWrapper from "@/components/AnalyticsWrapper";
 import CookieBanner from "@/components/CookieBanner";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import Script from "next/script";
+import PWAInstallPrompt from '@/components/PWAInstallPrompt';
+import SkipLink from '@/components/seo/SkipLink';
+import MobileBottomNav from "@/components/MobileBottomNav";
+import AdHealthChecker from "@/components/ads/AdHealthChecker";
+import ConsentModeScript from "@/components/ConsentModeScript";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
@@ -23,9 +27,17 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://seloice.com",
   },
+  icons: {
+    icon: [
+      { url: "/favicon.png", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
   openGraph: {
     title: "Seloice Tools | Creator Operating System",
-    description: "26+ Professional tools to grow your social media instantly. Edit faster, rank higher, and build your audience.",
+    description: "28+ Professional tools to grow your social media instantly. Edit faster, rank higher, and build your audience.",
     url: "https://seloice.com",
     siteName: "Seloice Tools",
     images: [
@@ -42,7 +54,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Seloice Tools | The Ultimate Creator Toolkit",
-    description: "26+ Professional tools to grow your social media instantly.",
+    description: "28+ Professional tools to grow your social media instantly.",
     images: ["/api/og?title=Seloice%20Tools%20%7C%20Creator%20OS&badge=100%25%20Free%20Toolkit"],
     creator: "@seloice",
   },
@@ -65,13 +77,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <head>
-        {/* Google AdSense Verification */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7632798085856544"
-          crossOrigin="anonymous"
-        />
-        {/* Global SEO Schema */}
+        <ConsentModeScript />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -83,17 +89,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   "@id": "https://seloice.com/#website",
                   "url": "https://seloice.com/",
                   "name": "Seloice Tools",
-                  "description": "24+ Media tools for creators.",
-                  "potentialAction": [
-                    {
-                      "@type": "SearchAction",
-                      "target": {
-                        "@type": "EntryPoint",
-                        "urlTemplate": "https://seloice.com/search?q={search_term_string}"
-                      },
-                      "query-input": "required name=search_term_string"
-                    }
-                  ]
+                  "description": "28+ free creator tools — video editor, downloaders, captions & AI utilities.",
+                  "publisher": { "@id": "https://seloice.com/#organization" }
                 },
                 {
                   "@type": "Organization",
@@ -102,21 +99,29 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   "url": "https://seloice.com",
                   "logo": {
                     "@type": "ImageObject",
-                    "url": "https://seloice.com/logo.png"
+                    "url": "https://seloice.com/favicon.png"
                   }
                 }
               ]
             }),
           }}
         />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#10b981" />
       </head>
-      <body className={`${inter.variable} font-sans bg-[#050505] text-white antialiased overflow-x-hidden`}>
-        {/* Analytics & AdSense load ONLY after cookie consent via AnalyticsWrapper */}
+      
+      <body className={`${inter.variable} font-sans bg-[#050505] text-white antialiased overflow-x-hidden mobile-reduce-blur`}>
+        <SkipLink />
         <AnalyticsWrapper />
         <ErrorBoundary>
-          {children}
+          <div id="main-content" tabIndex={-1}>
+            {children}
+          </div>
         </ErrorBoundary>
+        <PWAInstallPrompt />
         <CookieBanner />
+        <MobileBottomNav />
+        <AdHealthChecker />
       </body>
     </html>
   );

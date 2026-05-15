@@ -1,20 +1,59 @@
-// File: src/app/api/ig-download/route.ts
 import { NextResponse } from 'next/server';
+import { DownloadRequestSchema, validateRequest } from '@/lib/security/validation';
+
+// 🚀 THE MAGIC FIX: Vercel Timeout Bypass (Allow up to 60 seconds)
+export const maxDuration = 60;
+
+const fetchWithRetry = async (url: string, options: any, retries = 3, delay = 1000) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(url, options);
+      if (res.ok) return res;
+      if (res.status === 429) { // Rate limit
+        await new Promise(resolve => setTimeout(resolve, delay * 2));
+        continue;
+      }
+      // If it's a 4xx error (not rate limit), return it to handle in main logic
+      if (res.status >= 400 && res.status < 500 && res.status !== 429) {
+          return res;
+      }
+      throw new Error(`HTTP error! status: ${res.status}`);
+    } catch (err) {
+      if (i === retries - 1) throw err;
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  throw new Error("Max retries reached");
+};
 
 export async function POST(req: Request) {
   try {
-    const { url } = await req.json();
+    const body = await req.json();
 
-    if (!url || !url.includes('instagram.com')) {
-      return NextResponse.json({ error: "Sahi Instagram link daal bhai!" }, { status: 400 });
+    // ─── 1. SECURITY VALIDATION ─────────────────────────────────
+    const validation = validateRequest(DownloadRequestSchema, body);
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
-    const RAPID_API_KEY = process.env.RAPID_API_KEY as string; 
+    const { url } = validation.data;
+
+    if (!url.includes('instagram.com')) {
+      return NextResponse.json({ error: "Please enter a valid Instagram link!" }, { status: 400 });
+    }
+
+    const RAPID_API_KEY = process.env.RAPID_API_KEY; 
     const RAPID_API_HOST = "instagram-reels-downloader-api.p.rapidapi.com"; 
     
+    // 🔥 DEBUG FIX: Log error specifically if API key is missing
+    if (!RAPID_API_KEY) {
+        console.error("CRITICAL ERROR: RAPID_API_KEY is missing on production server.");
+        return NextResponse.json({ error: "Server Configuration Error: API Key missing in Production." }, { status: 500 });
+    }
+
     const API_ENDPOINT = `https://${RAPID_API_HOST}/download?url=${encodeURIComponent(url)}`;
 
-    const response = await fetch(API_ENDPOINT, {
+    const response = await fetchWithRetry(API_ENDPOINT, {
       method: 'GET',
       headers: {
         'x-rapidapi-key': RAPID_API_KEY,
@@ -25,27 +64,28 @@ export async function POST(req: Request) {
 
     const data = await response.json();
 
+    // 🚀 Handle RapidAPI internal errors gracefully
+    if (data.message || data.error) {
+        console.error("RapidAPI returned an error:", data.message || data.error);
+    }
+
     if (!response.ok || !data?.data) {
-      throw new Error("API ne data nahi bheja. Shayad limit cross ho gayi ya account private hai.");
+      throw new Error("Video not found. The account might be private, or the link is invalid.");
     }
 
     const igData = data.data;
 
-    // Sirf Video files filter kar rahe hain (Audio aur baaki kachra hata rahe hain)
+    // Filter video files
     const videoFiles = igData.medias ? igData.medias.filter((m: any) => m.type === 'video' || m.extension === 'mp4') : [];
 
     if (videoFiles.length === 0 && !igData.url) {
-        throw new Error("Is post mein koi video nahi mili.");
+        throw new Error("No playable video found in this post.");
     }
 
-    // Success! Frontend ko poori Meta Information bhej rahe hain
     return NextResponse.json({ 
       success: true,
-      // Default video (highest quality usually)
       videoUrl: videoFiles.length > 0 ? videoFiles[0].url : igData.url,
-      // Saari available qualities bhej rahe hain
       availableVideos: videoFiles, 
-      // Meta details (Caption, Likes, etc.)
       meta: {
         author: igData.author || igData.owner?.username || 'Instagram User',
         caption: igData.title || '',
@@ -56,7 +96,7 @@ export async function POST(req: Request) {
     });
     
   } catch (error: any) {
-    console.error("RapidAPI Error:", error);
-    return NextResponse.json({ error: error.message || "Server issue aa gaya bhai." }, { status: 500 });
+    console.error("IG Downloader Final Catch Error:", error);
+    return NextResponse.json({ error: error.message || "Server issue encountered." }, { status: 500 });
   }
 }

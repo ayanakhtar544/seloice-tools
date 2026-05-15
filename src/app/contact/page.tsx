@@ -3,10 +3,11 @@ import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Mail, MapPin } from 'lucide-react';
 
-export const metadata = {
-  title: 'Contact Us | Seloice Tools',
-  description: 'Get in touch with the Seloice Tools team for support, bugs, or business inquiries.',
-};
+import type { Metadata } from 'next';
+import { buildStaticMetadata, STATIC_PAGES } from '@/lib/seo/pages-registry';
+
+const contactMeta = STATIC_PAGES.find((p) => p.path === '/contact')!;
+export const metadata: Metadata = buildStaticMetadata(contactMeta);
 
 export default function Contact() {
   return (

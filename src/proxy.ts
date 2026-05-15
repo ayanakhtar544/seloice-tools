@@ -1,29 +1,65 @@
-// File: src/middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { buildAdSenseCsp } from '@/lib/adsense/csp';
+import { checkRateLimit } from '@/lib/security/rate-limit';
+import { hashToken } from '@/lib/security/admin-auth';
 
 export function proxy(request: NextRequest) {
-  const adminCookie = request.cookies.get('admin_access');
+  const ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    'unknown';
   const { pathname } = request.nextUrl;
 
-  // 🛡️ Admin Protection Logic
-  // Agar user /admin ke kisi bhi page pe jana chahta hai (par login page nahi)
+  const adminSecret = process.env.ADMIN_SECRET;
+  const sessionVal = request.cookies.get('admin_session')?.value;
+  const adminCookie = Boolean(adminSecret && sessionVal === hashToken(adminSecret));
+
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
-    // Agar cookie nahi hai, toh login pe bhej do
     if (!adminCookie) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }
 
-  // Agar user already login hai aur wapas login page kholta hai, toh usey admin dashboard bhej do
   if (pathname === '/admin/login' && adminCookie) {
     return NextResponse.redirect(new URL('/admin', request.url));
   }
 
-  return NextResponse.next();
+  if (pathname.startsWith('/api/')) {
+    const userAgent = request.headers.get('user-agent') || '';
+    const isBot = /bot|spider|crawl|headless|selenium|puppeteer|scrapy/i.test(userAgent);
+
+    if (isBot && !pathname.startsWith('/api/og')) {
+      return new NextResponse(JSON.stringify({ error: 'Automated access is not allowed on this endpoint.' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const { limited, retryAfter } = checkRateLimit(ip, pathname);
+    if (limited) {
+      return new NextResponse(JSON.stringify({ error: 'Too many requests. Please try again later.' }), {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json',
+          'Retry-After': String(retryAfter),
+        },
+      });
+    }
+  }
+
+  const response = NextResponse.next();
+  response.headers.set('x-pathname', pathname);
+  response.headers.set('Content-Security-Policy', buildAdSenseCsp());
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+
+  return response;
 }
 
-// Ye define karta hai ki middleware kin pages pe chalega
 export const config = {
-  matcher: '/admin/:path*',
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|json|js|woff2?)$).*)'],
 };

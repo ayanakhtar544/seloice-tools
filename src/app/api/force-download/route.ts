@@ -1,39 +1,42 @@
-// File: src/app/api/force-download/route.ts
 import { NextResponse } from 'next/server';
+import { isSafeExternalUrl } from '@/lib/security/ssrf';
+
+export const maxDuration = 60;
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const videoUrl = searchParams.get('url');
-    const title = searchParams.get('title') || 'Seloice_Video';
-    const ext = searchParams.get('ext') || 'mp4';
+    const title = (searchParams.get('title') || 'Seloice_Video').slice(0, 120);
+    const ext = (searchParams.get('ext') || 'mp4').replace(/[^a-z0-9]/gi, '') || 'mp4';
 
     if (!videoUrl) {
-      return new NextResponse("URL is missing", { status: 400 });
+      return new NextResponse('URL is missing', { status: 400 });
     }
 
-     // console.log("🔥 Forcing Download for:", title);
-
-    // Original link se file stream fetch karna
-    const response = await fetch(videoUrl);
-
-    if (!response.ok) {
-      throw new Error("Download server se file nahi mili.");
+    if (!isSafeExternalUrl(videoUrl)) {
+      return new NextResponse('Download URL is not allowed.', { status: 403 });
     }
 
-    // Naye headers banana jo browser ko "zabardasti download" karne ka order denge
-    const headers = new Headers(response.headers);
-    headers.set('Content-Disposition', `attachment; filename="${title.replace(/[^a-zA-Z0-9]/g, '_')}.${ext}"`);
-    headers.set('Content-Type', 'application/octet-stream'); // Browser ko lagega ki ye koi normal file hai, video nahi
-
-    // Stream ko wapas frontend par bhej dena
-    return new NextResponse(response.body, {
-      status: 200,
-      headers: headers,
+    const response = await fetch(videoUrl, {
+      redirect: 'follow',
+      headers: { 'User-Agent': 'SeloiceTools/1.0' },
+      signal: AbortSignal.timeout(55_000),
     });
 
-  } catch (error: any) {
-    console.error("🚨 Force Download Error:", error.message);
-    return new NextResponse("Download failed", { status: 500 });
+    if (!response.ok) {
+      return new NextResponse('Upstream file unavailable.', { status: 502 });
+    }
+
+    const safeName = title.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const headers = new Headers();
+    const contentType = response.headers.get('content-type');
+    if (contentType) headers.set('Content-Type', contentType);
+    headers.set('Content-Disposition', `attachment; filename="${safeName}.${ext}"`);
+    headers.set('Cache-Control', 'no-store');
+
+    return new NextResponse(response.body, { status: 200, headers });
+  } catch {
+    return new NextResponse('Download failed', { status: 500 });
   }
 }

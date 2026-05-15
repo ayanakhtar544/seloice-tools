@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 const stats = [
-  { label: 'Free Tools', value: '24+' },
+  { label: 'Free Tools', value: '26+' },
   { label: 'Monthly Users', value: '50K+' },
   { label: 'Countries', value: '80+' },
   { label: 'Uptime', value: '99.9%' },
@@ -99,7 +99,7 @@ export default function About() {
           <Target size={32} className="text-indigo-400 mb-4" />
           <h2 className="text-3xl md:text-4xl font-black italic mb-4">Our Mission</h2>
           <p className="text-gray-300 text-lg leading-relaxed max-w-3xl">
-            The creator economy is booming, but the best tools are still hidden behind paywalls. Seloice breaks that barrier by providing 24+ professional-grade tools — completely free. We believe that every creator, regardless of budget, deserves access to tools that help them grow faster, create better, and build a sustainable career online.
+            The creator economy is booming, but the best tools are still hidden behind paywalls. Seloice breaks that barrier by providing 26+ professional-grade tools — completely free. We believe that every creator, regardless of budget, deserves access to tools that help them grow faster, create better, and build a sustainable career online.
           </p>
         </div>
 
@@ -160,7 +160,7 @@ export default function About() {
         <div className="text-center bg-gradient-to-br from-indigo-900/40 to-purple-900/20 border border-indigo-500/30 rounded-3xl p-12">
           <Sparkles size={40} className="text-indigo-400 mx-auto mb-4" />
           <h2 className="text-3xl md:text-4xl font-black italic mb-3">Ready to Create?</h2>
-          <p className="text-gray-400 mb-8">24+ free tools. No signup required. Start creating today.</p>
+          <p className="text-gray-400 mb-8">26+ free tools. No signup required. Start creating today.</p>
           <Link
             href="/"
             className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest px-8 py-4 rounded-2xl transition-colors text-sm shadow-[0_0_30px_rgba(79,70,229,0.3)]"

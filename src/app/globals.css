@@ -1,26 +1,102 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #050505;
+  --foreground: #ededed;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Screen reader only — visible on focus (skip link) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only:focus,
+.sr-only:active,
+.focus\:not-sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Accessible focus for keyboard users */
+:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+/* Lighter backgrounds on mobile — improves paint cost */
+@media (max-width: 768px) {
+  .mobile-reduce-blur [class*='blur-'] {
+    opacity: 0.35 !important;
+  }
+}
+
+/* AdSense containers — CLS + policy-safe spacing from CTAs */
+.ad-slot {
+  contain: layout style;
+  margin-block: 1.25rem;
+  min-height: 50px;
+}
+
+.ad-slot ins.adsbygoogle {
+  max-width: 100%;
+}
+
+.ad-slot[data-ad-status='empty'] {
+  opacity: 0.85;
+}
+
+/* Reserve space for ad slots — reduces CLS */
+.ad-slot-reserved {
+  min-height: 90px;
+}
+
+@media (min-width: 768px) {
+  .ad-slot-reserved {
+    min-height: 250px;
+  }
 }

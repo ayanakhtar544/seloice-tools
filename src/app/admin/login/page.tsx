@@ -1,74 +1,111 @@
-// File: src/app/admin/login/page.tsx
-"use client";
+'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Shield, Lock, Eye, EyeOff, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Lock, ArrowRight, ShieldCheck } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
-export default function AdminLogin() {
+export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // 🔑 Fetching password from Environment Variables
-    const securePass = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
+    setIsAuthenticating(true);
+    setError('');
 
-    if (password === securePass) {
-      // Success: Set secure cookie
-      document.cookie = "admin_access=true; path=/; max-age=86400; SameSite=Strict"; 
+    try {
+      const res = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Authentication failed.');
+        return;
+      }
       router.push('/admin');
-      router.refresh(); 
-    } else {
-      setError(true);
-      setPassword(''); // Clear input on error
-      setTimeout(() => setError(false), 2000);
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setIsAuthenticating(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#030305] flex items-center justify-center p-6 font-sans">
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-600/10 rounded-full blur-[120px] pointer-events-none" />
-      
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
+    <div className="min-h-screen bg-[#030305] flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+          backgroundSize: '40px 40px',
+        }}
+      />
+
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-md bg-white/[0.02] border border-white/10 backdrop-blur-xl p-10 rounded-[2.5rem] shadow-2xl relative z-10"
+        className="w-full max-w-md bg-white/[0.03] border border-white/10 backdrop-blur-2xl rounded-[2.5rem] p-10 relative z-10"
       >
         <div className="flex flex-col items-center text-center mb-10">
-          <div className="w-20 h-20 bg-emerald-500/10 border border-emerald-500/20 rounded-3xl flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
-            <Lock size={32} className="text-emerald-500" />
+          <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 mb-6 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
+            <Shield size={32} />
           </div>
-          <h1 className="text-3xl font-black tracking-tighter uppercase italic">ADMIN <span className="text-emerald-500">LOCK</span></h1>
-          <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mt-2">Environment Protected</p>
+          <h1 className="text-3xl font-black text-white uppercase italic tracking-tighter mb-2">Admin Terminal</h1>
+          <p className="text-zinc-500 text-sm font-medium">Set ADMIN_SECRET in your environment</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
-          <div className="relative">
-            <input 
-              type="password" 
-              placeholder="Enter Admin Password..."
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={`w-full bg-black border ${error ? 'border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.2)]' : 'border-white/10'} p-5 rounded-2xl text-center font-bold text-white outline-none focus:border-emerald-500 transition-all placeholder:text-gray-800`}
-              required
-            />
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-4">Access Key</label>
+            <div className="relative group">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                className="w-full bg-white/[0.05] border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-zinc-700 outline-none focus:border-indigo-500/50 focus:bg-white/[0.08] transition-all"
+                required
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-white transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
-          <button 
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center gap-3 text-red-400 text-xs font-bold"
+            >
+              <AlertTriangle size={16} />
+              {error}
+            </motion.div>
+          )}
+
+          <button
             type="submit"
-            className="w-full flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl font-black uppercase tracking-widest text-xs text-white transition-all shadow-[0_10px_30px_rgba(16,185,129,0.2)] active:scale-95"
+            disabled={isAuthenticating}
+            className="w-full bg-white text-black font-black uppercase tracking-widest py-5 rounded-2xl hover:bg-indigo-500 hover:text-white transition-all shadow-xl shadow-white/5 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Access Dashboard <ArrowRight size={16} />
+            {isAuthenticating ? 'Authenticating...' : 'Authenticate'}
           </button>
         </form>
 
-        <div className="mt-10 pt-6 border-t border-white/5 flex items-center justify-center gap-2 text-gray-600">
-           <ShieldCheck size={14} />
-           <p className="text-[10px] font-black uppercase tracking-widest">Vars loaded via .env.local</p>
+        <div className="mt-10 pt-8 border-t border-white/5 flex flex-col items-center gap-4">
+          <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-zinc-600">
+            <Lock size={12} /> HttpOnly session cookie
+          </div>
         </div>
       </motion.div>
     </div>

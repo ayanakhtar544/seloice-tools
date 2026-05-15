@@ -1,31 +1,33 @@
-"use client";
+'use client';
 
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldAlert, Check, X } from 'lucide-react';
-import { hasMadeChoice, acceptConsent, rejectConsent } from '@/lib/cookieConsent';
+import Link from 'next/link';
+import {
+  hasMadeChoice,
+  acceptConsent,
+  rejectConsent,
+  acceptNonPersonalizedAds,
+} from '@/lib/cookieConsent';
 
 export default function CookieBanner() {
   const [showBanner, setShowBanner] = useState(false);
+  const [strictRegion, setStrictRegion] = useState(true);
 
   useEffect(() => {
-    // Only show if the user hasn't made a choice yet
-    // Delayed slightly to not interrupt immediate page load experience
+    fetch('/api/consent/region')
+      .then((r) => r.json())
+      .then((d: { strict?: boolean }) => setStrictRegion(d.strict !== false))
+      .catch(() => setStrictRegion(true));
+
     if (!hasMadeChoice()) {
-      const timer = setTimeout(() => setShowBanner(true), 1500);
+      const timer = setTimeout(() => setShowBanner(true), 1200);
       return () => clearTimeout(timer);
     }
   }, []);
 
-  const handleAccept = () => {
-    acceptConsent();
-    setShowBanner(false);
-  };
-
-  const handleReject = () => {
-    rejectConsent();
-    setShowBanner(false);
-  };
+  const close = () => setShowBanner(false);
 
   return (
     <AnimatePresence>
@@ -34,38 +36,63 @@ export default function CookieBanner() {
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="fixed bottom-4 left-4 right-4 md:bottom-6 md:left-auto md:right-6 md:max-w-sm z-[999] bg-[#111] border border-white/10 shadow-2xl rounded-2xl p-5 overflow-hidden"
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:max-w-md z-[999] bg-[#111] border border-white/10 shadow-2xl rounded-2xl p-5 overflow-hidden"
+          role="dialog"
+          aria-label="Cookie consent"
         >
-          {/* Subtle gradient background effect */}
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/5 pointer-events-none" />
-          
+
           <div className="relative z-10 flex flex-col gap-4">
             <div className="flex items-start gap-3">
               <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400 shrink-0">
                 <ShieldAlert size={20} />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white mb-1">Your Privacy</h3>
+                <h3 className="text-sm font-bold text-white mb-1">Privacy & cookies</h3>
                 <p className="text-xs text-gray-400 leading-relaxed">
-                  We use cookies to analyze traffic and improve your experience. 
-                  We don't use annoying ads. You can opt-out of non-essential tracking.
+                  We use cookies for Google Analytics, Microsoft Clarity, and Google AdSense ads.
+                  You can accept all, use limited non-personalized ads only, or decline optional
+                  cookies.{' '}
+                  <Link href="/privacy" className="text-indigo-400 hover:underline">
+                    Privacy Policy
+                  </Link>
                 </p>
               </div>
             </div>
-            
-            <div className="flex items-center gap-2 mt-1">
-              <button 
-                onClick={handleReject}
-                className="flex-1 py-2.5 rounded-xl border border-white/10 bg-transparent hover:bg-white/5 text-gray-300 text-xs font-bold transition-colors flex items-center justify-center gap-2"
+
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  acceptConsent();
+                  close();
+                }}
+                className="w-full py-2.5 rounded-xl border border-indigo-500 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors flex items-center justify-center gap-2"
               >
-                <X size={14} /> Decline
+                <Check size={14} /> Accept all
               </button>
-              <button 
-                onClick={handleAccept}
-                className="flex-1 py-2.5 rounded-xl border border-indigo-500 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition-colors flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(79,70,229,0.3)]"
+              {!strictRegion && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    acceptNonPersonalizedAds();
+                    close();
+                  }}
+                  className="w-full py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 text-xs font-bold transition-colors"
+                >
+                  Limited ads only (no personalization)
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  rejectConsent();
+                  close();
+                }}
+                className="w-full py-2.5 rounded-xl border border-white/10 bg-transparent hover:bg-white/5 text-gray-400 text-xs font-bold transition-colors flex items-center justify-center gap-2"
               >
-                <Check size={14} /> Accept
+                <X size={14} /> Decline optional cookies
               </button>
             </div>
           </div>

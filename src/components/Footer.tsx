@@ -15,7 +15,7 @@ export default function Footer() {
         <div className="md:col-span-5 text-center md:text-left">
           <Link href="/" className="flex items-center gap-3 font-black text-xl md:text-2xl tracking-tighter italic text-white hover:opacity-80 transition-opacity">
             <img 
-              src="/favicon.ico" 
+              src="/favicon.png" 
               alt="Seloice Logo" 
               className="w-8 h-8 md:w-10 md:h-10 object-contain" 
             />
@@ -25,8 +25,8 @@ export default function Footer() {
             Building the ultimate operating system for modern creators. Faster edits, better growth, zero cost.
           </p>
           <div className="flex justify-center md:justify-start gap-4">
-            <a href="#" className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-indigo-500 hover:text-white hover:border-indigo-500 transition-all shadow-lg"><MessageCircle size={20}/></a>
-            <a href="#" className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all shadow-lg"><Mail size={20}/></a>
+            <a href="/contact" aria-label="Contact Seloice on social" className="w-12 h-12 min-w-[48px] min-h-[48px] rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-indigo-500 hover:text-white hover:border-indigo-500 transition-all shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"><MessageCircle size={20} aria-hidden /></a>
+            <a href="mailto:support@seloice.com" aria-label="Email Seloice support" className="w-12 h-12 min-w-[48px] min-h-[48px] rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"><Mail size={20} aria-hidden /></a>
           </div>
         </div>
         
@@ -35,9 +35,9 @@ export default function Footer() {
           <ul className="space-y-4 text-gray-500 font-bold text-sm">
             {/* 🔥 ADDED BLOG LINK HERE */}
             <li><Link href="/blogs" className="text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-2 justify-center md:justify-start">Seloice Insights <span className="text-[8px] bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">BLOG</span></Link></li>
-            <li><Link href="/tools" className="hover:text-indigo-400 transition-colors">All 26+ Tools</Link></li>
+            <li><Link href="/tools" className="hover:text-indigo-400 transition-colors">All 28+ Tools</Link></li>
             <li><Link href="/#features" className="hover:text-indigo-400 transition-colors">Features</Link></li>
-            <li><Link href="/#pricing" className="hover:text-indigo-400 transition-colors">Pricing</Link></li>
+            <li><Link href="/tools" className="hover:text-indigo-400 transition-colors">All Tools</Link></li>
             <li><Link href="/#faq" className="hover:text-indigo-400 transition-colors">FAQ</Link></li>
           </ul>
         </div>
@@ -67,7 +67,11 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-center">
         <p className="text-gray-600 text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">© {new Date().getFullYear()} SELOICE TOOLS. All rights reserved.</p>
         <div className="flex items-center justify-center gap-2 text-gray-600 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] bg-white/5 px-4 py-2 rounded-full border border-white/5">
-          BUILT WITH <Zap size={14} className="text-indigo-500"/> FOR CREATORS
+          BUILT WITH <img 
+              src="/favicon.png" 
+              alt="Seloice Logo" 
+              className="w-8 h-8 md:w-10 md:h-10 object-contain" 
+            /> FOR CREATORS
         </div>
       </div>
     </footer>

@@ -19,7 +19,6 @@ const firebaseConfig = {
 // Singleton pattern — prevents re-initialization on hot reload
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// 🚀 SENIOR DEV FIX: Removed experimentalAutoDetectLongPolling to prevent clashes
 const db = initializeFirestore(app, {
   experimentalForceLongPolling: true,
 });
@@ -27,7 +26,6 @@ const db = initializeFirestore(app, {
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-// Safe analytics — client-only, silent on failure (ad blockers, etc.)
 let analytics: Analytics | null = null;
 
 if (typeof window !== "undefined") {

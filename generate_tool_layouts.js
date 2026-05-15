@@ -25,6 +25,10 @@ export const metadata: Metadata = {
     url: '${url}',
     type: 'website',
   },
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+  },
   twitter: {
     card: 'summary_large_image',
     title: '${title} | Seloice Tools',

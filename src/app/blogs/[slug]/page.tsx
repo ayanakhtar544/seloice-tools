@@ -95,7 +95,7 @@ export default async function BlogPostPage(props: { params: Promise<{ slug: stri
     "description": blog.metaDescription || blog.excerpt || "",
     "image": blog.coverImage || "",  
     "author": { "@type": "Person", "name": blog.author || "Abushahma", "url": "https://seloice.com" },  
-    "publisher": { "@type": "Organization", "name": "Seloice", "logo": { "@type": "ImageObject", "url": "https://seloice.com/favicon.ico" } },
+    "publisher": { "@type": "Organization", "name": "Seloice", "logo": { "@type": "ImageObject", "url": "https://seloice.com/favicon.png" } },
     "datePublished": publishDate,
     "dateModified": publishDate
   };
