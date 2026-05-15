@@ -1,3 +1,4 @@
+// File: src/lib/adsense/script.ts
 import { ADSENSE_SCRIPT_URL } from './constants';
 
 declare global {
@@ -37,7 +38,11 @@ export function ensureAdSenseScript(): Promise<void> {
         return;
       }
       existing.addEventListener('load', onReady, { once: true });
-      existing.addEventListener('error', () => reject(new Error('AdSense script failed')), {
+      // 🔥 THE FIX: Yahan bhi reject ki jagah resolve kar diya taaki crash na ho
+      existing.addEventListener('error', () => {
+        console.warn('AdSense script blocked. Site will continue working.');
+        resolve(); 
+      }, {
         once: true,
       });
       return;
@@ -48,10 +53,13 @@ export function ensureAdSenseScript(): Promise<void> {
     script.async = true;
     script.crossOrigin = 'anonymous';
     script.onload = onReady;
+    
     script.onerror = () => {
       console.warn('AdSense blocked by AdBlocker. Site will continue working.');
-      resolve(false); 
+      // 🔥 THE FIX: 'false' hata diya, ab ye strictly 'void' return karega
+      resolve(); 
     };
+    
     document.head.appendChild(script);
   });
 
