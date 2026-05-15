@@ -3,8 +3,9 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { fetchFile } from '@ffmpeg/util';
+import type { FFmpeg } from '@ffmpeg/ffmpeg';
+import { loadFfmpegCore, logFfmpegLoadError } from '@/lib/ffmpeg/load-core';
 import { Video, UploadCloud, Loader2, Download, ArrowLeft, FileVideo, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -27,22 +28,14 @@ export default function VideoCompressorClient() {
     setIsLoadingEngine(true);
     loadingPromiseRef.current = (async () => {
     try {
-      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
-      const ffmpeg = new FFmpeg();
+      const ffmpeg = await loadFfmpegCore();
+      ffmpeg.on('progress', ({ progress: p }) => {
+        setProgress(Math.min(Math.round(p * 100), 100));
+      });
       ffmpegRef.current = ffmpeg;
-
-      ffmpeg.on('progress', ({ progress }) => {
-        setProgress(Math.min(Math.round(progress * 100), 100));
-      });
-
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-      });
-      
       setIsLoaded(true);
     } catch (error) {
-      console.error("FFmpeg load error:", error);
+      logFfmpegLoadError('video-compressor', error);
     } finally {
       setIsLoadingEngine(false);
       loadingPromiseRef.current = null;

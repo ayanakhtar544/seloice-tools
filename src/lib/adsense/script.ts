@@ -48,7 +48,10 @@ export function ensureAdSenseScript(): Promise<void> {
     script.async = true;
     script.crossOrigin = 'anonymous';
     script.onload = onReady;
-    script.onerror = () => reject(new Error('AdSense script failed to load'));
+    script.onerror = () => {
+      console.warn('AdSense blocked by AdBlocker. Site will continue working.');
+      resolve(false); 
+    };
     document.head.appendChild(script);
   });
 

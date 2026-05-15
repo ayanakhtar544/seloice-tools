@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import JsonLd from '@/components/seo/JsonLd';
 import { getAllUseCases, getUseCaseBySlug } from '@/lib/seo/use-cases';
 import { getRelatedTools } from '@/lib/seo/tools-registry';
 
@@ -68,7 +69,7 @@ export default async function UseCasePage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="min-h-screen bg-[#030305] pt-24 pb-20 text-white">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLd data={jsonLd} />
 
       <article className="max-w-4xl mx-auto px-4">
         <nav aria-label="Breadcrumb" className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-8">

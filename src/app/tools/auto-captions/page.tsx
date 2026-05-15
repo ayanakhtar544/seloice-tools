@@ -1,10 +1,5 @@
-import ToolDynamicLoader from '@/components/seo/ToolDynamicLoader';
+import ToolClient from '@/components/seo/ToolClientRegistry';
 
-export default function AutoCaptionsPage() {
-  return (
-    <ToolDynamicLoader
-      loader={() => import('./AutoCaptionsClient')}
-      label="Loading auto captions…"
-    />
-  );
+export default function ToolPage() {
+  return <ToolClient slug="auto-captions" />;
 }

@@ -1,10 +1,5 @@
-import ToolDynamicLoader from '@/components/seo/ToolDynamicLoader';
+import ToolClient from '@/components/seo/ToolClientRegistry';
 
-export default function Page() {
-  return (
-    <ToolDynamicLoader
-      loader={() => import('./HashtagExtractorClient')}
-      label="Loading hashtag extractor…"
-    />
-  );
+export default function ToolPage() {
+  return <ToolClient slug="hashtag-extractor" />;
 }

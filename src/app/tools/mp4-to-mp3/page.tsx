@@ -1,10 +1,5 @@
-import ToolDynamicLoader from '@/components/seo/ToolDynamicLoader';
+import ToolClient from '@/components/seo/ToolClientRegistry';
 
-export default function Page() {
-  return (
-    <ToolDynamicLoader
-      loader={() => import('./Mp4ToMp3Client')}
-      label="Loading mp4 to mp3…"
-    />
-  );
+export default function ToolPage() {
+  return <ToolClient slug="mp4-to-mp3" />;
 }

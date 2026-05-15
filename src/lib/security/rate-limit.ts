@@ -1,6 +1,8 @@
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
 /**
- * In-memory sliding-window rate limiter.
- * Replace the Map store with Redis (e.g. @upstash/ratelimit) in multi-instance production.
+ * In-memory sliding-window rate limiter, enhanced with Redis support.
  */
 
 const buckets = new Map<string, { count: number; resetAt: number }>();
@@ -20,12 +22,31 @@ function getLimit(pathname: string) {
   return match ? ROUTE_LIMITS[match] : { windowMs: DEFAULT_WINDOW_MS, max: DEFAULT_MAX };
 }
 
-export function checkRateLimit(
+let redisCache: Map<string, any> = new Map();
+
+export async function checkRateLimit(
   ip: string,
   pathname: string,
-): { limited: boolean; retryAfter: number } {
+): Promise<{ limited: boolean; retryAfter: number }> {
   const { windowMs, max } = getLimit(pathname);
   const key = `${ip}:${pathname.split('/').slice(0, 3).join('/')}`;
+
+  if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+    try {
+      const windowStr = `${windowMs / 1000} s` as const;
+      const limiter = new Ratelimit({
+        redis: Redis.fromEnv(),
+        limiter: Ratelimit.slidingWindow(max, windowStr as any),
+        ephemeralCache: redisCache,
+      });
+      const { success, reset } = await limiter.limit(key);
+      return { limited: !success, retryAfter: success ? 0 : Math.ceil((reset - Date.now()) / 1000) };
+    } catch (e) {
+      console.error('Redis Rate Limit Error, falling back to memory:', e);
+    }
+  }
+
+  // Fallback memory rate limiter
   const now = Date.now();
   const entry = buckets.get(key);
 

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import JsonLd from '@/components/seo/JsonLd';
 import { ALL_TOOLS } from '@/lib/seo/tools-registry';
 
 const HOME_FAQS = [
@@ -52,8 +53,8 @@ export default function HomePageSEO() {
       className="max-w-4xl mx-auto px-4 py-12 text-gray-400 border-t border-white/5"
       aria-label="About Seloice Tools"
     >
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
+      <JsonLd data={faqSchema} />
+      <JsonLd data={itemListSchema} />
 
       <h2 className="text-2xl font-bold text-white mb-4">Free AI creator tools for YouTube, Instagram & TikTok</h2>
       <p className="mb-6 leading-relaxed text-sm md:text-base">

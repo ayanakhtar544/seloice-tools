@@ -1,10 +1,5 @@
-import ToolDynamicLoader from '@/components/seo/ToolDynamicLoader';
+import ToolClient from '@/components/seo/ToolClientRegistry';
 
-export default function Page() {
-  return (
-    <ToolDynamicLoader
-      loader={() => import('./ReelFitterClient')}
-      label="Loading reel fitter…"
-    />
-  );
+export default function ToolPage() {
+  return <ToolClient slug="reel-fitter" />;
 }

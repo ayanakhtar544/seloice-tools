@@ -1,13 +1,13 @@
 // File: src/app/tools/mp4-to-mp3/page.tsx
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { fetchFile } from '@ffmpeg/util';
 import { Music, UploadCloud, Loader2, Download, ArrowLeft, FileAudio, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
-import { data } from 'framer-motion/m';
+import type { FFmpeg } from '@ffmpeg/ffmpeg';
+import { loadFfmpegCore, logFfmpegLoadError } from '@/lib/ffmpeg/load-core';
 
 export default function Mp4ToMp3Client() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -20,29 +20,19 @@ export default function Mp4ToMp3Client() {
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/immutability
-    loadFFmpeg();
-  }, []);
-
-  const loadFFmpeg = async () => {
+  const ensureFfmpeg = async (): Promise<FFmpeg | null> => {
+    if (ffmpegRef.current && isLoaded) return ffmpegRef.current;
     try {
-      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
-      const ffmpeg = new FFmpeg();
+      const ffmpeg = await loadFfmpegCore();
+      ffmpeg.on('progress', ({ progress: p }) => {
+        setProgress(Math.min(Math.round(p * 100), 100));
+      });
       ffmpegRef.current = ffmpeg;
-
-      ffmpeg.on('progress', ({ progress }) => {
-        setProgress(Math.min(Math.round(progress * 100), 100));
-      });
-
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-      });
-      
       setIsLoaded(true);
+      return ffmpeg;
     } catch (error) {
-      console.error("FFmpeg load error:", error);
+      logFfmpegLoadError('mp4-to-mp3', error);
+      return null;
     }
   };
 
@@ -55,12 +45,11 @@ export default function Mp4ToMp3Client() {
   };
 
   const handleConvert = async () => {
-    const ffmpeg = ffmpegRef.current;
-    
-    // 🔥 SENIOR DEV FIX: Strict Null Check for TypeScript
-    if (!file || !ffmpeg) {
-      alert("Please wait for the tool to load completely or select a file.");
-      return; 
+    if (!file) return;
+    const ffmpeg = await ensureFfmpeg();
+    if (!ffmpeg) {
+      alert('Could not load the conversion engine. Please refresh and try again.');
+      return;
     }
 
     setIsProcessing(true);
@@ -80,13 +69,13 @@ export default function Mp4ToMp3Client() {
       // 4. Create a downloadable blob
       const arrayBuffer = new ArrayBuffer(outputData.length);
       new Uint8Array(arrayBuffer).set(outputData);
-      const blob = new Blob([data as any], { type: 'audio/mp3' });
+      const blob = new Blob([arrayBuffer], { type: 'audio/mp3' });
       const url = URL.createObjectURL(blob);
       setOutputUrl(url);
       
     } catch (error) {
-      console.error("Error during conversion:", error);
-      alert("Something went wrong during conversion. Please try a different file.");
+      logFfmpegLoadError('mp4-to-mp3 convert', error);
+      alert('Something went wrong during conversion. Please try a different file.');
     } finally {
       setIsProcessing(false);
     }

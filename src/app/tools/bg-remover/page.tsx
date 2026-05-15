@@ -1,10 +1,5 @@
-import ToolDynamicLoader from '@/components/seo/ToolDynamicLoader';
+import ToolClient from '@/components/seo/ToolClientRegistry';
 
-export default function BgRemoverPage() {
-  return (
-    <ToolDynamicLoader
-      loader={() => import('./BgRemoverClient')}
-      label="Loading background remover…"
-    />
-  );
+export default function ToolPage() {
+  return <ToolClient slug="bg-remover" />;
 }

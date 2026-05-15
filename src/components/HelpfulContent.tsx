@@ -1,6 +1,5 @@
-"use client";
-
 import React from 'react';
+import JsonLd from '@/components/seo/JsonLd';
 import RelatedTools from './RelatedTools';
 
 interface FAQ {
@@ -59,15 +58,8 @@ export default function HelpfulContent({
 
   return (
     <>
-      {/* Inject Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
+      <JsonLd data={softwareSchema} />
+      <JsonLd data={faqSchema} />
 
       <div className="w-full max-w-4xl mx-auto py-16 px-4">
         {/* SEO Helpful Content Block */}

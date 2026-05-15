@@ -3,8 +3,9 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { fetchFile } from '@ffmpeg/util';
+import type { FFmpeg } from '@ffmpeg/ffmpeg';
+import { loadFfmpegCore, logFfmpegLoadError } from '@/lib/ffmpeg/load-core';
 import { Subtitles, UploadCloud, Loader2, Download, ArrowLeft, FileVideo, CheckCircle2, Globe, Palette, Edit3, Settings, PlayCircle, AlignVerticalSpaceAround } from 'lucide-react';
 import Link from 'next/link';
 
@@ -31,7 +32,7 @@ export default function AutoCaptions() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
-  const [statusText, setStatusText] = useState("LOADING ENGINE...");
+  const [statusText, setStatusText] = useState('CLICK TO UPLOAD VIDEO');
   
   const [appState, setAppState] = useState<'upload' | 'processing' | 'edit' | 'burning' | 'done'>('upload');
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
@@ -46,30 +47,22 @@ export default function AutoCaptions() {
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    loadFFmpeg();
-  }, []);
-
-  const loadFFmpeg = async () => {
+  const ensureFfmpeg = async (): Promise<FFmpeg | null> => {
+    if (ffmpegRef.current && isLoaded) return ffmpegRef.current;
+    setStatusText('LOADING ENGINE...');
     try {
-      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
-      const ffmpeg = new FFmpeg();
+      const ffmpeg = await loadFfmpegCore();
+      ffmpeg.on('progress', ({ progress: p }) => {
+        setProgress(Math.min(Math.round(p * 100), 100));
+      });
       ffmpegRef.current = ffmpeg;
-
-      ffmpeg.on('progress', ({ progress }) => {
-        setProgress(Math.min(Math.round(progress * 100), 100));
-      });
-
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-      });
-
       setIsLoaded(true);
-      setStatusText("CLICK TO UPLOAD VIDEO");
+      setStatusText('CLICK TO UPLOAD VIDEO');
+      return ffmpeg;
     } catch (error) {
-      console.error("FFmpeg error:", error);
-      setStatusText("ERROR LOADING TOOL");
+      logFfmpegLoadError('auto-captions', error);
+      setStatusText('ERROR LOADING TOOL');
+      return null;
     }
   };
 
@@ -90,8 +83,9 @@ export default function AutoCaptions() {
   };
 
   const handleExtractText = async () => {
-    const ffmpeg = ffmpegRef.current;
-    if (!file || !ffmpeg) return;
+    if (!file) return;
+    const ffmpeg = await ensureFfmpeg();
+    if (!ffmpeg) return;
 
     setAppState('processing');
     setProgress(0);
@@ -135,16 +129,20 @@ export default function AutoCaptions() {
       setCaptions(blocks);
       setAppState('edit');
 
-    } catch (error: any) {
-      console.error("Error:", error);
-      alert(`Error: ${error.message}`);
+    } catch (error: unknown) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error:', error);
+      }
+      const message = error instanceof Error ? error.message : 'Something went wrong';
+      alert(`Error: ${message}`);
       setAppState('upload');
     }
   };
 
   const handleBurnVideo = async () => {
-    const ffmpeg = ffmpegRef.current;
-    if (!file || !ffmpeg) return;
+    if (!file) return;
+    const ffmpeg = await ensureFfmpeg();
+    if (!ffmpeg) return;
 
     setAppState('burning');
     setProgress(0);

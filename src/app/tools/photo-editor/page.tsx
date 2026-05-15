@@ -1,10 +1,5 @@
-import ToolDynamicLoader from '@/components/seo/ToolDynamicLoader';
+import ToolClient from '@/components/seo/ToolClientRegistry';
 
-export default function PhotoEditorPage() {
-  return (
-    <ToolDynamicLoader
-      loader={() => import('./PhotoEditorClient')}
-      label="Loading photo editor…"
-    />
-  );
+export default function ToolPage() {
+  return <ToolClient slug="photo-editor" />;
 }

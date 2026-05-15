@@ -9,8 +9,9 @@ import SkipLink from '@/components/seo/SkipLink';
 import MobileBottomNav from "@/components/MobileBottomNav";
 import AdHealthChecker from "@/components/ads/AdHealthChecker";
 import ConsentModeScript from "@/components/ConsentModeScript";
+import JsonLd from "@/components/seo/JsonLd";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap", preload: false, adjustFontFallback: true });
 
 export const viewport: Viewport = {
   themeColor: "#050505",
@@ -78,36 +79,48 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
       <head>
         <ConsentModeScript />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@graph": [
-                {
-                  "@type": "WebSite",
-                  "@id": "https://seloice.com/#website",
-                  "url": "https://seloice.com/",
-                  "name": "Seloice Tools",
-                  "description": "28+ free creator tools — video editor, downloaders, captions & AI utilities.",
-                  "publisher": { "@id": "https://seloice.com/#organization" }
+        <JsonLd
+          data={{
+            '@context': 'https://schema.org',
+            '@graph': [
+              {
+                '@type': 'WebSite',
+                '@id': 'https://seloice.com/#website',
+                url: 'https://seloice.com/',
+                name: 'Seloice Tools',
+                description: '28+ free creator tools — video editor, downloaders, captions & AI utilities.',
+                publisher: { '@id': 'https://seloice.com/#organization' },
+              },
+              {
+                '@type': 'Organization',
+                '@id': 'https://seloice.com/#organization',
+                name: 'Seloice Tools',
+                url: 'https://seloice.com',
+                logo: {
+                  '@type': 'ImageObject',
+                  url: 'https://seloice.com/favicon.png',
                 },
-                {
-                  "@type": "Organization",
-                  "@id": "https://seloice.com/#organization",
-                  "name": "Seloice Tools",
-                  "url": "https://seloice.com",
-                  "logo": {
-                    "@type": "ImageObject",
-                    "url": "https://seloice.com/favicon.png"
-                  }
-                }
-              ]
-            }),
+              },
+            ],
           }}
         />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#10b981" />
+        <meta name="application-name" content="Seloice Tools" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Seloice Tools" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.__deferredInstallPrompt = null;
+              window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                window.__deferredInstallPrompt = e;
+              });
+            `,
+          }}
+        />
       </head>
       
       <body className={`${inter.variable} font-sans bg-[#050505] text-white antialiased overflow-x-hidden mobile-reduce-blur`}>

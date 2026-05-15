@@ -1,10 +1,5 @@
-import ToolDynamicLoader from '@/components/seo/ToolDynamicLoader';
+import ToolClient from '@/components/seo/ToolClientRegistry';
 
-export default function Page() {
-  return (
-    <ToolDynamicLoader
-      loader={() => import('./ImageConverterClient')}
-      label="Loading image converter…"
-    />
-  );
+export default function ToolPage() {
+  return <ToolClient slug="image-converter" />;
 }

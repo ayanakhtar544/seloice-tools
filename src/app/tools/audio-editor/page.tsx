@@ -1,10 +1,5 @@
-import ToolDynamicLoader from '@/components/seo/ToolDynamicLoader';
+import ToolClient from '@/components/seo/ToolClientRegistry';
 
-export default function AudioEditorPage() {
-  return (
-    <ToolDynamicLoader
-      loader={() => import('./AudioEditorClient')}
-      label="Loading audio editor…"
-    />
-  );
+export default function ToolPage() {
+  return <ToolClient slug="audio-editor" />;
 }

@@ -3,6 +3,7 @@ import React from 'react';
 import { getBlogBySlug } from '@/lib/blogService';
 import { Metadata } from 'next';
 import BlogPostClient from './BlogPostClient';
+import JsonLd from '@/components/seo/JsonLd';
 import { notFound } from 'next/navigation';
 
 // 🛠️ Step 1: Define Blog Interface for Strict Typing
@@ -130,9 +131,9 @@ export default async function BlogPostPage(props: { params: Promise<{ slug: stri
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-      {faqSchema && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />}
+      <JsonLd data={articleSchema} />
+      <JsonLd data={breadcrumbSchema} />
+      {faqSchema && <JsonLd data={faqSchema} />}
       <BlogPostClient blog={blog} />
     </>
   );

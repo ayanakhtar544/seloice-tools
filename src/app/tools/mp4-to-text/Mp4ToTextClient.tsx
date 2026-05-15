@@ -1,10 +1,11 @@
 // File: src/app/tools/smart-captions/page.tsx
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { fetchFile } from '@ffmpeg/util';
+import type { FFmpeg } from '@ffmpeg/ffmpeg';
+import { loadFfmpegCore, logFfmpegLoadError } from '@/lib/ffmpeg/load-core';
 import { Type, UploadCloud, Loader2, Download, ArrowLeft, FileVideo, CheckCircle2, MessageSquareText } from 'lucide-react';
 import Link from 'next/link';
 
@@ -12,38 +13,29 @@ export default function Mp4ToTextClient() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
-  const [statusText, setStatusText] = useState("LOADING ENGINE...");
+  const [statusText, setStatusText] = useState('CLICK TO UPLOAD VIDEO');
   const [isProcessing, setIsProcessing] = useState(false);
   const [captions, setCaptions] = useState<string>("");
 
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    loadFFmpeg();
-  }, []);
-
-  const loadFFmpeg = async () => {
+  const ensureFfmpeg = async (): Promise<FFmpeg | null> => {
+    if (ffmpegRef.current && isLoaded) return ffmpegRef.current;
+    setStatusText('LOADING ENGINE...');
     try {
-      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
-      const ffmpeg = new FFmpeg();
+      const ffmpeg = await loadFfmpegCore();
+      ffmpeg.on('progress', ({ progress: p }) => {
+        setProgress(Math.min(Math.round(p * 100), 100));
+      });
       ffmpegRef.current = ffmpeg;
-
-      ffmpeg.on('progress', ({ progress }) => {
-        // Only show progress for audio extraction phase
-        setProgress(Math.min(Math.round(progress * 100), 100));
-      });
-
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-      });
-      
       setIsLoaded(true);
-      setStatusText("CLICK TO UPLOAD VIDEO");
+      setStatusText('CLICK TO UPLOAD VIDEO');
+      return ffmpeg;
     } catch (error) {
-      console.error("FFmpeg load error:", error);
-      setStatusText("ERROR LOADING TOOL");
+      logFfmpegLoadError('mp4-to-text', error);
+      setStatusText('ERROR LOADING TOOL');
+      return null;
     }
   };
 
@@ -56,11 +48,11 @@ export default function Mp4ToTextClient() {
   };
 
   const handleGenerateCaptions = async () => {
-    const ffmpeg = ffmpegRef.current;
-    
-    if (!file || !ffmpeg) {
-      alert("Please wait for the tool to load completely or select a video.");
-      return; 
+    if (!file) return;
+    const ffmpeg = await ensureFfmpeg();
+    if (!ffmpeg) {
+      alert('Could not load the video engine. Please refresh and try again.');
+      return;
     }
 
     setIsProcessing(true);
@@ -108,9 +100,12 @@ export default function Mp4ToTextClient() {
         setCaptions("Transcription completed, but no text was returned.");
       }
       
-    } catch (error: any) {
-      console.error("Error generating captions:", error);
-      alert(`Error: ${error.message}`); // 🔥 Ab humein exactly pata chalega kya phata hai
+    } catch (error: unknown) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error generating captions:', error);
+      }
+      const message = error instanceof Error ? error.message : 'Something went wrong';
+      alert(`Error: ${message}`);
     } finally {
       setIsProcessing(false);
       setStatusText("CLICK TO UPLOAD VIDEO");

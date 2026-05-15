@@ -33,8 +33,9 @@ const securityHeaders = [
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
 ];
 
+/** credentialless: WASM tools can load FFmpeg from CDN without CORP headers on every host. */
 const wasmHeaders = [
-  { key: 'Cross-Origin-Embedder-Policy', value: 'require-corp' },
+  { key: 'Cross-Origin-Embedder-Policy', value: 'credentialless' },
   { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
 ];
 

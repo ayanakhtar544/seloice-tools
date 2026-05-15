@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import JsonLd from '@/components/seo/JsonLd';
 import { getRelatedTools, getToolBySlug } from '@/lib/seo/tools-registry';
 import { buildToolJsonLd } from '@/lib/seo/schema';
 import { ChevronRight, Sparkles, Lightbulb, Wrench, Target } from 'lucide-react';
@@ -19,7 +20,7 @@ export default function ToolPageContent({ slug }: ToolPageContentProps) {
       className="w-full max-w-4xl mx-auto mt-8 mb-4 border-t border-white/10 pt-12"
       aria-label={`Guide: ${tool.name}`}
     >
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLd data={jsonLd} />
 
       <article>
         <h2 className="text-2xl font-black italic uppercase tracking-tight text-white mb-4">

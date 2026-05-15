@@ -1,10 +1,5 @@
-import ToolDynamicLoader from '@/components/seo/ToolDynamicLoader';
+import ToolClient from '@/components/seo/ToolClientRegistry';
 
-export default function Page() {
-  return (
-    <ToolDynamicLoader
-      loader={() => import('./VideoEditorClient')}
-      label="Loading video editor…"
-    />
-  );
+export default function ToolPage() {
+  return <ToolClient slug="video-editor" />;
 }

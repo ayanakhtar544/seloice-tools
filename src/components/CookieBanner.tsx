@@ -14,30 +14,53 @@ import {
 export default function CookieBanner() {
   const [showBanner, setShowBanner] = useState(false);
   const [strictRegion, setStrictRegion] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    
+    // Fetch region strictly in background
     fetch('/api/consent/region')
       .then((r) => r.json())
       .then((d: { strict?: boolean }) => setStrictRegion(d.strict !== false))
       .catch(() => setStrictRegion(true));
 
+    const checkConsent = () => {
+      if (hasMadeChoice()) {
+        setShowBanner(false);
+      }
+    };
+
     if (!hasMadeChoice()) {
       const timer = setTimeout(() => setShowBanner(true), 1200);
-      return () => clearTimeout(timer);
+      
+      // Listen for consent changes in other tabs or components
+      window.addEventListener('storage', checkConsent);
+      window.addEventListener('consent_updated', checkConsent);
+      
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('storage', checkConsent);
+        window.removeEventListener('consent_updated', checkConsent);
+      };
     }
   }, []);
 
   const close = () => setShowBanner(false);
 
+  // Prevent hydration mismatch
+  if (!mounted) return null;
+
   return (
     <AnimatePresence>
       {showBanner && (
         <motion.div
+          key="cookie-banner"
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:max-w-md z-[999] bg-[#111] border border-white/10 shadow-2xl rounded-2xl p-5 overflow-hidden"
+          className="fixed bottom-0 md:bottom-6 left-0 right-0 md:left-auto md:right-6 md:max-w-md z-[99999] bg-[#111] md:border border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-2xl rounded-t-3xl md:rounded-2xl p-6 pb-8 md:p-5 overflow-hidden"
           role="dialog"
           aria-label="Cookie consent"
         >

@@ -4,7 +4,7 @@ import { buildAdSenseCsp } from '@/lib/adsense/csp';
 import { checkRateLimit } from '@/lib/security/rate-limit';
 import { hashToken } from '@/lib/security/admin-auth';
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
     request.headers.get('x-real-ip') ||
@@ -27,16 +27,26 @@ export function proxy(request: NextRequest) {
 
   if (pathname.startsWith('/api/')) {
     const userAgent = request.headers.get('user-agent') || '';
-    const isBot = /bot|spider|crawl|headless|selenium|puppeteer|scrapy/i.test(userAgent);
+    const isBot = /bot|crawler|spider|crawl|selenium|puppeteer|scrapy/i.test(userAgent);
+    const botProtectedPrefixes = [
+      '/api/yt-download',
+      '/api/ig-download',
+      '/api/force-download',
+      '/api/transcribe',
+      '/api/remove-bg',
+      '/api/generate-',
+      '/api/admin/',
+    ];
+    const isBotProtectedApi = botProtectedPrefixes.some((p) => pathname.startsWith(p));
 
-    if (isBot && !pathname.startsWith('/api/og')) {
+    if (isBot && isBotProtectedApi && !pathname.startsWith('/api/og')) {
       return new NextResponse(JSON.stringify({ error: 'Automated access is not allowed on this endpoint.' }), {
         status: 403,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    const { limited, retryAfter } = checkRateLimit(ip, pathname);
+    const { limited, retryAfter } = await checkRateLimit(ip, pathname);
     if (limited) {
       return new NextResponse(JSON.stringify({ error: 'Too many requests. Please try again later.' }), {
         status: 429,

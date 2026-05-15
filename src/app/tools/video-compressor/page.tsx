@@ -1,10 +1,5 @@
-import ToolDynamicLoader from '@/components/seo/ToolDynamicLoader';
+import ToolClient from '@/components/seo/ToolClientRegistry';
 
-export default function VideoCompressorPage() {
-  return (
-    <ToolDynamicLoader
-      loader={() => import('./VideoCompressorClient')}
-      label="Loading video compressor…"
-    />
-  );
+export default function ToolPage() {
+  return <ToolClient slug="video-compressor" />;
 }
