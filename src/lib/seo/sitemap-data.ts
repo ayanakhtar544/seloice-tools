@@ -31,6 +31,16 @@ export function getToolSlugsFromFilesystem(): string[] {
     .filter((f) => fs.existsSync(path.join(toolsDir, f, 'page.tsx')));
 }
 
+export function getToolLastModified(slug: string): Date {
+  try {
+    const toolPage = path.join(process.cwd(), 'src', 'app', 'tools', slug, 'page.tsx');
+    const stat = fs.statSync(toolPage);
+    return stat.mtime;
+  } catch {
+    return new Date();
+  }
+}
+
 export function getBlogSlugs(): { slug: string; updatedAt?: string }[] {
   const blogPath = path.join(process.cwd(), 'src', 'data', 'blog-posts.json');
   if (!fs.existsSync(blogPath)) return [];
@@ -50,6 +60,14 @@ export function getProgrammaticSlugs(): string[] {
     return pages.map((p) => p.slug);
   } catch {
     return [];
+  }
+}
+
+export function getStaticRouteLastModified(): Date {
+  try {
+    return fs.statSync(path.join(process.cwd(), 'src', 'app', 'layout.tsx')).mtime;
+  } catch {
+    return new Date();
   }
 }
 

@@ -79,10 +79,10 @@ export default function AdminBlogsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#030305] text-white flex">
+    <div className="page-shell min-h-dvh bg-[#030305] text-white flex flex-col md:flex-row">
       <AdminSidebar />
 
-      <main className="flex-1 p-8 md:p-12 h-screen overflow-y-auto no-scrollbar">
+      <main className="flex-1 p-4 sm:p-6 md:p-12 md:h-screen overflow-y-auto no-scrollbar">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
           <div>
             <h1 className="text-3xl md:text-5xl font-black uppercase tracking-tighter mb-2 flex items-center gap-3">

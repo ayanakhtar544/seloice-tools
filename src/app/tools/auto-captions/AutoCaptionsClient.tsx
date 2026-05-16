@@ -5,8 +5,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchFile } from '@ffmpeg/util';
 import type { FFmpeg } from '@ffmpeg/ffmpeg';
-import { loadFfmpegCore, logFfmpegLoadError } from '@/lib/ffmpeg/load-core';
-import { Subtitles, UploadCloud, Loader2, Download, ArrowLeft, FileVideo, CheckCircle2, Globe, Palette, Edit3, Settings, PlayCircle, AlignVerticalSpaceAround } from 'lucide-react';
+import {
+  loadFfmpegCore,
+  logFfmpegLoadError,
+  preloadFfmpegCore,
+} from '@/lib/ffmpeg/load-core';
+import { Subtitles, UploadCloud, Loader2, Download, FileVideo, CheckCircle2, Globe, Edit3, Settings, PlayCircle, AlignVerticalSpaceAround, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
 const LANGUAGES = [
@@ -19,6 +23,7 @@ const LANGUAGES = [
 
 const TEXT_COLORS = ['white', 'yellow', 'cyan', 'green', 'red', 'black'];
 const BG_COLORS = ['black', 'white', 'blue', 'red', 'green', 'transparent'];
+const MAX_VIDEO_SIZE_BYTES = 400 * 1024 * 1024;
 
 interface CaptionBlock {
   id: number;
@@ -41,11 +46,46 @@ export default function AutoCaptions() {
   const [captions, setCaptions] = useState<CaptionBlock[]>([]);
   // 🔥 Position Feature Added Here
   const [capStyle, setCapStyle] = useState({ size: 36, color: 'yellow', bg: 'black', bgOpacity: '0.6', position: 'bottom' });
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const [currentTime, setCurrentTime] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const warm = () => preloadFfmpegCore();
+    const browserWindow = window as Window & {
+      requestIdleCallback?: (
+        callback: IdleRequestCallback,
+        options?: IdleRequestOptions
+      ) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+
+    if (browserWindow.requestIdleCallback) {
+      const idleId = browserWindow.requestIdleCallback(() => warm(), {
+        timeout: 1500,
+      });
+      return () => browserWindow.cancelIdleCallback?.(idleId);
+    }
+
+    const timeoutId = browserWindow.setTimeout(warm, 500);
+    return () => browserWindow.clearTimeout(timeoutId);
+  }, []);
+
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl(null);
+      return;
+    }
+
+    const nextUrl = URL.createObjectURL(file);
+    setPreviewUrl(nextUrl);
+
+    return () => URL.revokeObjectURL(nextUrl);
+  }, [file]);
 
   const ensureFfmpeg = async (): Promise<FFmpeg | null> => {
     if (ffmpegRef.current && isLoaded) return ffmpegRef.current;
@@ -68,10 +108,23 @@ export default function AutoCaptions() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
+      const nextFile = e.target.files[0];
+      if (!nextFile.type.startsWith('video/')) {
+        setError('Please upload a valid video file.');
+        return;
+      }
+      if (nextFile.size > MAX_VIDEO_SIZE_BYTES) {
+        setError('Video is too large for reliable mobile captioning. Keep it under 400 MB.');
+        return;
+      }
+
+      setError(null);
+      setFile(nextFile);
       setOutputUrl(null);
       setProgress(0);
+      setCaptions([]);
       setAppState('upload');
+      void ensureFfmpeg();
     }
   };
 
@@ -84,6 +137,7 @@ export default function AutoCaptions() {
 
   const handleExtractText = async () => {
     if (!file) return;
+    setError(null);
     const ffmpeg = await ensureFfmpeg();
     if (!ffmpeg) return;
 
@@ -103,7 +157,14 @@ export default function AutoCaptions() {
       formData.append('file', audioFile);
       formData.append('language', selectedLanguage);
 
-      const response = await fetch('/api/generate-srt', { method: 'POST', body: formData });
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 50_000);
+      const response = await fetch('/api/generate-srt', {
+        method: 'POST',
+        body: formData,
+        signal: controller.signal,
+      });
+      window.clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errData = await response.json().catch(() => null);
@@ -134,8 +195,15 @@ export default function AutoCaptions() {
         console.error('Error:', error);
       }
       const message = error instanceof Error ? error.message : 'Something went wrong';
-      alert(`Error: ${message}`);
+      setError(message);
       setAppState('upload');
+    } finally {
+      try {
+        await ffmpegRef.current?.deleteFile('input.mp4');
+        await ffmpegRef.current?.deleteFile('audio.mp3');
+      } catch {
+        // Ignore cleanup failures.
+      }
     }
   };
 
@@ -185,8 +253,9 @@ export default function AutoCaptions() {
       setOutputUrl(URL.createObjectURL(outputBlob));
       setAppState('done');
 
-    } catch (error: any) {
-      alert(`Error: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Rendering failed.';
+      setError(message);
       setAppState('edit');
     }
   };
@@ -215,7 +284,7 @@ export default function AutoCaptions() {
         <div className="absolute top-[-10%] w-[40rem] h-[40rem] bg-cyan-600/10 rounded-full blur-[120px] opacity-40" />
       </div>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 pt-8 md:pt-16">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 pt-6 md:pt-16">
         
         {/* Breadcrumb Navigation */}
         <nav className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500 mb-8 md:mb-12">
@@ -232,13 +301,28 @@ export default function AutoCaptions() {
         </div>
 
         <div className="bg-[#111] border border-white/10 rounded-[2rem] p-6 md:p-10 shadow-2xl relative overflow-hidden">
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-6 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-300"
+              >
+                <div className="flex items-start gap-3">
+                  <AlertCircle size={18} className="mt-0.5 shrink-0" />
+                  <p>{error}</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
           
           {(appState === 'upload' || appState === 'processing') && (
             <div className={`border-2 border-dashed rounded-3xl p-10 flex flex-col items-center justify-center text-center transition-all duration-300
               ${!isLoaded ? 'border-white/5 opacity-50 cursor-not-allowed' : 
                 appState === 'processing' ? 'border-cyan-500/20 bg-cyan-500/5 cursor-wait' : 'border-white/10 hover:border-cyan-500/50 hover:bg-white/[0.02]'}`}
             >
-              <input type="file" accept="video/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} disabled={!isLoaded || appState === 'processing'} />
+              <input type="file" accept="video/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} disabled={appState === 'processing'} />
               
               {appState === 'processing' ? (
                 <div className="flex flex-col items-center">
@@ -271,7 +355,7 @@ export default function AutoCaptions() {
                 <div className="flex flex-col items-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                   <UploadCloud size={48} className="text-gray-600 mb-4" />
                   <h3 className="text-xl font-black mb-2 italic text-gray-300">{statusText}</h3>
-                  <p className="text-sm text-gray-500 font-medium max-w-xs mx-auto">Click to upload your video</p>
+                  <p className="text-sm text-gray-500 font-medium max-w-xs mx-auto">{!isLoaded ? 'Preparing the local caption engine for a faster first run.' : 'Click to upload your video'}</p>
                 </div>
               )}
             </div>
@@ -288,7 +372,7 @@ export default function AutoCaptions() {
                   <div className="relative w-full aspect-[9/16] md:aspect-video bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl max-h-[50vh] flex justify-center">
                     <video 
                       ref={videoRef}
-                      src={URL.createObjectURL(file)} 
+                      src={previewUrl ?? undefined} 
                       className="h-full object-contain"
                       controls
                       onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}

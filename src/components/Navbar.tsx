@@ -39,17 +39,17 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-[100] flex justify-center items-center pt-3 md:pt-6 font-sans">
+      <header className="fixed top-0 left-0 right-0 z-[130] flex justify-center items-center pt-[max(0.75rem,var(--safe-top))] md:pt-6 font-sans px-2 sm:px-3">
         <nav 
           onMouseLeave={() => setIsToolsOpen(false)}
-          className={`relative flex items-center justify-between px-4 sm:px-6 transition-all duration-500 ease-out border border-white/10 shadow-2xl backdrop-blur-xl
+          className={`relative flex items-center justify-between px-3 sm:px-6 transition-all duration-500 ease-out border border-white/10 shadow-2xl backdrop-blur-xl
             ${isScrolled 
-              ? 'w-full max-w-full h-16 sm:h-20 mt-[-12px] md:mt-[-24px] rounded-none bg-black/90' 
-              : 'w-[95%] max-w-6xl h-14 sm:h-16 rounded-full bg-[#0a0a0a]/80'}`}
+              ? 'w-full max-w-6xl h-16 sm:h-20 rounded-[1.35rem] bg-black/90' 
+              : 'w-full max-w-6xl h-14 sm:h-16 rounded-[1.35rem] md:rounded-full bg-[#0a0a0a]/88'}`}
         >
           <Link href="/" className="flex items-center gap-2 sm:gap-3 font-black text-lg sm:text-2xl tracking-tighter italic text-white hover:opacity-80 transition-opacity">
             <img src="/favicon.png" alt="Seloice Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
-            <span>SELOICE</span>
+            <span className="truncate">SELOICE</span>
           </Link>
           
           <div className="hidden lg:flex items-center gap-8 text-xs font-bold uppercase tracking-widest text-gray-400 h-full">
@@ -129,7 +129,7 @@ export default function Navbar() {
 
             <HistoryDrawer />
 
-            <Link href="/tools" className="px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-white text-black font-black text-[10px] sm:text-xs shadow-[0_4px_0_0_#d1d5db] active:translate-y-1 active:shadow-none hover:bg-gray-100 transition-all uppercase tracking-widest whitespace-nowrap">
+            <Link href="/tools" className="hidden sm:inline-flex px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-white text-black font-black text-[10px] sm:text-xs shadow-[0_4px_0_0_#d1d5db] active:translate-y-1 active:shadow-none hover:bg-gray-100 transition-all uppercase tracking-widest whitespace-nowrap min-h-[42px] items-center">
               All Tools
             </Link>
           </div>
@@ -142,7 +142,7 @@ export default function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl flex flex-col items-center pt-16 sm:pt-20 px-4 sm:px-6"
+            className="fixed inset-0 z-[220] bg-black/95 backdrop-blur-xl flex flex-col items-center pt-[max(4rem,calc(var(--safe-top)+3.5rem))] sm:pt-20 px-4 sm:px-6"
           >
             <button 
               onClick={() => { setIsSearchOpen(false); setSearchQuery(""); }}

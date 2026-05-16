@@ -1,8 +1,15 @@
+/* File: src/app/globals.css */
 @import "tailwindcss";
 
 :root {
   --background: #050505;
   --foreground: #ededed;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --mobile-bottom-nav-height: 76px;
+  --mobile-floating-offset: calc(var(--mobile-bottom-nav-height) + var(--safe-bottom) + 12px);
 }
 
 @theme inline {
@@ -13,6 +20,9 @@
 
 html {
   scroll-behavior: smooth;
+  min-height: 100%;
+  overflow-x: clip;
+  background: var(--background);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -34,9 +44,56 @@ body {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+  overflow-x: clip;
 }
 
-/* Screen reader only — visible on focus (skip link) */
+main,
+section,
+div,
+article,
+aside {
+  min-width: 0;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+.safe-area-bottom {
+  padding-bottom: var(--safe-bottom);
+}
+
+.safe-area-x {
+  padding-left: max(1rem, var(--safe-left));
+  padding-right: max(1rem, var(--safe-right));
+}
+
+.mobile-nav-offset {
+  padding-bottom: var(--mobile-floating-offset);
+}
+
+.page-shell {
+  min-height: 100dvh;
+  overflow-x: clip;
+}
+
+#tools-main > * {
+  width: 100%;
+}
+
+#tools-main .min-h-screen {
+  min-height: auto;
+}
+
+.background-orb {
+  transform: translateZ(0);
+  will-change: opacity, transform;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -62,20 +119,18 @@ body {
   white-space: normal;
 }
 
-/* Accessible focus for keyboard users */
 :focus-visible {
   outline: 2px solid #10b981;
   outline-offset: 2px;
 }
 
-/* Lighter backgrounds on mobile — improves paint cost */
 @media (max-width: 768px) {
-  .mobile-reduce-blur [class*='blur-'] {
-    opacity: 0.35 !important;
+  html,
+  body {
+    width: 100%;
   }
 }
 
-/* AdSense containers — CLS + policy-safe spacing from CTAs */
 .ad-slot {
   contain: layout style;
   margin-block: 1.25rem;
@@ -90,7 +145,6 @@ body {
   opacity: 0.85;
 }
 
-/* Reserve space for ad slots — reduces CLS */
 .ad-slot-reserved {
   min-height: 90px;
 }

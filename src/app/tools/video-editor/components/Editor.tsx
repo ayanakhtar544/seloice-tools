@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEditorStore } from '../stores/editorStore';
 import Toolbar from './Toolbar';
@@ -73,7 +73,13 @@ const PANEL_COMPONENTS: Record<PanelTab, React.ComponentType> = {
 };
 
 export default function Editor() {
-  const { activePanel, isPanelOpen, isMobileView, isFullScreen, setActivePanel, togglePanel, setMobileView, toggleFullScreen } = useEditorStore();
+  const activePanel = useEditorStore((s) => s.activePanel);
+  const isPanelOpen = useEditorStore((s) => s.isPanelOpen);
+  const isMobileView = useEditorStore((s) => s.isMobileView);
+  const isFullScreen = useEditorStore((s) => s.isFullScreen);
+  const setActivePanel = useEditorStore((s) => s.setActivePanel);
+  const togglePanel = useEditorStore((s) => s.togglePanel);
+  const setMobileView = useEditorStore((s) => s.setMobileView);
 
   // Detect mobile
   useEffect(() => {
@@ -87,37 +93,51 @@ export default function Editor() {
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      const { togglePlay, undo, redo, stepForward, stepBackward, toggleFullScreen } = useEditorStore.getState();
+      const store = useEditorStore.getState();
 
-      if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
-      if (e.key === 'f') { e.preventDefault(); toggleFullScreen(); }
-      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo(); }
-      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && e.shiftKey) { e.preventDefault(); redo(); }
-      if (e.key === 'ArrowRight' && !e.metaKey) { e.preventDefault(); stepForward(); }
-      if (e.key === 'ArrowLeft' && !e.metaKey) { e.preventDefault(); stepBackward(); }
+      if (e.code === 'Space') { e.preventDefault(); store.togglePlay(); }
+      if (e.key === 'f') { e.preventDefault(); store.toggleFullScreen(); }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); store.undo(); }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && e.shiftKey) { e.preventDefault(); store.redo(); }
+      if (e.key === 'ArrowRight' && !e.metaKey) { e.preventDefault(); store.stepForward(); }
+      if (e.key === 'ArrowLeft' && !e.metaKey) { e.preventDefault(); store.stepBackward(); }
+      if (e.key === 'Escape' && store.isFullScreen) { store.toggleFullScreen(); }
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
   }, []);
 
-  // Handle body scroll locking
+  // Prevent touch scroll on editor container
   useEffect(() => {
-    if (isFullScreen) {
-      document.body.style.overflow = 'hidden';
-    } else {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
       document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
+
+  const handleTabClick = useCallback((tabId: PanelTab) => {
+    if (isMobileView) {
+      // On mobile, toggle panel as bottom sheet
+      if (activePanel === tabId && isPanelOpen) {
+        togglePanel();
+      } else {
+        setActivePanel(tabId);
+      }
+    } else {
+      if (activePanel === tabId && isPanelOpen) togglePanel();
+      else setActivePanel(tabId);
     }
-    return () => { document.body.style.overflow = ''; };
-  }, [isFullScreen]);
+  }, [activePanel, isPanelOpen, isMobileView, setActivePanel, togglePanel]);
 
   const ActivePanel = PANEL_COMPONENTS[activePanel];
 
   return (
-    <div className={`flex flex-col bg-[#060609] text-white overflow-hidden select-none transition-all duration-500 ${
-      isFullScreen 
-        ? 'fixed inset-0 z-[1000] h-screen w-screen' 
-        : 'relative w-full h-[calc(100vh-140px)] min-h-[600px] rounded-2xl border border-white/5 shadow-2xl'
-    }`}>
+    <div
+      className="flex flex-col bg-[#060609] text-white select-none w-screen"
+      style={{ height: '90dvh', maxHeight: '100dvh', overflow: 'hidden' }}
+    >
       {/* Main editor area */}
       <div className="flex-1 flex min-h-0 overflow-hidden">
         {/* Side Tab Bar (Desktop) */}
@@ -126,10 +146,7 @@ export default function Editor() {
             {TAB_CONFIG.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => {
-                  if (activePanel === tab.id && isPanelOpen) togglePanel();
-                  else setActivePanel(tab.id);
-                }}
+                onClick={() => handleTabClick(tab.id)}
                 className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all group relative ${
                   activePanel === tab.id && isPanelOpen
                     ? 'bg-violet-500/10 text-violet-400'
@@ -191,15 +208,20 @@ export default function Editor() {
       {/* Timeline */}
       <Timeline />
 
+      {/* Toolbar (Desktop) - between preview and timeline on desktop */}
+      {!isMobileView && <Toolbar />}
+
       {/* Mobile Bottom Tab Bar */}
       {isMobileView && (
-        <div className="h-14 bg-[#08080c] border-t border-white/[0.04] flex items-center justify-around px-1 flex-shrink-0 safe-area-bottom">
+        <div className="h-12 bg-[#08080c] border-t border-white/[0.04] flex items-center justify-around px-1 flex-shrink-0"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        >
           {TAB_CONFIG.slice(0, 6).map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActivePanel(tab.id)}
+              onClick={() => handleTabClick(tab.id)}
               className={`flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-lg transition-colors ${
-                activePanel === tab.id
+                activePanel === tab.id && isPanelOpen
                   ? 'text-violet-400'
                   : 'text-zinc-600'
               }`}
@@ -211,7 +233,7 @@ export default function Editor() {
         </div>
       )}
 
-      {/* Mobile Panel Overlay */}
+      {/* Mobile Panel Bottom Sheet */}
       <AnimatePresence>
         {isMobileView && isPanelOpen && (
           <>
@@ -227,12 +249,13 @@ export default function Editor() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="fixed bottom-0 left-0 right-0 z-50 bg-[#0a0a0f] rounded-t-2xl max-h-[70vh] flex flex-col border-t border-white/[0.06]"
+              className="fixed bottom-0 left-0 right-0 z-50 bg-[#0a0a0f] rounded-t-2xl flex flex-col border-t border-white/[0.06]"
+              style={{ maxHeight: '65dvh' }}
             >
-              <div className="flex items-center justify-center py-2">
+              <div className="flex items-center justify-center py-2 flex-shrink-0">
                 <div className="w-8 h-1 rounded-full bg-zinc-700" />
               </div>
-              <div className="flex-1 overflow-y-auto pb-6">
+              <div className="flex-1 overflow-y-auto pb-6 overscroll-contain">
                 <ActivePanel />
               </div>
             </motion.div>
@@ -240,24 +263,10 @@ export default function Editor() {
         )}
       </AnimatePresence>
 
-      {/* Toolbar - Now at the bottom for "Sticky Bottom" UI */}
-      {!isMobileView && <Toolbar />}
-
       <ExportModal 
-        isOpen={useEditorStore(s => s.isExportModalOpen)} 
+        isOpen={useEditorStore((s) => s.isExportModalOpen)} 
         onClose={() => useEditorStore.getState().toggleExportModal()} 
       />
-
-      {/* Fullscreen indicator overlay */}
-      {isFullScreen && (
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="fixed top-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[10px] text-zinc-400 font-bold uppercase tracking-widest pointer-events-none z-[1100]"
-        >
-          Press <span className="text-white px-1.5 py-0.5 rounded bg-white/10 mx-1">F</span> to exit Fullscreen
-        </motion.div>
-      )}
     </div>
   );
 }

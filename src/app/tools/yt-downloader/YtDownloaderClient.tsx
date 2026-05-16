@@ -5,12 +5,53 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlaySquare, ArrowLeft, Download, Loader2, Link as LinkIcon, AlertCircle, Music, Video, Eye, ThumbsUp, Clock, Share2, Layers, Scissors, Lock } from 'lucide-react';
 import Link from 'next/link';
+import ToolInterfaceShell from '@/components/seo/ToolInterfaceShell';
 
 // ... (Baaki upar ka interface aur state same rahega) ...
 interface VideoData {
   meta: { title: string; thumbnail: string; views: string; likes: string; duration: string; shares: string; };
-  formats: { quality: string; type: string; url: string; size: string; }[];
+  formats: { quality: string; type: string; url: string; size: string; ext?: string; }[];
 }
+
+const fetchJsonWithRetry = async (
+  input: RequestInfo | URL,
+  init: RequestInit,
+  retries = 1
+) => {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 30_000);
+
+    try {
+      const response = await fetch(input, {
+        ...init,
+        signal: controller.signal,
+      });
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        const message = data?.error || 'Failed to fetch video.';
+        if (attempt === retries) {
+          throw new Error(message);
+        }
+        lastError = new Error(message);
+      } else {
+        return data as VideoData;
+      }
+    } catch (error) {
+      lastError = error;
+      if (attempt === retries) {
+        throw error;
+      }
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error('Request failed.');
+};
 
 export default function YtDownloaderClient() {
   const [url, setUrl] = useState('');
@@ -23,10 +64,17 @@ export default function YtDownloaderClient() {
   const [videoData, setVideoData] = useState<VideoData | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'MP4' | 'MP3'>('ALL');
+  const [downloadingIndex, setDownloadingIndex] = useState<number | null>(null);
 
   const handleFetch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url.trim()) return;
+
+    const normalizedUrl = url.trim();
+    if (!/^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(normalizedUrl)) {
+      setErrorMsg('Please paste a valid YouTube or youtu.be link.');
+      return;
+    }
 
     setIsLoading(true);
     setVideoData(null);
@@ -34,26 +82,33 @@ export default function YtDownloaderClient() {
     setActiveFilter('ALL');
 
     try {
-      const response = await fetch('/api/yt-download', {
+      const data = await fetchJsonWithRetry('/api/yt-download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }), // Trim parameters hata diye kyunki API support nahi karti
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Failed to fetch video.");
+        body: JSON.stringify({ url: normalizedUrl }),
+      }, 1);
       setVideoData(data);
-    } catch (err: any) {
-      setErrorMsg(err.message);
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to fetch video.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleForceDownload = (e: React.MouseEvent<HTMLAnchorElement>, downloadUrl: string, title: string, type: string) => {
+  const handleForceDownload = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    downloadUrl: string,
+    title: string,
+    type: string,
+    formatExt: string | undefined,
+    index: number
+  ) => {
     e.preventDefault();
-    const ext = type.includes('Audio') ? 'mp3' : 'mp4';
+    setDownloadingIndex(index);
+    const ext = formatExt || (type.includes('Audio') ? 'mp3' : 'mp4');
     const proxyUrl = `/api/force-download?url=${encodeURIComponent(downloadUrl)}&title=${encodeURIComponent(title)}&ext=${ext}`;
     window.location.href = proxyUrl;
+    window.setTimeout(() => setDownloadingIndex(null), 1500);
   };
 
   const filteredFormats = videoData?.formats.filter(format => {
@@ -64,12 +119,13 @@ export default function YtDownloaderClient() {
   }) || [];
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans pb-20">
+    <ToolInterfaceShell className="w-full max-w-5xl">
+    <div className="w-full bg-[#050505] text-white font-sans">
       <div className="fixed inset-0 z-0 flex justify-center pointer-events-none">
-        <div className="absolute top-[-10%] w-[40rem] h-[40rem] bg-red-600/10 rounded-full blur-[120px] opacity-40" />
+        <div className="background-orb absolute top-[-10%] w-[40rem] h-[40rem] bg-red-600/10 rounded-full blur-[120px] opacity-40" />
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 pt-8 md:pt-16">
+      <div className="relative z-10 mx-auto px-1 pt-4 md:pt-8">
         
         <Link href="/" className="inline-flex items-center gap-2 text-red-500 hover:text-red-400 font-bold text-xs uppercase tracking-widest mb-10 bg-red-500/10 px-4 py-2 rounded-full border border-red-500/20">
           <ArrowLeft size={16} /> Back to Toolkit
@@ -200,7 +256,7 @@ export default function YtDownloaderClient() {
                 {filteredFormats.map((format, i) => {
                   const isAudio = format.type.includes("Audio");
                   return (
-                    <motion.a layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2 }} key={`${activeFilter}-${i}`} href={format.url} onClick={(e) => handleForceDownload(e, format.url, videoData.meta.title, format.type)} className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-red-600/20 hover:border-red-500 transition-all flex items-center justify-between group cursor-pointer">
+                    <motion.a layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2 }} key={`${activeFilter}-${i}`} href={format.url} onClick={(e) => handleForceDownload(e, format.url, videoData.meta.title, format.type, format.ext, i)} className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-red-600/20 hover:border-red-500 transition-all flex items-center justify-between gap-4 group cursor-pointer">
                       <div className="flex items-center gap-4">
                         <div className={`p-3 rounded-lg ${isAudio ? 'bg-blue-500/20 text-blue-400' : 'bg-red-500/20 text-red-500'} group-hover:bg-red-500 group-hover:text-white transition-colors`}>{isAudio ? <Music size={20} /> : <Video size={20} />}</div>
                         <div>
@@ -208,7 +264,9 @@ export default function YtDownloaderClient() {
                           <p className="text-xs text-gray-400 font-medium tracking-wide">{format.size} • {format.type}</p>
                         </div>
                       </div>
-                      <div className="bg-white/10 p-3 rounded-lg group-hover:bg-red-500 transition-colors"><Download size={18} /></div>
+                      <div className="bg-white/10 p-3 rounded-lg group-hover:bg-red-500 transition-colors shrink-0">
+                        {downloadingIndex === i ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+                      </div>
                     </motion.a>
                   )
                 })}
@@ -220,5 +278,6 @@ export default function YtDownloaderClient() {
 
       </div>
     </div>
+    </ToolInterfaceShell>
   );
 }

@@ -1,83 +1,50 @@
-import { MetadataRoute } from 'next';
+import type { MetadataRoute } from 'next';
 import {
   BASE,
   STATIC_ROUTES,
-  getUseCaseSlugsForSitemap,
   getBlogSlugs,
-  getProgrammaticSlugs,
+  getStaticRouteLastModified,
+  getToolLastModified,
   getToolSlugsFromFilesystem,
+  getUseCaseSlugsForSitemap,
 } from '@/lib/seo/sitemap-data';
 
-export async function generateSitemaps() {
-  const allProgrammatic = getProgrammaticSlugs();
-  const chunkSize = 40000;
-  const chunks = Math.ceil(allProgrammatic.length / chunkSize);
-  const sitemaps = [{ id: 0 }]; // For static routes + tools + blogs
-  
-  for (let i = 0; i < chunks; i++) {
-    sitemaps.push({ id: i + 1 });
-  }
-  
-  return sitemaps;
-}
+export const dynamic = 'force-static';
 
-export default function sitemap({ id }: { id: number }): MetadataRoute.Sitemap {
-  const now = new Date();
-  const entries: MetadataRoute.Sitemap = [];
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const staticLastModified = getStaticRouteLastModified();
 
-  if (id === 0) {
-    for (const route of STATIC_ROUTES) {
-      entries.push({
-        url: `${BASE}${route.path}`,
-        lastModified: now,
-        changeFrequency: route.changeFrequency,
-        priority: route.priority,
-      });
-    }
+  const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTES.map((route) => ({
+    url: `${BASE}${route.path}`,
+    lastModified: staticLastModified,
+    changeFrequency: route.changeFrequency,
+    priority: route.priority,
+  }));
 
-    for (const slug of getToolSlugsFromFilesystem()) {
-      entries.push({
-        url: `${BASE}/tools/${slug}`,
-        lastModified: now,
-        changeFrequency: 'weekly',
-        priority: 0.9,
-      });
-    }
-
-    for (const slug of getUseCaseSlugsForSitemap()) {
-      entries.push({
-        url: `${BASE}/use-cases/${slug}`,
-        lastModified: now,
-        changeFrequency: 'weekly',
-        priority: 0.75,
-      });
-    }
-
-    for (const post of getBlogSlugs()) {
-      entries.push({
-        url: `${BASE}/blogs/${post.slug}`,
-        lastModified: post.updatedAt ? new Date(post.updatedAt) : now,
-        changeFrequency: 'monthly',
-        priority: 0.7,
-      });
-    }
-    return entries;
-  }
-
-  // Handle programmatic chunk
-  const allProgrammatic = getProgrammaticSlugs();
-  const chunkSize = 40000;
-  const startIndex = (id - 1) * chunkSize;
-  const chunk = allProgrammatic.slice(startIndex, startIndex + chunkSize);
-
-  for (const slug of chunk) {
-    entries.push({
-      url: `${BASE}/use-cases/${slug}`,
-      lastModified: now,
+  const toolEntries: MetadataRoute.Sitemap = getToolSlugsFromFilesystem().map(
+    (slug) => ({
+      url: `${BASE}/tools/${slug}`,
+      lastModified: getToolLastModified(slug),
       changeFrequency: 'weekly',
-      priority: 0.7,
-    });
-  }
+      priority: 0.9,
+    })
+  );
 
-  return entries;
+  const useCaseEntries: MetadataRoute.Sitemap = getUseCaseSlugsForSitemap().map(
+    (slug) => ({
+      url: `${BASE}/use-cases/${slug}`,
+      lastModified: staticLastModified,
+      changeFrequency: 'weekly',
+      priority: 0.75,
+    })
+  );
+
+  const blogEntries: MetadataRoute.Sitemap = getBlogSlugs().map((post) => ({
+    url: `${BASE}/blogs/${post.slug}`,
+    lastModified: post.updatedAt ? new Date(post.updatedAt) : staticLastModified,
+    changeFrequency: 'monthly',
+    priority: 0.7,
+  }));
+
+  return [...staticEntries, ...toolEntries, ...useCaseEntries, ...blogEntries];
 }

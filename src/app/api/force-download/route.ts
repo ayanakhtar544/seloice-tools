@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { isSafeExternalUrl } from '@/lib/security/ssrf';
+import { fetchWithRetry } from '@/lib/server/http';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 export async function GET(req: Request) {
@@ -18,10 +21,12 @@ export async function GET(req: Request) {
       return new NextResponse('Download URL is not allowed.', { status: 403 });
     }
 
-    const response = await fetch(videoUrl, {
+    const response = await fetchWithRetry(videoUrl, {
       redirect: 'follow',
       headers: { 'User-Agent': 'SeloiceTools/1.0' },
-      signal: AbortSignal.timeout(55_000),
+      retries: 2,
+      retryDelayMs: 1_250,
+      timeoutMs: 55_000,
     });
 
     if (!response.ok) {

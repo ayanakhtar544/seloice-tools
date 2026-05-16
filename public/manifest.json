@@ -3,7 +3,9 @@
   "short_name": "Seloice",
   "description": "Premium Creator Tools & Insights",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#030305",
   "theme_color": "#10b981",
   "icons": [

@@ -1,16 +1,19 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import AnalyticsProvider from "@/providers/AnalyticsProvider";
 import AnalyticsWrapper from "@/components/AnalyticsWrapper";
 import CookieBanner from "@/components/CookieBanner";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import SkipLink from '@/components/seo/SkipLink';
-import MobileBottomNav from "@/components/MobileBottomNav";
 import AdHealthChecker from "@/components/ads/AdHealthChecker";
 import ConsentModeScript from "@/components/ConsentModeScript";
+import { GoogleTagManager } from "@next/third-parties/google";
 import JsonLd from "@/components/seo/JsonLd";
-
+import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
+import RouteScrollManager from "@/components/RouteScrollManager";
+import { GTM_ID } from "@/lib/analytics";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap", preload: false, adjustFontFallback: true });
 
 export const viewport: Viewport = {
@@ -105,6 +108,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
         <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
         <meta name="theme-color" content="#10b981" />
         <meta name="application-name" content="Seloice Tools" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -122,19 +126,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      
-      <body className={`${inter.variable} font-sans bg-[#050505] text-white antialiased overflow-x-hidden mobile-reduce-blur`}>
-        <SkipLink />
-        <AnalyticsWrapper />
-        <ErrorBoundary>
-          <div id="main-content" tabIndex={-1}>
-            {children}
-          </div>
-        </ErrorBoundary>
-        <PWAInstallPrompt />
-        <CookieBanner />
-        <MobileBottomNav />
-        <AdHealthChecker />
+
+      <body className={`${inter.variable} font-sans bg-[#050505] text-white antialiased overflow-x-hidden page-shell`}>
+        <AnalyticsProvider>
+          <RouteScrollManager />
+          <SkipLink />
+          <AnalyticsWrapper />
+          <GoogleTagManager gtmId={GTM_ID} />
+          <ErrorBoundary>
+            <div id="main-content" tabIndex={-1} className="page-shell mobile-nav-offset">
+              {children}
+            </div>
+          </ErrorBoundary>
+          <PWAInstallPrompt />
+          <ServiceWorkerRegister />
+          <CookieBanner />
+          <AdHealthChecker />
+        </AnalyticsProvider>
       </body>
     </html>
   );

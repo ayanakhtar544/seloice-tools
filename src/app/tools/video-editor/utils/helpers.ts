@@ -35,6 +35,20 @@ export function snapToGrid(value: number, gridSize: number): number {
   return Math.round(value / gridSize) * gridSize;
 }
 
+// Snap value to nearest target within threshold
+export function snapToValue(value: number, targets: number[], threshold: number): number {
+  let closest = value;
+  let minDist = threshold;
+  for (const t of targets) {
+    const dist = Math.abs(value - t);
+    if (dist < minDist) {
+      minDist = dist;
+      closest = t;
+    }
+  }
+  return closest;
+}
+
 export function secondsToPixels(seconds: number, zoom: number, pixelsPerSecond: number = 100): number {
   return seconds * pixelsPerSecond * zoom;
 }
@@ -142,6 +156,43 @@ export async function generateVideoThumbnail(blob: Blob, time: number = 0.5): Pr
 
     video.src = URL.createObjectURL(blob);
   });
+}
+
+// ─── Pointer/Touch Helpers ───────────────────────────────────
+
+/** Get position from pointer or touch event */
+export function getPointerPosition(e: PointerEvent | React.PointerEvent | MouseEvent | TouchEvent): { x: number; y: number } {
+  if ('clientX' in e) return { x: e.clientX, y: e.clientY };
+  if ('touches' in e && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  return { x: 0, y: 0 };
+}
+
+/** Collect snap targets from all clips (start/end times) excluding a set of ids */
+export function getSnapTargets(clips: Map<string, { startTime: number; endTime: number }>, excludeIds: Set<string>): number[] {
+  const targets: number[] = [0];
+  clips.forEach((clip, id) => {
+    if (!excludeIds.has(id)) {
+      targets.push(clip.startTime, clip.endTime);
+    }
+  });
+  return [...new Set(targets)];
+}
+
+/** Check if a time range overlaps with any clip on a track */
+export function hasOverlap(
+  start: number,
+  end: number,
+  trackClipIds: string[],
+  clips: Map<string, { startTime: number; endTime: number }>,
+  excludeId?: string
+): boolean {
+  for (const cid of trackClipIds) {
+    if (cid === excludeId) continue;
+    const c = clips.get(cid);
+    if (!c) continue;
+    if (start < c.endTime && end > c.startTime) return true;
+  }
+  return false;
 }
 
 // IndexedDB wrapper for project persistence

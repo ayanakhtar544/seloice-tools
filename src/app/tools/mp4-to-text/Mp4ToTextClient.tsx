@@ -1,13 +1,19 @@
 // File: src/app/tools/smart-captions/page.tsx
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchFile } from '@ffmpeg/util';
 import type { FFmpeg } from '@ffmpeg/ffmpeg';
-import { loadFfmpegCore, logFfmpegLoadError } from '@/lib/ffmpeg/load-core';
-import { Type, UploadCloud, Loader2, Download, ArrowLeft, FileVideo, CheckCircle2, MessageSquareText } from 'lucide-react';
+import {
+  loadFfmpegCore,
+  logFfmpegLoadError,
+  preloadFfmpegCore,
+} from '@/lib/ffmpeg/load-core';
+import { Type, UploadCloud, Loader2, Download, FileVideo, CheckCircle2, MessageSquareText, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
+
+const MAX_VIDEO_SIZE_BYTES = 300 * 1024 * 1024;
 
 export default function Mp4ToTextClient() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -16,9 +22,31 @@ export default function Mp4ToTextClient() {
   const [statusText, setStatusText] = useState('CLICK TO UPLOAD VIDEO');
   const [isProcessing, setIsProcessing] = useState(false);
   const [captions, setCaptions] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
 
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const warm = () => preloadFfmpegCore();
+    const browserWindow = window as Window & {
+      requestIdleCallback?: (
+        callback: IdleRequestCallback,
+        options?: IdleRequestOptions
+      ) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+
+    if (browserWindow.requestIdleCallback) {
+      const idleId = browserWindow.requestIdleCallback(() => warm(), {
+        timeout: 1500,
+      });
+      return () => browserWindow.cancelIdleCallback?.(idleId);
+    }
+
+    const timeoutId = browserWindow.setTimeout(warm, 500);
+    return () => browserWindow.clearTimeout(timeoutId);
+  }, []);
 
   const ensureFfmpeg = async (): Promise<FFmpeg | null> => {
     if (ffmpegRef.current && isLoaded) return ffmpegRef.current;
@@ -41,24 +69,37 @@ export default function Mp4ToTextClient() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
+      const nextFile = e.target.files[0];
+      if (!nextFile.type.startsWith('video/')) {
+        setError('Please upload a valid video file.');
+        return;
+      }
+      if (nextFile.size > MAX_VIDEO_SIZE_BYTES) {
+        setError('Video is too large for fast mobile transcription. Keep it under 300 MB.');
+        return;
+      }
+
+      setError(null);
+      setFile(nextFile);
       setCaptions("");
       setProgress(0);
+      void ensureFfmpeg();
     }
   };
 
   const handleGenerateCaptions = async () => {
     if (!file) return;
+    setError(null);
     const ffmpeg = await ensureFfmpeg();
     if (!ffmpeg) {
-      alert('Could not load the video engine. Please refresh and try again.');
+      setError('Could not load the transcription engine. Please refresh and try again.');
       return;
     }
 
     setIsProcessing(true);
     setProgress(0);
     setCaptions("");
-    setStatusText("EXTRACTING AUDIO (LOCALLY)...");
+      setStatusText("EXTRACTING AUDIO (LOCALLY)...");
 
     try {
       // 1. Extract Audio from Video locally
@@ -80,11 +121,15 @@ export default function Mp4ToTextClient() {
       const formData = new FormData();
       formData.append('file', audioFile);
 
-      // Sending to your local Next.js API route
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => controller.abort(), 45_000);
+
       const response = await fetch('/api/transcribe', {
         method: 'POST',
         body: formData,
+        signal: controller.signal,
       });
+      window.clearTimeout(timeoutId);
 
      if (!response.ok) {
         const errData = await response.json().catch(() => null);
@@ -105,8 +150,14 @@ export default function Mp4ToTextClient() {
         console.error('Error generating captions:', error);
       }
       const message = error instanceof Error ? error.message : 'Something went wrong';
-      alert(`Error: ${message}`);
+      setError(message);
     } finally {
+      try {
+        await ffmpegRef.current?.deleteFile('input.mp4');
+        await ffmpegRef.current?.deleteFile('audio.mp3');
+      } catch {
+        // Ignore cleanup failures.
+      }
       setIsProcessing(false);
       setStatusText("CLICK TO UPLOAD VIDEO");
     }
@@ -122,6 +173,7 @@ export default function Mp4ToTextClient() {
     element.download = `captions_${file?.name.split('.')[0] || 'video'}.txt`;
     document.body.appendChild(element);
     element.click();
+    URL.revokeObjectURL(element.href);
   };
 
   return (
@@ -132,7 +184,7 @@ export default function Mp4ToTextClient() {
         <div className="absolute top-[-10%] w-[40rem] h-[40rem] bg-indigo-600/10 rounded-full blur-[120px] opacity-40" />
       </div>
 
-      <div className="relative z-10 max-w-4xl mx-auto px-4 pt-8 md:pt-16">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 pt-6 md:pt-16">
         {/* Top Navigation */}
         
         {/* Breadcrumb Navigation */}
@@ -160,6 +212,21 @@ export default function Mp4ToTextClient() {
 
         {/* Main Tool Card */}
         <div className="bg-[#111] border border-white/10 rounded-[2rem] p-6 md:p-10 shadow-2xl relative overflow-hidden">
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-6 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-300"
+              >
+                <div className="flex items-start gap-3">
+                  <AlertCircle size={18} className="mt-0.5 shrink-0" />
+                  <p>{error}</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
           
           {/* Status Indicator */}
           {!isLoaded && (
@@ -170,13 +237,13 @@ export default function Mp4ToTextClient() {
 
           {/* Upload Area */}
           <div 
-            onClick={() => isLoaded && !isProcessing && !captions && fileInputRef.current?.click()}
+            onClick={() => !isProcessing && !captions && fileInputRef.current?.click()}
             className={`border-2 border-dashed rounded-3xl p-10 flex flex-col items-center justify-center text-center transition-all duration-300
               ${!isLoaded ? 'border-white/5 opacity-50 cursor-not-allowed' : 
                 isProcessing ? 'border-indigo-500/20 bg-indigo-500/5 cursor-wait' : 
                 captions ? 'border-white/5 hidden' : 'border-white/10 hover:border-indigo-500/50 hover:bg-white/[0.02] cursor-pointer'}`}
           >
-            <input type="file" accept="video/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} disabled={!isLoaded || isProcessing} />
+              <input type="file" accept="video/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} disabled={isProcessing} />
             
             {isProcessing ? (
               <div className="flex flex-col items-center">
@@ -213,7 +280,7 @@ export default function Mp4ToTextClient() {
                 <UploadCloud size={48} className="text-gray-600 mb-4" />
                 <h3 className="text-xl font-black mb-2 italic text-gray-300">{statusText}</h3>
                 <p className="text-sm text-gray-500 font-medium max-w-xs mx-auto">
-                  {!isLoaded ? "Downloading WASM core engine." : "AI automatically detects language and creates subtitles."}
+                  {!isLoaded ? "Preparing the local video engine for a faster first run." : "AI automatically detects language and creates subtitles."}
                 </p>
               </div>
             )}

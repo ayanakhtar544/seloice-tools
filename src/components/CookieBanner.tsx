@@ -60,7 +60,8 @@ export default function CookieBanner() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed bottom-0 md:bottom-6 left-0 right-0 md:left-auto md:right-6 md:max-w-md z-[99999] bg-[#111] md:border border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-2xl rounded-t-3xl md:rounded-2xl p-6 pb-8 md:p-5 overflow-hidden"
+          className="fixed left-0 right-0 z-[180] bg-[#111] md:left-auto md:right-6 md:max-w-md md:border border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:bottom-6 md:rounded-2xl md:shadow-2xl overflow-hidden rounded-t-3xl p-6 pb-8 md:p-5"
+          style={{ bottom: 'var(--mobile-floating-offset)' }}
           role="dialog"
           aria-label="Cookie consent"
         >

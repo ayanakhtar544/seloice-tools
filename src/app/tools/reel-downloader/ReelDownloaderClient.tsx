@@ -19,6 +19,53 @@ interface IgVideo {
   extension: string;
 }
 
+const fetchJsonWithRetry = async (
+  input: RequestInfo | URL,
+  init: RequestInit,
+  retries = 1
+) => {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 25_000);
+
+    try {
+      const response = await fetch(input, {
+        ...init,
+        signal: controller.signal,
+      });
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data?.success) {
+        const message =
+          data?.error ||
+          'Could not load this reel. The account may be private or the link invalid.';
+        if (attempt === retries) {
+          throw new Error(message);
+        }
+        lastError = new Error(message);
+      } else {
+        return data as {
+          success: true;
+          meta: IgMeta;
+          availableVideos: IgVideo[];
+          videoUrl: string;
+        };
+      }
+    } catch (error) {
+      lastError = error;
+      if (attempt === retries) {
+        throw error;
+      }
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error('Request failed.');
+};
+
 export default function ReelDownloaderClient() {
   const [url, setUrl] = useState('');
   const [isFetching, setIsFetching] = useState(false);
@@ -39,26 +86,25 @@ export default function ReelDownloaderClient() {
       return;
     }
 
+    if (!/^https?:\/\/(www\.)?instagram\.com\//i.test(url.trim())) {
+      setError('Please paste a valid Instagram Reel URL.');
+      return;
+    }
+
     setIsFetching(true);
 
     try {
-      const response = await fetch('/api/ig-download', {
+      const data = await fetchJsonWithRetry('/api/ig-download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: url.trim() }),
-      });
+      }, 1);
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setMetaData(data.meta);
-        setAvailableVideos(data.availableVideos);
-        setSelectedVideoUrl(data.videoUrl);
-      } else {
-        setError(data.error || 'Could not load this reel. The account may be private or the link invalid.');
-      }
-    } catch {
-      setError('Network error. Check your connection and try again.');
+      setMetaData(data.meta);
+      setAvailableVideos(data.availableVideos);
+      setSelectedVideoUrl(data.videoUrl);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Network error. Check your connection and try again.');
     } finally {
       setIsFetching(false);
     }
@@ -69,23 +115,12 @@ export default function ReelDownloaderClient() {
     setIsDownloading(true);
 
     try {
-      const response = await fetch(selectedVideoUrl);
-      if (!response.ok) throw new Error('CORS Blocked');
-
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = `IG_Reel_${metaData?.author || 'Download'}_${Date.now()}.mp4`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(blobUrl);
+      const proxyUrl = `/api/force-download?url=${encodeURIComponent(selectedVideoUrl)}&title=${encodeURIComponent(`IG_Reel_${metaData?.author || 'Download'}_${Date.now()}`)}&ext=mp4`;
+      window.location.href = proxyUrl;
     } catch {
-      window.open(selectedVideoUrl, '_blank');
+      setError('Download could not be started. Please try another quality or retry in a moment.');
     } finally {
-      setIsDownloading(false);
+      window.setTimeout(() => setIsDownloading(false), 1500);
     }
   };
 

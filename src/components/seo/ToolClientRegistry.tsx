@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import type { ComponentType } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { getToolBySlug } from '@/lib/seo/tools-registry';
@@ -56,6 +57,12 @@ interface ToolClientProps {
 
 export default function ToolClient({ slug }: ToolClientProps) {
   const Component = TOOL_COMPONENTS[slug];
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+  }, [slug]);
 
   if (!Component) {
     return (

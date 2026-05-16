@@ -50,10 +50,10 @@ export default function AdminDashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#030305] text-white flex overflow-hidden font-sans">
+    <div className="page-shell min-h-dvh bg-[#030305] text-white flex flex-col md:flex-row overflow-x-hidden font-sans">
       <AdminSidebar />
       
-      <main className="flex-1 p-6 md:p-10 overflow-y-auto h-screen no-scrollbar relative">
+      <main className="flex-1 p-4 sm:p-6 md:p-10 overflow-y-auto md:h-screen no-scrollbar relative">
         <div className="absolute top-[-10%] left-[20%] w-[500px] h-[500px] bg-emerald-600/10 rounded-full blur-[120px] pointer-events-none -z-10" />
 
         {/* 1. Dashboard Header */}

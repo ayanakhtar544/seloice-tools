@@ -1,5 +1,12 @@
-// File: src/app/api/generate-srt/route.ts
 import { NextResponse } from 'next/server';
+import {
+  type VerboseTranscriptionResponse,
+  transcribeWithGroq,
+} from '@/lib/server/groq-transcription';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 function formatTime(secNum: number) {
   const hours = Math.floor(secNum / 3600);
@@ -13,40 +20,25 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as Blob | null;
-    const language = formData.get('language') as string | null; // 🔥 Naya Language parameter catch kiya
+    const language = formData.get('language') as string | null;
 
     if (!file) return NextResponse.json({ error: "No audio file provided" }, { status: 400 });
-    if (!process.env.GROQ_API_KEY) return NextResponse.json({ error: "API key is missing" }, { status: 500 });
-
-    const groqFormData = new FormData();
-    groqFormData.append('file', file, 'audio.mp3');
-    groqFormData.append('model', 'whisper-large-v3');
-    groqFormData.append('response_format', 'verbose_json'); 
-
-    // 🔥 Agar user ne koi specific language select ki hai, toh Groq ko batao
-    if (language && language !== 'auto') {
-      groqFormData.append('language', language);
+    if (file.size === 0) {
+      return NextResponse.json({ error: 'Uploaded audio file is empty.' }, { status: 400 });
     }
-
-    const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${process.env.GROQ_API_KEY}` },
-      body: groqFormData,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      return NextResponse.json({ error: errorText }, { status: response.status });
-    }
-
-    const data = await response.json();
+    
+    const data = (await transcribeWithGroq(file, {
+      filename: 'audio.mp3',
+      language: language ?? undefined,
+      responseFormat: 'verbose_json',
+    })) as VerboseTranscriptionResponse;
     
     if (!data.segments || data.segments.length === 0) {
        return NextResponse.json({ error: "No speech detected in video" }, { status: 400 });
     }
 
     let srtText = "";
-    data.segments.forEach((segment: any, index: number) => {
+    data.segments.forEach((segment, index: number) => {
        const start = formatTime(segment.start);
        const end = formatTime(segment.end);
        srtText += `${index + 1}\n${start} --> ${end}\n${segment.text.trim()}\n\n`;
@@ -57,7 +49,9 @@ export async function POST(request: Request) {
       headers: { 'Content-Type': 'text/plain' } 
     });
 
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : 'Internal Server Error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

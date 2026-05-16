@@ -20,10 +20,10 @@ export default function ToolsHubClient() {
   const filteredTools = filterHubTools(searchQuery, activeCategory);
 
   return (
-    <div className="min-h-screen bg-[#030305] text-white selection:bg-emerald-500/30 overflow-x-hidden relative font-sans pb-24">
+    <div className="page-shell min-h-dvh bg-[#030305] text-white selection:bg-emerald-500/30 overflow-x-hidden relative font-sans pb-24">
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none opacity-[0.15] -z-10">
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-emerald-600 rounded-full blur-[200px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[700px] h-[700px] bg-purple-600 rounded-full blur-[200px]" />
+        <div className="background-orb absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-emerald-600 rounded-full blur-[200px]" />
+        <div className="background-orb absolute bottom-[-10%] right-[-10%] w-[700px] h-[700px] bg-purple-600 rounded-full blur-[200px]" />
       </div>
 
       <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 relative z-10">
@@ -129,6 +129,7 @@ export default function ToolsHubClient() {
 
                     <Link
                       href={`/tools/${tool.slug}`}
+                      scroll={true}
                       className={`mt-auto flex items-center justify-center gap-2 w-full py-3 rounded-lg font-black uppercase tracking-widest text-[10px] transition-all bg-white/5 hover:bg-gradient-to-r ${gradient} text-gray-300 hover:text-white border border-white/10 hover:border-transparent group-hover:shadow-lg`}
                     >
                       Open Tool <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />

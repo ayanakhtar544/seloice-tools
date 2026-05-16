@@ -6,18 +6,10 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/admin/', '/_next/', '/private/'],
-      },
-      {
-        userAgent: 'Googlebot-Image',
-        allow: '/',
-      },
-      {
-        userAgent: 'Googlebot-News',
-        allow: '/',
+        disallow: ['/api/', '/admin/'],
       },
     ],
-    sitemap: 'https://seloice.com/sitemap.xml',
     host: 'https://seloice.com',
+    sitemap: 'https://seloice.com/sitemap.xml',
   };
 }

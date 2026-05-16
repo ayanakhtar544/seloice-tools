@@ -6,7 +6,6 @@ import { useEditorStore } from '../../stores/editorStore';
 import { CANVAS_DIMENSIONS } from '../../types/editor';
 import { formatTime } from '../../utils/helpers';
 
-// ─── Playback Icons ──────────────────────────────────────────
 const PlayIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
 );
@@ -34,15 +33,28 @@ const VolumeIcon = ({ muted }: { muted: boolean }) => (
 export default function PreviewCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const animRef = useRef<number>(0);
-  
-  const {
-    project, currentTime, duration, isPlaying, isMuted, volume,
-    clips, mediaAssets, tracks, showSafeZone,
-    play, pause, togglePlay, seek, toggleMute, setVolume,
-    stepForward, stepBackward,
-  } = useEditorStore();
+  const lastTimeRef = useRef(0);
+  // Cache loaded images to avoid re-creating Image objects every frame
+  const imgCacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
+
+  const project = useEditorStore((s) => s.project);
+  const currentTime = useEditorStore((s) => s.currentTime);
+  const duration = useEditorStore((s) => s.duration);
+  const isPlaying = useEditorStore((s) => s.isPlaying);
+  const isMuted = useEditorStore((s) => s.isMuted);
+  const volume = useEditorStore((s) => s.volume);
+  const clips = useEditorStore((s) => s.clips);
+  const mediaAssets = useEditorStore((s) => s.mediaAssets);
+  const tracks = useEditorStore((s) => s.tracks);
+  const showSafeZone = useEditorStore((s) => s.showSafeZone);
+  const togglePlay = useEditorStore((s) => s.togglePlay);
+  const seek = useEditorStore((s) => s.seek);
+  const toggleMute = useEditorStore((s) => s.toggleMute);
+  const setVolume = useEditorStore((s) => s.setVolume);
+  const stepForward = useEditorStore((s) => s.stepForward);
+  const stepBackward = useEditorStore((s) => s.stepBackward);
+  const pause = useEditorStore((s) => s.pause);
 
   const [canvasSize, setCanvasSize] = useState({ width: 360, height: 640 });
   const dimensions = CANVAS_DIMENSIONS[project.aspectRatio];
@@ -52,18 +64,18 @@ export default function PreviewCanvas() {
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width: containerW, height: containerH } = entry.contentRect;
-        const padding = 40;
+        const padding = 24;
         const availW = containerW - padding;
         const availH = containerH - padding;
         const ratio = dimensions.width / dimensions.height;
-        
+
         let w = availW;
         let h = w / ratio;
         if (h > availH) {
           h = availH;
           w = h * ratio;
         }
-        setCanvasSize({ width: Math.round(w), height: Math.round(h) });
+        setCanvasSize({ width: Math.round(Math.max(w, 100)), height: Math.round(Math.max(h, 100)) });
       }
     });
 
@@ -71,7 +83,7 @@ export default function PreviewCanvas() {
     return () => resizeObserver.disconnect();
   }, [dimensions]);
 
-  // Render loop
+  // Render frame
   const renderFrame = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
@@ -80,13 +92,13 @@ export default function PreviewCanvas() {
     canvas.width = canvasSize.width;
     canvas.height = canvasSize.height;
 
-    // Clear with background
     ctx.fillStyle = project.backgroundColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Render active video/image clips
+    const time = useEditorStore.getState().currentTime;
+
     const activeClips = Array.from(clips.values()).filter(
-      (c) => c.startTime <= currentTime && c.endTime > currentTime && !c.hidden
+      (c) => c.startTime <= time && c.endTime > time && !c.hidden
     );
 
     activeClips.sort((a, b) => {
@@ -99,20 +111,19 @@ export default function PreviewCanvas() {
       if (clip.type === 'video' || clip.type === 'sticker') {
         const asset = clip.mediaId ? mediaAssets.get(clip.mediaId) : null;
         if (asset?.type === 'image' && asset.blobUrl) {
-          // Draw image clips
-          const img = new Image();
-          img.src = asset.blobUrl;
-          const scaleX = canvasSize.width / dimensions.width;
-          const scaleY = canvasSize.height / dimensions.height;
-          ctx.globalAlpha = clip.opacity;
-          ctx.drawImage(
-            img,
-            clip.x * scaleX,
-            clip.y * scaleY,
-            clip.width * scaleX,
-            clip.height * scaleY
-          );
-          ctx.globalAlpha = 1;
+          let img = imgCacheRef.current.get(asset.blobUrl);
+          if (!img) {
+            img = new Image();
+            img.src = asset.blobUrl;
+            imgCacheRef.current.set(asset.blobUrl, img);
+          }
+          if (img.complete) {
+            const scaleX = canvasSize.width / dimensions.width;
+            const scaleY = canvasSize.height / dimensions.height;
+            ctx.globalAlpha = clip.opacity;
+            ctx.drawImage(img, clip.x * scaleX, clip.y * scaleY, clip.width * scaleX, clip.height * scaleY);
+            ctx.globalAlpha = 1;
+          }
         }
       }
 
@@ -120,7 +131,7 @@ export default function PreviewCanvas() {
         const scaleX = canvasSize.width / dimensions.width;
         const scaleY = canvasSize.height / dimensions.height;
         const fontSize = clip.text.fontSize * scaleX;
-        
+
         ctx.save();
         ctx.globalAlpha = clip.opacity;
         ctx.font = `${clip.text.fontWeight} ${clip.text.fontStyle} ${fontSize}px ${clip.text.fontFamily}`;
@@ -130,7 +141,6 @@ export default function PreviewCanvas() {
         const x = clip.x * scaleX + (clip.width * scaleX) / 2;
         const y = clip.y * scaleY;
 
-        // Background
         if (clip.text.backgroundColor) {
           const metrics = ctx.measureText(clip.text.content);
           const textWidth = metrics.width;
@@ -139,7 +149,6 @@ export default function PreviewCanvas() {
           ctx.fillRect(x - textWidth / 2 - 8, y - 4, textWidth + 16, textHeight + 8);
         }
 
-        // Stroke
         if (clip.text.strokeColor && clip.text.strokeWidth) {
           ctx.strokeStyle = clip.text.strokeColor;
           ctx.lineWidth = clip.text.strokeWidth * scaleX;
@@ -147,7 +156,6 @@ export default function PreviewCanvas() {
           ctx.strokeText(clip.text.content, x, y);
         }
 
-        // Shadow
         if (clip.text.shadowColor) {
           ctx.shadowColor = clip.text.shadowColor;
           ctx.shadowBlur = (clip.text.shadowBlur || 0) * scaleX;
@@ -155,32 +163,28 @@ export default function PreviewCanvas() {
           ctx.shadowOffsetY = (clip.text.shadowOffsetY || 0) * scaleX;
         }
 
-        // Fill
         ctx.fillStyle = clip.text.color;
         ctx.fillText(clip.text.content, x, y);
         ctx.restore();
       }
     }
 
-    // Safe zone overlay
     if (showSafeZone) {
       ctx.strokeStyle = 'rgba(255,255,0,0.4)';
       ctx.lineWidth = 1;
       ctx.setLineDash([6, 4]);
       const inset = canvasSize.width * 0.05;
       ctx.strokeRect(inset, inset, canvasSize.width - inset * 2, canvasSize.height - inset * 2);
-      // Title safe (inner)
-      const innerInset = canvasSize.width * 0.1;
       ctx.strokeStyle = 'rgba(0,255,0,0.3)';
+      const innerInset = canvasSize.width * 0.1;
       ctx.strokeRect(innerInset, innerInset, canvasSize.width - innerInset * 2, canvasSize.height - innerInset * 2);
       ctx.setLineDash([]);
     }
-  }, [canvasSize, currentTime, clips, mediaAssets, tracks, project, showSafeZone, dimensions]);
+  }, [canvasSize, clips, mediaAssets, tracks, project, showSafeZone, dimensions]);
 
-  // --- MEMORY CLEANUP: REVOKE BLOB URLS ---
+  // Cleanup blob URLs
   useEffect(() => {
     return () => {
-      // Cleanup all media assets on unmount
       mediaAssets.forEach((asset) => {
         if (asset.blobUrl && asset.blobUrl.startsWith('blob:')) {
           URL.revokeObjectURL(asset.blobUrl);
@@ -191,18 +195,19 @@ export default function PreviewCanvas() {
 
   useEffect(() => {
     renderFrame();
-  }, [renderFrame]);
+  }, [renderFrame, currentTime]);
 
-  // Playback timer
+  // Playback loop — uses RAF with direct state reads to avoid re-render per frame
   useEffect(() => {
     if (!isPlaying) {
       cancelAnimationFrame(animRef.current);
       return;
     }
-    let lastTime = performance.now();
+    lastTimeRef.current = performance.now();
+
     const tick = (now: number) => {
-      const delta = (now - lastTime) / 1000;
-      lastTime = now;
+      const delta = (now - lastTimeRef.current) / 1000;
+      lastTimeRef.current = now;
       const state = useEditorStore.getState();
       const nextTime = state.currentTime + delta * state.playbackRate;
       if (nextTime >= state.duration) {
@@ -217,12 +222,24 @@ export default function PreviewCanvas() {
     return () => cancelAnimationFrame(animRef.current);
   }, [isPlaying]);
 
-  // Progress bar click
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  // Progress bar pointer interaction (touch + mouse)
+  const handleProgressPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
     const rect = e.currentTarget.getBoundingClientRect();
-    const pct = (e.clientX - rect.left) / rect.width;
-    seek(pct * duration);
-  };
+    const seekTo = (clientX: number) => {
+      const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      seek(pct * duration);
+    };
+    seekTo(e.clientX);
+
+    const onMove = (ev: PointerEvent) => seekTo(ev.clientX);
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }, [duration, seek]);
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
@@ -237,17 +254,11 @@ export default function PreviewCanvas() {
       />
 
       {/* Canvas Container */}
-      <div className="relative flex items-center justify-center flex-1 min-h-0 w-full p-4">
-        <motion.div
-          layout
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      <div className="relative flex items-center justify-center flex-1 min-h-0 w-full p-3">
+        <div
           className="relative shadow-2xl shadow-black/50 rounded-lg overflow-hidden"
           style={{ width: canvasSize.width, height: canvasSize.height }}
         >
-          {/* Hidden video element for playback */}
-          <video ref={videoRef} className="hidden" muted={isMuted} playsInline />
-          
-          {/* Main canvas */}
           <canvas
             id="preview-canvas"
             ref={canvasRef}
@@ -255,12 +266,10 @@ export default function PreviewCanvas() {
             style={{ imageRendering: 'auto' }}
           />
 
-          {/* Aspect ratio badge */}
           <div className="absolute top-2 left-2 px-2 py-0.5 text-[10px] font-mono text-zinc-400 bg-black/60 backdrop-blur-sm rounded-md border border-white/5">
             {project.aspectRatio} · {dimensions.width}×{dimensions.height}
           </div>
 
-          {/* Click to play/pause overlay */}
           <button
             onClick={togglePlay}
             className="absolute inset-0 flex items-center justify-center group cursor-pointer"
@@ -276,7 +285,6 @@ export default function PreviewCanvas() {
             )}
           </button>
 
-          {/* Empty state */}
           {clips.size === 0 && (
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 border border-violet-500/20 flex items-center justify-center mb-4">
@@ -286,26 +294,27 @@ export default function PreviewCanvas() {
               </div>
               <h3 className="text-sm font-semibold text-zinc-300 mb-1">Import media to start</h3>
               <p className="text-xs text-zinc-600 max-w-[200px]">
-                Drag & drop video, images, or audio to begin editing
+                Upload video, images, or audio from the Media panel
               </p>
             </div>
           )}
-        </motion.div>
+        </div>
       </div>
 
       {/* Playback Controls Bar */}
-      <div className="w-full px-4 pb-3 space-y-1.5 z-10 relative">
-        {/* Progress Bar */}
+      <div className="w-full px-3 pb-2 space-y-1 z-10 relative flex-shrink-0">
+        {/* Progress Bar — touch friendly */}
         <div
-          className="w-full h-1 bg-zinc-800 rounded-full cursor-pointer group relative"
-          onClick={handleProgressClick}
+          className="w-full h-2 bg-zinc-800 rounded-full cursor-pointer group relative"
+          style={{ touchAction: 'none' }}
+          onPointerDown={handleProgressPointerDown}
         >
-          <motion.div
-            className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full relative"
+          <div
+            className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full relative pointer-events-none"
             style={{ width: `${progress}%` }}
           >
             <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity" />
-          </motion.div>
+          </div>
         </div>
 
         {/* Controls */}
@@ -314,27 +323,23 @@ export default function PreviewCanvas() {
             <button onClick={stepBackward} className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-white/5">
               <SkipBackIcon />
             </button>
-
             <button
               onClick={togglePlay}
               className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-white hover:bg-white/10 transition-colors border border-white/5"
             >
               {isPlaying ? <PauseIcon /> : <PlayIcon />}
             </button>
-
             <button onClick={stepForward} className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-white/5">
               <SkipForwardIcon />
             </button>
           </div>
 
-          {/* Time Display */}
           <div className="text-xs font-mono text-zinc-500">
             <span className="text-zinc-300">{formatTime(currentTime)}</span>
             <span className="mx-1">/</span>
             <span>{formatTime(duration)}</span>
           </div>
 
-          {/* Volume */}
           <div className="flex items-center gap-1">
             <button onClick={toggleMute} className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-white/5">
               <VolumeIcon muted={isMuted} />

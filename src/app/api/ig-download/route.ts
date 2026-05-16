@@ -1,30 +1,10 @@
 import { NextResponse } from 'next/server';
 import { DownloadRequestSchema, validateRequest } from '@/lib/security/validation';
+import { fetchWithRetry } from '@/lib/server/http';
 
-// 🚀 THE MAGIC FIX: Vercel Timeout Bypass (Allow up to 60 seconds)
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
-
-const fetchWithRetry = async (url: string, options: any, retries = 3, delay = 1000) => {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const res = await fetch(url, options);
-      if (res.ok) return res;
-      if (res.status === 429) { // Rate limit
-        await new Promise(resolve => setTimeout(resolve, delay * 2));
-        continue;
-      }
-      // If it's a 4xx error (not rate limit), return it to handle in main logic
-      if (res.status >= 400 && res.status < 500 && res.status !== 429) {
-          return res;
-      }
-      throw new Error(`HTTP error! status: ${res.status}`);
-    } catch (err) {
-      if (i === retries - 1) throw err;
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  }
-  throw new Error("Max retries reached");
-};
 
 export async function POST(req: Request) {
   try {
@@ -42,7 +22,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Please enter a valid Instagram link!" }, { status: 400 });
     }
 
-    const RAPID_API_KEY = process.env.RAPID_API_KEY; 
+    const RAPID_API_KEY =
+      process.env.RAPID_API_KEY?.trim() ||
+      process.env.RAPIDAPI_KEY?.trim();
     const RAPID_API_HOST = "instagram-reels-downloader-api.p.rapidapi.com"; 
     
     // 🔥 DEBUG FIX: Log error specifically if API key is missing
@@ -59,7 +41,10 @@ export async function POST(req: Request) {
         'x-rapidapi-key': RAPID_API_KEY,
         'x-rapidapi-host': RAPID_API_HOST,
         'Content-Type': 'application/json'
-      }
+      },
+      retries: 2,
+      retryDelayMs: 1200,
+      timeoutMs: 15_000,
     });
 
     const data = await response.json();
@@ -76,7 +61,18 @@ export async function POST(req: Request) {
     const igData = data.data;
 
     // Filter video files
-    const videoFiles = igData.medias ? igData.medias.filter((m: any) => m.type === 'video' || m.extension === 'mp4') : [];
+    const videoFiles = Array.isArray(igData.medias)
+      ? igData.medias
+          .filter((media: { type?: string; extension?: string; url?: string }) =>
+            Boolean(media.url) &&
+            (media.type === 'video' || media.extension === 'mp4')
+          )
+          .map((media: { extension?: string; quality?: string; url: string }) => ({
+            url: media.url,
+            quality: media.quality || 'MP4',
+            extension: media.extension || 'mp4',
+          }))
+      : [];
 
     if (videoFiles.length === 0 && !igData.url) {
         throw new Error("No playable video found in this post.");
@@ -85,7 +81,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ 
       success: true,
       videoUrl: videoFiles.length > 0 ? videoFiles[0].url : igData.url,
-      availableVideos: videoFiles, 
+      availableVideos: videoFiles,
       meta: {
         author: igData.author || igData.owner?.username || 'Instagram User',
         caption: igData.title || '',
@@ -95,8 +91,10 @@ export async function POST(req: Request) {
       }
     });
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("IG Downloader Final Catch Error:", error);
-    return NextResponse.json({ error: error.message || "Server issue encountered." }, { status: 500 });
+    const message =
+      error instanceof Error ? error.message : "Server issue encountered.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

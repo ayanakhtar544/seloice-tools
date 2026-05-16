@@ -69,7 +69,8 @@ export default function PWAInstallPrompt() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          className="fixed bottom-[88px] md:bottom-6 left-4 right-4 md:left-auto md:right-8 md:w-96 z-[9990]"
+          className="fixed left-4 right-4 z-[170] md:left-auto md:right-8 md:bottom-6 md:w-96"
+          style={{ bottom: 'calc(var(--mobile-floating-offset) + 5.5rem)' }}
         >
           <div className="bg-emerald-600 border border-emerald-400/30 p-4 rounded-2xl shadow-[0_20px_50px_rgba(16,185,129,0.3)] flex items-center justify-between gap-4 backdrop-blur-lg">
             <div className="flex items-center gap-3">

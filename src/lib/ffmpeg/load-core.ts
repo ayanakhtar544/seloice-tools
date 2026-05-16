@@ -12,14 +12,25 @@ export async function loadFfmpegCore(): Promise<FFmpeg> {
 
   loadPromise = (async () => {
     const ffmpeg = new FFmpeg();
-    await ffmpeg.load({
-      coreURL: await toBlobURL(`${CDN_BASE}/ffmpeg-core.js`, 'text/javascript'),
-      wasmURL: await toBlobURL(`${CDN_BASE}/ffmpeg-core.wasm`, 'application/wasm'),
-    });
-    return ffmpeg;
+    try {
+      await ffmpeg.load({
+        coreURL: await toBlobURL(`${CDN_BASE}/ffmpeg-core.js`, 'text/javascript'),
+        wasmURL: await toBlobURL(`${CDN_BASE}/ffmpeg-core.wasm`, 'application/wasm'),
+      });
+      return ffmpeg;
+    } catch (error) {
+      loadPromise = null;
+      throw error;
+    }
   })();
 
   return loadPromise;
+}
+
+export function preloadFfmpegCore(): void {
+  void loadFfmpegCore().catch(() => {
+    // Best-effort warmup only; interactive flows will surface the real error.
+  });
 }
 
 export function logFfmpegLoadError(context: string, error: unknown): void {
