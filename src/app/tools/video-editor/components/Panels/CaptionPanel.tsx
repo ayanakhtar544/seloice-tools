@@ -1,8 +1,9 @@
+// File: src/app/tools/video-editor/components/Panels/CaptionPanel.tsx
 'use client';
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { PanelSection, Slider, ColorPicker } from '../shared/UIComponents';
+import { PanelSection, Slider } from '../shared/UIComponents';
 import { useEditorStore } from '../../stores/editorStore';
 
 const CAPTION_STYLES = [
@@ -14,8 +15,30 @@ const CAPTION_STYLES = [
   { id: 'karaoke', name: 'Karaoke', preview: 'Word by word', font: 'Inter', weight: 700, color: '#FFD700', stroke: '#000', strokeW: 2, bg: '' },
 ];
 
+const parseSRT = (srtText: string) => {
+  const blocks = srtText.trim().split('\n\n');
+  return blocks.map(block => {
+    const lines = block.split('\n');
+    if (lines.length >= 3) {
+      const timeLine = lines[1];
+      const text = lines.slice(2).join('\n');
+      const [startStr, endStr] = timeLine.split(' --> ');
+      
+      const parseTime = (str: string) => {
+        if (!str) return 0;
+        const [hms, ms] = str.split(',');
+        const [h, m, s] = hms.split(':');
+        return parseInt(h) * 3600 + parseInt(m) * 60 + parseInt(s) + (parseInt(ms) / 1000);
+      };
+      
+      return { start: parseTime(startStr), end: parseTime(endStr), text };
+    }
+    return null;
+  }).filter(Boolean) as {start: number, end: number, text: string}[];
+};
+
 export default function CaptionPanel() {
-  const { clips, addClip, tracks } = useEditorStore();
+  const { clips, addClip, tracks, addTrack, mediaAssets } = useEditorStore();
   const [selectedStyle, setSelectedStyle] = useState('hormozi');
   const [captionText, setCaptionText] = useState('');
   const [fontSize, setFontSize] = useState(48);
@@ -24,71 +47,70 @@ export default function CaptionPanel() {
 
   const handleGenerateCaptions = async () => {
     setIsGenerating(true);
-    // Simulate AI thinking
-    await new Promise(r => setTimeout(r, 2000));
-    
-    const style = CAPTION_STYLES.find(s => s.id === selectedStyle) || CAPTION_STYLES[0];
-    const textTrack = tracks.find(t => t.type === 'video') || tracks[0];
-    
-    if (textTrack) {
-      // Add a few mock caption segments
-      const mockCaptions = [
-        { text: "Welcome to", start: 0, end: 1 },
-        { text: "the future of", start: 1, end: 2 },
-        { text: "content creation!", start: 2, end: 3 },
-      ];
+    try {
+      const mediaClip = Array.from(clips.values()).find(c => c.type === 'video' || c.type === 'audio');
+      if (!mediaClip || !mediaClip.mediaId) throw new Error("Pehle timeline mein koi video ya audio add karo!");
 
-      mockCaptions.forEach(cap => {
+      const asset = mediaAssets.get(mediaClip.mediaId);
+      if (!asset || !asset.blobUrl) throw new Error("Video file nahi mili!");
+
+      // 🔥 THE FIX: Explicitly create a File Object so Next.js FormData parses it correctly
+      const fileRes = await fetch(asset.blobUrl);
+      const fileBlob = await fileRes.blob();
+      const file = new File([fileBlob], 'audio.mp4', { type: fileBlob.type || 'video/mp4' });
+      
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const apiRes = await fetch('/api/generate-srt', { method: 'POST', body: formData });
+
+      if (!apiRes.ok) {
+        const err = await apiRes.json();
+        throw new Error(err.error || "Failed to generate captions.");
+      }
+
+      const srtText = await apiRes.text();
+      const parsedCaptions = parseSRT(srtText);
+
+      if (parsedCaptions.length === 0) throw new Error("Video mein koi aawaz nahi mili!");
+
+      let textTrackId = tracks.find(t => t.type === 'text')?.id;
+      if (!textTrackId) textTrackId = addTrack('text', 'AI Captions');
+
+      const style = CAPTION_STYLES.find(s => s.id === selectedStyle) || CAPTION_STYLES[0];
+
+      parsedCaptions.forEach(cap => {
         addClip({
-          type: 'text',
-          trackId: textTrack.id,
-          startTime: cap.start,
-          endTime: cap.end,
-          trimStart: 0,
-          name: 'AI Caption',
+          type: 'text', trackId: textTrackId!, startTime: mediaClip.startTime + cap.start, endTime: mediaClip.startTime + cap.end,
+          trimStart: 0, name: cap.text.substring(0, 15),
           text: {
-            content: cap.text,
-            fontSize: fontSize,
-            fontFamily: style.font,
-            fontWeight: Number(style.weight),
-            fontStyle: 'normal',
-            textDecoration: 'none',
-            textAlign: 'center',
-            color: style.color,
-            strokeColor: style.stroke || '#000000',
-            strokeWidth: style.strokeW,
-            backgroundColor: style.bg || undefined,
-            lineHeight: 1.2,
-            letterSpacing: 0,
+            content: cap.text, fontSize: fontSize, fontFamily: style.font, fontWeight: Number(style.weight),
+            fontStyle: 'normal', textDecoration: 'none', textAlign: 'center', color: style.color,
+            strokeColor: style.stroke || '#000000', strokeWidth: style.strokeW, backgroundColor: style.bg || undefined,
+            lineHeight: 1.2, letterSpacing: 0,
           },
-          trimEnd: 0,
-          speed: 1,
-          volume: 1,
-          opacity: 1,
-          x: 0, y: 0,
-          width: 1080, height: 1920,
-          rotation: 0,
-          scaleX: 1, scaleY: 1,
-          effects: [],
-          locked: false,
-          hidden: false
+          trimEnd: 0, speed: 1, volume: 1, opacity: 1, x: 0, 
+          y: position === 'bottom' ? 1600 : position === 'center' ? 900 : 200, 
+          width: 1080, height: 200, rotation: 0, scaleX: 1, scaleY: 1, effects: [], locked: false, hidden: false
         });
       });
-    }
 
-    setIsGenerating(false);
-    alert('AI Captions generated successfully!');
+      alert('✅ Asli AI Captions Generate Ho Gaye!');
+
+    } catch (err: any) {
+      console.error(err);
+      alert('Error: ' + err.message);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
     <div className="flex flex-col h-full">
-      {/* Auto Caption */}
       <PanelSection title="Auto Captions" defaultOpen={true}>
         <motion.button
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.99 }}
-          disabled={isGenerating}
-          onClick={handleGenerateCaptions}
+          whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
+          disabled={isGenerating} onClick={handleGenerateCaptions}
           className={`w-full p-3 rounded-xl bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 border border-violet-500/20 hover:border-violet-500/40 transition-all group ${isGenerating ? 'opacity-50 cursor-wait' : ''}`}
         >
           <div className="flex items-center gap-2.5">
@@ -102,87 +124,34 @@ export default function CaptionPanel() {
             <span className="ml-auto px-1.5 py-0.5 text-[8px] font-bold bg-violet-500/20 text-violet-400 rounded border border-violet-500/20">AI</span>
           </div>
         </motion.button>
-
         <div className="mt-2">
-          <textarea
-            value={captionText}
-            onChange={(e) => setCaptionText(e.target.value)}
-            placeholder="Or type captions manually..."
-            className="w-full h-20 px-3 py-2 text-xs bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-300 resize-none placeholder:text-zinc-700 focus:border-violet-500 focus:outline-none"
-          />
+          <textarea value={captionText} onChange={(e) => setCaptionText(e.target.value)} placeholder="Or type captions manually..." className="w-full h-20 px-3 py-2 text-xs bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-300 resize-none placeholder:text-zinc-700 focus:border-violet-500 focus:outline-none" />
         </div>
       </PanelSection>
 
-      {/* Caption Styles */}
       <PanelSection title="Caption Style" defaultOpen={true}>
         <div className="grid grid-cols-2 gap-1.5">
           {CAPTION_STYLES.map((style) => (
-            <motion.button
-              key={style.id}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => setSelectedStyle(style.id)}
-              className={`p-2.5 rounded-lg text-center transition-all border ${
-                selectedStyle === style.id
-                  ? 'border-violet-500/50 bg-violet-500/10'
-                  : 'border-zinc-800 bg-zinc-900/30 hover:border-zinc-600'
-              }`}
-            >
-              <span
-                className="text-sm block truncate"
-                style={{
-                  fontFamily: style.font,
-                  fontWeight: style.weight,
-                  color: style.color,
-                  WebkitTextStroke: style.stroke ? `${style.strokeW * 0.2}px ${style.stroke}` : undefined,
-                  textShadow: style.id === 'neon' ? `0 0 10px ${style.color}` : undefined,
-                  backgroundColor: style.bg || undefined,
-                  padding: style.bg ? '2px 6px' : undefined,
-                  borderRadius: style.bg ? '4px' : undefined,
-                }}
-              >
-                {style.preview}
-              </span>
+            <motion.button key={style.id} whileTap={{ scale: 0.97 }} onClick={() => setSelectedStyle(style.id)} className={`p-2.5 rounded-lg text-center transition-all border ${selectedStyle === style.id ? 'border-violet-500/50 bg-violet-500/10' : 'border-zinc-800 bg-zinc-900/30 hover:border-zinc-600'}`}>
+              <span className="text-sm block truncate" style={{ fontFamily: style.font, fontWeight: style.weight, color: style.color, WebkitTextStroke: style.stroke ? `${style.strokeW * 0.2}px ${style.stroke}` : undefined, textShadow: style.id === 'neon' ? `0 0 10px ${style.color}` : undefined, backgroundColor: style.bg || undefined, padding: style.bg ? '2px 6px' : undefined, borderRadius: style.bg ? '4px' : undefined }}>{style.preview}</span>
               <p className="text-[9px] text-zinc-600 mt-1">{style.name}</p>
             </motion.button>
           ))}
         </div>
       </PanelSection>
 
-      {/* Settings */}
       <PanelSection title="Settings" defaultOpen={true}>
         <div className="space-y-3">
           <Slider label="Size" value={fontSize} min={16} max={120} step={2} onChange={setFontSize} formatValue={(v) => `${v}px`} />
-
           <div>
             <p className="text-[10px] text-zinc-500 mb-1.5">Position</p>
             <div className="flex gap-1">
               {(['top', 'center', 'bottom'] as const).map((pos) => (
-                <button
-                  key={pos}
-                  onClick={() => setPosition(pos)}
-                  className={`flex-1 py-1.5 text-[10px] font-medium rounded-lg capitalize transition-colors ${
-                    position === pos
-                      ? 'bg-violet-500/20 text-violet-400 border border-violet-500/30'
-                      : 'bg-zinc-900 text-zinc-500 border border-zinc-800 hover:border-zinc-600'
-                  }`}
-                >
-                  {pos}
-                </button>
+                <button key={pos} onClick={() => setPosition(pos)} className={`flex-1 py-1.5 text-[10px] font-medium rounded-lg capitalize transition-colors ${position === pos ? 'bg-violet-500/20 text-violet-400 border border-violet-500/30' : 'bg-zinc-900 text-zinc-500 border border-zinc-800 hover:border-zinc-600'}`}>{pos}</button>
               ))}
             </div>
           </div>
         </div>
-      </PanelSection>
-
-      {/* Emoji Options */}
-      <PanelSection title="Auto Emojis" defaultOpen={false}>
-        <div className="flex items-center justify-between p-2 rounded-lg bg-zinc-900/30">
-          <span className="text-[11px] text-zinc-400">Add emojis to captions</span>
-          <button className="w-9 h-5 rounded-full bg-zinc-700 relative transition-colors">
-            <div className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-zinc-400 transition-transform" />
-          </button>
-        </div>
-        <p className="text-[10px] text-zinc-600 mt-1.5 px-1">AI detects context and adds relevant emojis automatically</p>
       </PanelSection>
     </div>
   );

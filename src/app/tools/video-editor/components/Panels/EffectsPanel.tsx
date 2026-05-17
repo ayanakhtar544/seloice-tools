@@ -1,221 +1,149 @@
+// File: src/app/tools/video-editor/components/Panels/EffectsPanel.tsx
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useEditorStore } from '../../stores/editorStore';
 import { PanelSection, Slider } from '../shared/UIComponents';
-import { EFFECT_PRESETS } from '../../types/editor';
-import type { ClipEffect, EffectType } from '../../types/editor';
+import { Sparkles, SlidersHorizontal, Wand2, MonitorPlay, Zap, Droplets, Palette } from 'lucide-react';
 import { generateId } from '../../utils/helpers';
 
-const EFFECT_CATEGORIES: { name: string; effects: { type: EffectType; label: string; icon: string }[] }[] = [
-  {
-    name: 'Adjust',
-    effects: [
-      { type: 'brightness', label: 'Brightness', icon: '☀️' },
-      { type: 'contrast', label: 'Contrast', icon: '◐' },
-      { type: 'saturation', label: 'Saturation', icon: '🎨' },
-      { type: 'hue-rotate', label: 'Hue Shift', icon: '🌈' },
-      { type: 'blur', label: 'Blur', icon: '💫' },
-    ],
-  },
-  {
-    name: 'Stylize',
-    effects: [
-      { type: 'sepia', label: 'Sepia', icon: '📜' },
-      { type: 'grayscale', label: 'Grayscale', icon: '⬛' },
-      { type: 'invert', label: 'Invert', icon: '🔄' },
-      { type: 'vignette', label: 'Vignette', icon: '🔲' },
-      { type: 'film-grain', label: 'Film Grain', icon: '🎬' },
-    ],
-  },
-  {
-    name: 'Viral',
-    effects: [
-      { type: 'vhs', label: 'VHS', icon: '📼' },
-      { type: 'glitch', label: 'Glitch', icon: '⚡' },
-      { type: 'rgb-split', label: 'RGB Split', icon: '🔴' },
-      { type: 'noise', label: 'Noise', icon: '📡' },
-      { type: 'chromatic-aberration', label: 'Chromatic', icon: '🌀' },
-    ],
-  },
-  {
-    name: 'Motion',
-    effects: [
-      { type: 'shake', label: 'Shake', icon: '📳' },
-      { type: 'zoom-pulse', label: 'Zoom Pulse', icon: '🔍' },
-      { type: 'motion-blur', label: 'Motion Blur', icon: '💨' },
-      { type: 'glow', label: 'Glow', icon: '✨' },
-    ],
-  },
-  {
-    name: 'Color Grade',
-    effects: [
-      { type: 'cinematic', label: 'Cinematic', icon: '🎥' },
-      { type: 'vintage', label: 'Vintage', icon: '📷' },
-      { type: 'cool', label: 'Cool Tone', icon: '🧊' },
-      { type: 'warm', label: 'Warm Tone', icon: '🔥' },
-      { type: 'color-overlay', label: 'Color Overlay', icon: '🎭' },
-    ],
-  },
+const FILTERS = [
+  { id: 'f-cine', name: 'Cinematic', color: 'from-orange-500/40 to-blue-900/40' },
+  { id: 'f-cyber', name: 'Cyberpunk', color: 'from-pink-500/40 to-cyan-500/40' },
+  { id: 'f-retro', name: 'Vintage 90s', color: 'from-yellow-600/40 to-amber-900/40' },
+  { id: 'f-bw', name: 'B & W', color: 'from-zinc-500/40 to-zinc-800/40' },
+  { id: 'f-sepia', name: 'Sepia', color: 'from-amber-700/40 to-yellow-900/40' },
+];
+
+const VFX = [
+  { id: 'v-glitch', name: 'Glitch', icon: <Zap size={18} /> },
+  { id: 'v-vhs', name: 'VHS Tape', icon: <MonitorPlay size={18} /> },
+  { id: 'v-rgb', name: 'RGB Split', icon: <Wand2 size={18} /> },
+  { id: 'v-blur', name: 'Lens Blur', icon: <Droplets size={18} /> },
 ];
 
 export default function EffectsPanel() {
-  const { clips, selectedClipIds, addEffectToClip, removeEffectFromClip, updateClip } = useEditorStore();
+  const { selectedClipIds, clips, addEffectToClip, removeEffectFromClip, updateClip } = useEditorStore();
+  const [activeTab, setActiveTab] = useState<'filters' | 'vfx' | 'adjust'>('filters');
 
-  const selectedClip = selectedClipIds.length === 1 ? clips.get(selectedClipIds[0]) : null;
-  const clipEffects = selectedClip?.effects || [];
+  const selectedClipId = selectedClipIds[0];
+  const selectedClip = selectedClipId ? clips.get(selectedClipId) : null;
+  
+  // 🔥 FIX 1: Added 'as string' to tell TypeScript to chill out
+  const isVideoOrImage = selectedClip?.type === 'video' || (selectedClip?.type as string) === 'image';
 
-  const addEffect = (type: EffectType) => {
-    if (!selectedClip) return;
-    const effect: ClipEffect = {
-      id: generateId(),
-      type,
-      enabled: true,
-      intensity: 0.5,
-      params: {},
-    };
-    addEffectToClip(selectedClip.id, effect);
+  // 🔥 GET CURRENT VALUE FROM CLIP
+  const getEffectValue = (name: string, defaultVal: number) => {
+    return selectedClip?.effects?.find(e => e.name === name)?.value ?? defaultVal;
   };
 
-  const updateEffectIntensity = (effectId: string, intensity: number) => {
-    if (!selectedClip) return;
-    const updated = selectedClip.effects.map((e) =>
-      e.id === effectId ? { ...e, intensity } : e
-    );
-    updateClip(selectedClip.id, { effects: updated });
+  // 🔥 SET ADJUSTMENT VALUE
+  const setEffectValue = (name: string, val: number) => {
+    if (!selectedClipId || !selectedClip) return;
+    const existing = selectedClip.effects?.find(e => e.name === name);
+    if (existing) {
+      const newEffects = selectedClip.effects.map(e => e.name === name ? { ...e, value: val } : e);
+      updateClip(selectedClipId, { effects: newEffects });
+    } else {
+      addEffectToClip(selectedClipId, { id: generateId(), type: 'adjust', name, value: val });
+    }
   };
 
-  const toggleEffect = (effectId: string) => {
-    if (!selectedClip) return;
-    const updated = selectedClip.effects.map((e) =>
-      e.id === effectId ? { ...e, enabled: !e.enabled } : e
-    );
-    updateClip(selectedClip.id, { effects: updated });
+  // 🔥 APPLY FILTER (Only 1 filter at a time)
+  const handleApplyFilter = (filterName: string) => {
+    if (!selectedClipId || !selectedClip) return;
+    // FIX 2: Added safety fallback `(selectedClip.effects || [])`
+    const cleanEffects = (selectedClip.effects || []).filter(e => e.type !== 'filter'); 
+    updateClip(selectedClipId, { effects: [...cleanEffects, { id: generateId(), type: 'filter', name: filterName, value: 100 }] });
   };
 
-  const applyPreset = (presetKey: string) => {
-    if (!selectedClip) return;
-    const preset = EFFECT_PRESETS[presetKey];
-    if (!preset) return;
-    const effects: ClipEffect[] = preset.effects.map((e) => ({
-      id: generateId(),
-      type: e.type!,
-      enabled: true,
-      intensity: e.intensity || 0.5,
-      params: {},
-    }));
-    updateClip(selectedClip.id, { effects });
+  // 🔥 VFX Actions
+  const handleApplyVFX = (effectName: string) => {
+    if (!selectedClipId) return;
+    addEffectToClip(selectedClipId, { id: generateId(), type: 'vfx', name: effectName, value: 100 });
+  };
+  const handleRemoveVFX = (effectId: string) => {
+    if (!selectedClipId) return;
+    removeEffectFromClip(selectedClipId, effectId);
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Quick Presets */}
-      <PanelSection title="Quick Presets" defaultOpen={true}>
-        <div className="grid grid-cols-2 gap-1.5">
-          {Object.entries(EFFECT_PRESETS).map(([key, preset]) => (
-            <motion.button
-              key={key}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => applyPreset(key)}
-              disabled={!selectedClip}
-              className={`p-2.5 rounded-lg text-left transition-all border ${
-                selectedClip
-                  ? 'bg-zinc-900/50 border-zinc-800 hover:border-violet-500/30 hover:bg-violet-500/5 cursor-pointer'
-                  : 'bg-zinc-900/20 border-zinc-800/30 opacity-40 cursor-not-allowed'
-              }`}
-            >
-              <p className="text-xs font-semibold text-zinc-300">{preset.name}</p>
-              <p className="text-[9px] text-zinc-600 mt-0.5">
-                {preset.effects.length} effect{preset.effects.length > 1 ? 's' : ''}
-              </p>
-            </motion.button>
-          ))}
+    <div className="flex flex-col h-full space-y-4">
+      
+      {/* TABS */}
+      <div className="flex bg-black/40 p-1 rounded-xl border border-white/5">
+        <button onClick={() => setActiveTab('filters')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${activeTab === 'filters' ? 'bg-violet-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}><Palette size={14} /> Filters</button>
+        <button onClick={() => setActiveTab('vfx')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${activeTab === 'vfx' ? 'bg-fuchsia-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}><Sparkles size={14} /> VFX</button>
+        <button onClick={() => setActiveTab('adjust')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${activeTab === 'adjust' ? 'bg-cyan-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}><SlidersHorizontal size={14} /> Adjust</button>
+      </div>
+
+      {!isVideoOrImage ? (
+        <div className="flex flex-col items-center justify-center h-48 bg-white/[0.02] border border-dashed border-white/10 rounded-2xl p-6 text-center">
+          <Wand2 size={32} className="text-zinc-600 mb-3" />
+          <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">No Clip Selected</p>
+          <p className="text-[10px] text-zinc-600 mt-2">Tap on a video or image to apply magic.</p>
         </div>
-      </PanelSection>
-
-      {/* Active Effects on Selected Clip */}
-      {selectedClip && clipEffects.length > 0 && (
-        <PanelSection title={`Active (${clipEffects.length})`} defaultOpen={true}>
-          <div className="space-y-1.5">
-            {clipEffects.map((effect) => (
-              <div key={effect.id} className="rounded-lg bg-zinc-900/50 border border-zinc-800 p-2">
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => toggleEffect(effect.id)}
-                      className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
-                        effect.enabled
-                          ? 'bg-violet-500 border-violet-400'
-                          : 'bg-zinc-800 border-zinc-600'
-                      }`}
-                    >
-                      {effect.enabled && (
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      )}
+      ) : (
+        <div className="flex-1 overflow-y-auto no-scrollbar pb-20">
+          <AnimatePresence mode="wait">
+            
+            {/* 🎨 TAB 1: FILTERS */}
+            {activeTab === 'filters' && (
+              <motion.div key="filters" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="grid grid-cols-2 gap-2">
+                {FILTERS.map((filter) => {
+                  const isActive = selectedClip?.effects?.some(e => e.name === filter.name);
+                  return (
+                    <button key={filter.id} onClick={() => handleApplyFilter(filter.name)} className={`relative h-20 rounded-xl overflow-hidden group transition-all ${isActive ? 'border-2 border-violet-500 shadow-[0_0_15px_rgba(139,92,246,0.5)]' : 'border border-white/10 hover:border-violet-500'}`}>
+                      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80')] bg-cover bg-center" />
+                      <div className={`absolute inset-0 bg-gradient-to-br ${filter.color} mix-blend-overlay`} />
+                      <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors" />
+                      <span className="absolute bottom-1.5 left-2 text-[10px] font-black text-white drop-shadow-md z-10">{filter.name}</span>
                     </button>
-                    <span className="text-[11px] font-medium text-zinc-300 capitalize">
-                      {effect.type.replace(/-/g, ' ')}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => removeEffectFromClip(selectedClip.id, effect.id)}
-                    className="text-zinc-600 hover:text-red-400 transition-colors"
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </button>
+                  );
+                })}
+                <button onClick={() => updateClip(selectedClipId, { effects: (selectedClip?.effects || []).filter(e => e.type !== 'filter') })} className="col-span-2 mt-2 py-2 bg-zinc-900 border border-white/10 text-xs text-white rounded-lg hover:bg-zinc-800">Clear Filter</button>
+              </motion.div>
+            )}
+
+            {/* ✨ TAB 2: VFX */}
+            {activeTab === 'vfx' && (
+              <motion.div key="vfx" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-4">
+                {selectedClip?.effects?.some(e => e.type === 'vfx') && (
+                  <PanelSection title="Applied VFX" defaultOpen={true}>
+                    <div className="space-y-2">
+                      {(selectedClip?.effects || []).filter(e => e.type === 'vfx').map(eff => (
+                        <div key={eff.id} className="flex items-center justify-between bg-fuchsia-500/10 border border-fuchsia-500/20 p-2 rounded-lg">
+                          <span className="text-[10px] font-bold text-fuchsia-300">{eff.name}</span>
+                          <button onClick={() => handleRemoveVFX(eff.id)} className="text-fuchsia-400 hover:text-white text-[10px] font-bold bg-fuchsia-500/20 px-2 py-1 rounded">Remove</button>
+                        </div>
+                      ))}
+                    </div>
+                  </PanelSection>
+                )}
+                <div className="grid grid-cols-3 gap-2">
+                  {VFX.map((vfx) => (
+                    <button key={vfx.id} onClick={() => handleApplyVFX(vfx.name)} className="flex flex-col items-center justify-center gap-2 p-3 bg-zinc-900/50 hover:bg-fuchsia-500/20 border border-white/5 hover:border-fuchsia-500/50 rounded-xl transition-all group">
+                      <div className="text-zinc-500 group-hover:text-fuchsia-400 transition-colors">{vfx.icon}</div>
+                      <span className="text-[9px] font-bold text-zinc-300 group-hover:text-white text-center leading-tight">{vfx.name}</span>
+                    </button>
+                  ))}
                 </div>
-                <Slider
-                  value={effect.intensity}
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  onChange={(v) => updateEffectIntensity(effect.id, v)}
-                  formatValue={(v) => `${Math.round(v * 100)}%`}
-                />
-              </div>
-            ))}
-          </div>
-        </PanelSection>
-      )}
+              </motion.div>
+            )}
 
-      {/* All Effects */}
-      {EFFECT_CATEGORIES.map((category) => (
-        <PanelSection key={category.name} title={category.name} defaultOpen={category.name === 'Adjust'}>
-          <div className="grid grid-cols-3 gap-1">
-            {category.effects.map((effect) => (
-              <motion.button
-                key={effect.type}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                onClick={() => addEffect(effect.type)}
-                disabled={!selectedClip}
-                className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
-                  selectedClip
-                    ? 'bg-zinc-900/30 hover:bg-zinc-800 cursor-pointer'
-                    : 'opacity-30 cursor-not-allowed'
-                }`}
-              >
-                <span className="text-lg">{effect.icon}</span>
-                <span className="text-[9px] font-medium text-zinc-500">{effect.label}</span>
-              </motion.button>
-            ))}
-          </div>
-        </PanelSection>
-      ))}
-
-      {/* No clip selected hint */}
-      {!selectedClip && (
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div className="text-center">
-            <p className="text-xs text-zinc-500">Select a clip to apply effects</p>
-            <p className="text-[10px] text-zinc-700 mt-1">Click on a clip in the timeline</p>
-          </div>
+            {/* 🎚️ TAB 3: ADJUSTMENTS */}
+            {activeTab === 'adjust' && (
+              <motion.div key="adjust" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6 bg-zinc-900/30 p-4 rounded-xl border border-white/5">
+                <Slider label="Brightness" value={getEffectValue('Brightness', 0)} min={-100} max={100} step={1} onChange={(val) => setEffectValue('Brightness', val)} formatValue={v => `${v > 0 ? '+' : ''}${v}`} />
+                <Slider label="Contrast" value={getEffectValue('Contrast', 0)} min={-100} max={100} step={1} onChange={(val) => setEffectValue('Contrast', val)} formatValue={v => `${v > 0 ? '+' : ''}${v}`} />
+                <Slider label="Saturation" value={getEffectValue('Saturation', 0)} min={-100} max={100} step={1} onChange={(val) => setEffectValue('Saturation', val)} formatValue={v => `${v > 0 ? '+' : ''}${v}`} />
+                <button onClick={() => updateClip(selectedClipId, { effects: (selectedClip?.effects || []).filter(e => e.type !== 'adjust') })} className="w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl transition-colors border border-red-500/20">
+                  Reset All Adjustments
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
     </div>

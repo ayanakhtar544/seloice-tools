@@ -1,3 +1,4 @@
+// File: src/app/tools/video-editor/components/Panels/MediaPanel.tsx
 'use client';
 
 import React, { useCallback, useRef, useState } from 'react';
@@ -10,6 +11,7 @@ import {
 } from '../../utils/helpers';
 import type { MediaAsset, TimelineClip } from '../../types/editor';
 import { CANVAS_DIMENSIONS } from '../../types/editor';
+import { Plus } from 'lucide-react'; // 🔥 Icon for custom color button
 
 const UploadIcon = () => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -28,6 +30,9 @@ export default function MediaPanel() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // State for Custom Background Color
+  const [customColor, setCustomColor] = useState('#7c3aed');
 
   const mediaAssets = useEditorStore((s) => s.mediaAssets);
   const importProgress = useEditorStore((s) => s.importProgress);
@@ -120,6 +125,7 @@ export default function MediaPanel() {
       startTime = maxEnd;
     }
 
+    // Image/Stock backgrounds default to 5 seconds if duration is missing or 0
     const clipDuration = asset.duration || 5;
 
     const newClip: Omit<TimelineClip, 'id'> = {
@@ -178,8 +184,39 @@ export default function MediaPanel() {
     }
   };
 
+  // 🔥 NEW: Generator for 5s Stock Color Backgrounds!
+  const addColorBackground = (color: string, name: string) => {
+    // Generate a quick 1x1 base64 image on the fly!
+    const canvas = document.createElement('canvas');
+    canvas.width = 100; canvas.height = 100;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 100, 100);
+    const blobUrl = canvas.toDataURL('image/png');
+
+    const assetId = generateId();
+    const newAsset: MediaAsset = { 
+        id: assetId, 
+        url: name, 
+        blobUrl, 
+        type: 'image', 
+        name, 
+        duration: 5,
+        size: 1024,
+        mimeType: 'image/png',
+        createdAt: Date.now()
+    };
+    
+    // Add to library and immediately push to timeline
+    addMediaAsset(newAsset);
+    addToTimeline(newAsset);
+  };
+
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full space-y-4">
+      {/* Upload Section */}
       <PanelSection title="Import" defaultOpen={true}>
         {/* Drop zone */}
         <div
@@ -241,6 +278,7 @@ export default function MediaPanel() {
         )}
       </PanelSection>
 
+      {/* Media Library */}
       <PanelSection title={`Media Library (${assets.length})`} defaultOpen={true}>
         {assets.length === 0 ? (
           <div className="text-center py-6">
@@ -304,13 +342,52 @@ export default function MediaPanel() {
         )}
       </PanelSection>
 
-      <PanelSection title="Stock Media" defaultOpen={false}>
-        <div className="text-center py-4">
-          <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center mx-auto mb-2">
-            <PlusIcon />
-          </div>
-          <p className="text-[11px] text-zinc-500">Free stock videos & music</p>
-          <p className="text-[10px] text-zinc-700 mt-0.5">Coming soon</p>
+      {/* 🔥 NEW: Stock Backgrounds Section */}
+      <PanelSection title="Stock Media (5s Backgrounds)" defaultOpen={false}>
+        <div className="grid grid-cols-3 gap-2">
+          {/* Black */}
+          <button 
+            onClick={() => addColorBackground('#000000', 'Black BG')} 
+            className="h-16 rounded-xl bg-black border border-white/20 flex flex-col items-center justify-center group relative overflow-hidden transition-all hover:scale-[1.02]"
+          >
+            <span className="text-[10px] font-black tracking-widest text-white mix-blend-difference z-10">BLACK</span>
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </button>
+          
+          {/* White */}
+          <button 
+            onClick={() => addColorBackground('#FFFFFF', 'White BG')} 
+            className="h-16 rounded-xl bg-white border border-white/20 flex flex-col items-center justify-center group relative overflow-hidden transition-all hover:scale-[1.02]"
+          >
+            <span className="text-[10px] font-black tracking-widest text-black z-10">WHITE</span>
+            <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </button>
+          
+          {/* Green Screen */}
+          <button 
+            onClick={() => addColorBackground('#00FF00', 'Green Screen')} 
+            className="h-16 rounded-xl bg-[#00FF00] border border-white/20 flex flex-col items-center justify-center group relative overflow-hidden transition-all hover:scale-[1.02]"
+          >
+            <span className="text-[10px] font-black tracking-widest text-black z-10 text-center leading-tight">GREEN<br/>SCREEN</span>
+            <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </button>
+        </div>
+
+        {/* Custom Color Picker Button */}
+        <div className="mt-3 flex gap-2 items-center bg-zinc-900/50 p-2 rounded-xl border border-white/5">
+          <input 
+            type="color" 
+            value={customColor} 
+            onChange={(e) => setCustomColor(e.target.value)} 
+            className="w-8 h-8 rounded cursor-pointer bg-transparent border-0 p-0" 
+            title="Pick a custom color"
+          />
+          <button 
+            onClick={() => addColorBackground(customColor, 'Custom BG')} 
+            className="flex-1 flex items-center justify-center gap-2 py-2 bg-violet-600 hover:bg-violet-500 rounded-lg text-[10px] font-black uppercase tracking-widest text-white shadow-lg transition-colors"
+          >
+            <Plus size={14}/> Add Color
+          </button>
         </div>
       </PanelSection>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Share2, Link as LinkIcon, Check } from 'lucide-react';
 
 interface ViralShareProps {
@@ -27,6 +27,15 @@ function FacebookIcon({ size = 16 }: { size?: number }) {
 
 export default function ViralShare({ url, title, text }: ViralShareProps) {
   const [copied, setCopied] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [canShare, setCanShare] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true); // Component browser par load ho chuka hai
+    if (typeof navigator !== 'undefined' && (navigator as any).share) {
+      setCanShare(true); // Is device mein native share support hai
+    }
+  }, []);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(url);
@@ -35,9 +44,9 @@ export default function ViralShare({ url, title, text }: ViralShareProps) {
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
+    if ((navigator as any).share) {
       try {
-        await navigator.share({
+        await (navigator as any).share({
           title,
           text: text || title,
           url,
@@ -82,17 +91,16 @@ export default function ViralShare({ url, title, text }: ViralShareProps) {
         >
           <FacebookIcon />
         </a>
-
-        {typeof navigator !== 'undefined' && 'share' in navigator && (
-          <button
-            type="button"
-            onClick={handleShare}
-            className="p-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40 transition-all duration-300"
-            aria-label="Native share"
-          >
-            <Share2 size={16} />
-          </button>
-        )}
+{isMounted && canShare && (
+        <button
+          type="button"
+          onClick={handleShare}
+          className="p-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 ..." // teri purani classes
+          aria-label="Native share"
+        >
+          <Share2 size={16} />
+        </button>
+      )}
       </div>
     </div>
   );

@@ -1,10 +1,11 @@
+// File: src/app/api/ig-download/route.ts
 import { NextResponse } from 'next/server';
 import { DownloadRequestSchema, validateRequest } from '@/lib/security/validation';
 import { fetchWithRetry } from '@/lib/server/http';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60;
+export const maxDuration = 60; // Vercel hobby pe ye ignore hota hai (10s limit), but safe for Pro
 
 export async function POST(req: Request) {
   try {
@@ -22,12 +23,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Please enter a valid Instagram link!" }, { status: 400 });
     }
 
-    const RAPID_API_KEY =
-      process.env.RAPID_API_KEY?.trim() ||
-      process.env.RAPIDAPI_KEY?.trim();
+    const RAPID_API_KEY = process.env.RAPID_API_KEY?.trim() || process.env.RAPIDAPI_KEY?.trim();
     const RAPID_API_HOST = "instagram-reels-downloader-api.p.rapidapi.com"; 
     
-    // 🔥 DEBUG FIX: Log error specifically if API key is missing
+    // 🔥 CRITICAL FIX: Ensure API key exists
     if (!RAPID_API_KEY) {
         console.error("CRITICAL ERROR: RAPID_API_KEY is missing on production server.");
         return NextResponse.json({ error: "Server Configuration Error: API Key missing in Production." }, { status: 500 });
@@ -35,6 +34,8 @@ export async function POST(req: Request) {
 
     const API_ENDPOINT = `https://${RAPID_API_HOST}/download?url=${encodeURIComponent(url)}`;
 
+    // 🔥 VERCEL TIMEOUT FIX
+    // Timeout kam kar diya hai taaki Vercel kill karne se pehle humara catch block chal jaye aur proper error mile.
     const response = await fetchWithRetry(API_ENDPOINT, {
       method: 'GET',
       headers: {
@@ -42,25 +43,25 @@ export async function POST(req: Request) {
         'x-rapidapi-host': RAPID_API_HOST,
         'Content-Type': 'application/json'
       },
-      retries: 2,
-      retryDelayMs: 1200,
-      timeoutMs: 15_000,
+      retries: 1,           // Changed from 2
+      retryDelayMs: 500,    // Changed from 1200
+      timeoutMs: 8000,      // Changed from 15000 to 8s max
     });
 
     const data = await response.json();
 
-    // 🚀 Handle RapidAPI internal errors gracefully
     if (data.message || data.error) {
         console.error("RapidAPI returned an error:", data.message || data.error);
     }
 
-    if (!response.ok || !data?.data) {
+    // 🚀 Robust check for different API response structures
+    if (!response.ok || !data || (!data.data && !data.medias && !data.url)) {
       throw new Error("Video not found. The account might be private, or the link is invalid.");
     }
 
-    const igData = data.data;
+    const igData = data.data || data;
 
-    // Filter video files
+    // Filter video files dynamically
     const videoFiles = Array.isArray(igData.medias)
       ? igData.medias
           .filter((media: { type?: string; extension?: string; url?: string }) =>
@@ -74,27 +75,29 @@ export async function POST(req: Request) {
           }))
       : [];
 
-    if (videoFiles.length === 0 && !igData.url) {
+    // Fallback urls based on common RapidAPI structures
+    const finalVideoUrl = videoFiles.length > 0 ? videoFiles[0].url : (igData.videoUrl || igData.url);
+
+    if (!finalVideoUrl) {
         throw new Error("No playable video found in this post.");
     }
 
     return NextResponse.json({ 
       success: true,
-      videoUrl: videoFiles.length > 0 ? videoFiles[0].url : igData.url,
+      videoUrl: finalVideoUrl,
       availableVideos: videoFiles,
       meta: {
         author: igData.author || igData.owner?.username || 'Instagram User',
-        caption: igData.title || '',
-        likes: igData.like_count || 0,
-        views: igData.view_count || 0,
-        thumbnail: igData.thumbnail || ''
+        caption: igData.title || igData.caption || '',
+        likes: igData.like_count || igData.likes || 0,
+        views: igData.view_count || igData.play_count || 0,
+        thumbnail: igData.thumbnail || igData.cover_url || ''
       }
     });
     
   } catch (error: unknown) {
     console.error("IG Downloader Final Catch Error:", error);
-    const message =
-      error instanceof Error ? error.message : "Server issue encountered.";
+    const message = error instanceof Error ? error.message : "Server issue encountered.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

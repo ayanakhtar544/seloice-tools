@@ -6,12 +6,13 @@ export type AspectRatio = '9:16' | '16:9' | '1:1' | '4:5';
 export type ExportQuality = '720p' | '1080p' | '4K';
 export type ExportFormat = 'mp4' | 'webm' | 'gif';
 export type TrackType = 'video' | 'audio' | 'text' | 'effects' | 'sticker';
-export type PanelTab = 'media' | 'text' | 'effects' | 'audio' | 'ai' | 'templates' | 'captions' | 'export';
+export type PanelTab = 'media' | 'text' | 'effects' | 'audio' | 'captions' ;
 
 export interface MediaAsset {
   id: string;
   name: string;
   type: 'video' | 'audio' | 'image';
+  url?: string;
   mimeType: string;
   size: number;
   blob?: Blob;
@@ -90,10 +91,12 @@ export interface TextAnimation {
 
 export interface ClipEffect {
   id: string;
-  type: EffectType;
-  enabled: boolean;
-  intensity: number;
-  params: Record<string, number | string | boolean>;
+  type: EffectType | string;
+  enabled?: boolean;
+  intensity?: number;
+  params?: Record<string, number | string | boolean>;
+  name?: string;
+  value?: number;
 }
 
 export type EffectType =

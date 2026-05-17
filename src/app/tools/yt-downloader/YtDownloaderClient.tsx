@@ -95,7 +95,7 @@ export default function YtDownloaderClient() {
     }
   };
 
-  const handleForceDownload = (
+  const handleForceDownload = async (
     e: React.MouseEvent<HTMLAnchorElement>,
     downloadUrl: string,
     title: string,
@@ -105,10 +105,34 @@ export default function YtDownloaderClient() {
   ) => {
     e.preventDefault();
     setDownloadingIndex(index);
-    const ext = formatExt || (type.includes('Audio') ? 'mp3' : 'mp4');
-    const proxyUrl = `/api/force-download?url=${encodeURIComponent(downloadUrl)}&title=${encodeURIComponent(title)}&ext=${ext}`;
-    window.location.href = proxyUrl;
-    window.setTimeout(() => setDownloadingIndex(null), 1500);
+
+    // 🚀 CLIENT-SIDE DIRECT DOWNLOAD (Bypasses Vercel's 4.5MB limit)
+    try {
+      const ext = formatExt || (type.includes('Audio') ? 'mp3' : 'mp4');
+      const filename = `${title.replace(/[^a-zA-Z0-9]/g, '_')}.${ext}`; // Clean filename
+
+      // Ek hidden anchor tag banakar usko programmatically click karwayenge
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      
+      // 'download' attribute CORS same-origin me best kaam karta hai, 
+      // par cross-origin (RapidAPI) me 'target="_blank"' download trigger kar deta hai
+      a.setAttribute('download', filename); 
+      a.setAttribute('target', '_blank'); // Safe fallback
+      a.rel = 'noopener noreferrer';
+      
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+    } catch (err) {
+      console.error("Download Error: ", err);
+      // Fallback
+      window.open(downloadUrl, '_blank');
+    } finally {
+      // 1.5 second baad loader hata do
+      window.setTimeout(() => setDownloadingIndex(null), 1500);
+    }
   };
 
   const filteredFormats = videoData?.formats.filter(format => {
