@@ -2,7 +2,12 @@
 "use client";
 
 import dynamic from 'next/dynamic';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+// 🔥 FIX: X hata kar ArrowLeft import kiya hai
+import { ArrowLeft } from 'lucide-react'; 
+
+import ProjectDashboard from './components/ProjectDashboard';
+import PendingEditListener from './components/PendingEditListener';
 
 const Editor = dynamic(
   () => import('./components/Editor'),
@@ -35,7 +40,17 @@ function EditorSkeleton() {
 }
 
 export default function VideoEditorClient() {
-  // 🚀 THE FIX: Lock body scroll AND hide Global Navbar/Footer
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
+
+  // SHORTS MAKER AUTO-JUMP LOGIC
+  useEffect(() => {
+    const pendingUrl = localStorage.getItem('seloice_pending_edit');
+    if (pendingUrl) {
+      setActiveProjectId(`imported_proj_${Date.now()}`);
+    }
+  }, []);
+
+  // HIDE GLOBAL NAVBAR & FOOTER
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -54,9 +69,27 @@ export default function VideoEditorClient() {
     };
   }, []);
 
+  const handleProjectSelect = (projectId: string, isNew: boolean = false) => {
+    setActiveProjectId(projectId);
+  };
+  
+  if (!activeProjectId) {
+    return (
+      <div className="fixed inset-0 z-[9999] bg-[#050505] overflow-y-auto">
+        <ProjectDashboard onSelectProject={handleProjectSelect} />
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-[9999] bg-[#060609]">
+      
+      <PendingEditListener />
+
+     
+
       <Editor />
+      
     </div>
   );
 }

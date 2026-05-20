@@ -69,12 +69,13 @@ const fetchJsonWithRetry = async (
 export default function ReelDownloaderClient() {
   const [url, setUrl] = useState('');
   const [isFetching, setIsFetching] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<React.ReactNode>('');
   const [metaData, setMetaData] = useState<IgMeta | null>(null);
   const [availableVideos, setAvailableVideos] = useState<IgVideo[]>([]);
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
+  
   const handleFetch = async () => {
     setError('');
     setMetaData(null);
@@ -83,11 +84,6 @@ export default function ReelDownloaderClient() {
 
     if (!url.trim()) {
       setError('Please paste a public Instagram Reel link.');
-      return;
-    }
-
-    if (!/^https?:\/\/(www\.)?instagram\.com\//i.test(url.trim())) {
-      setError('Please paste a valid Instagram Reel URL.');
       return;
     }
 
@@ -103,8 +99,22 @@ export default function ReelDownloaderClient() {
       setMetaData(data.meta);
       setAvailableVideos(data.availableVideos);
       setSelectedVideoUrl(data.videoUrl);
+      
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Network error. Check your connection and try again.');
+      // 🔥 MAGIC BRIDGE: Agar API fail ho jaye toh user ko redirect karo
+      const redirectUrl = `https://sssinstagram.com/en1`;
+      
+      setError(
+        <span>
+          Server busy hai. {' '}
+          <button 
+            onClick={() => window.open(redirectUrl, '_blank')}
+            className="underline font-bold text-white hover:text-pink-400"
+          >
+            Click here to use our backup downloader
+          </button>
+        </span>
+      );
     } finally {
       setIsFetching(false);
     }

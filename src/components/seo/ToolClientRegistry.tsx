@@ -49,6 +49,7 @@ const TOOL_COMPONENTS: Record<string, ComponentType> = {
   'yt-downloader': createToolComponent('yt-downloader', () => import('@/app/tools/yt-downloader/YtDownloaderClient')),
   'yt-tag-extractor': createToolComponent('yt-tag-extractor', () => import('@/app/tools/yt-tag-extractor/YtTagExtractorClient')),
   'yt-title-generator': createToolComponent('yt-title-generator', () => import('@/app/tools/yt-title-generator/YtTitleGeneratorClient')),
+  'shorts-maker': createToolComponent('shorts-maker', () => import('@/app/tools/shorts-maker/ShortsMakerClient')),
 };
 
 interface ToolClientProps {

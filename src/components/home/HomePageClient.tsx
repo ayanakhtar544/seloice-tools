@@ -19,6 +19,7 @@ import ResponsiveAd from '@/components/ResponsiveAd';
 // ==========================================
 
 const featuredTools = [
+  { name: 'AI Shorts Maker', icon: <Wand2 />, href: '/tools/shorts-maker', color: 'from-fuchsia-500 to-violet-600', shadow: 'shadow-fuchsia-500/20', desc: 'Auto-extract 5 viral reels from long videos.', badge: 'BETA' },
   { name: 'Photo Editor', icon: <Wand2 />, href: '/tools/photo-editor', color: 'from-indigo-500 to-purple-600', shadow: 'shadow-indigo-500/20', desc: 'Pro layers, filters & advanced crop.', badge: 'PRO' },
   { name: 'Video Editor', icon: <Scissors />, href: '/tools/video-editor', color: 'from-rose-500 to-pink-600', shadow: 'shadow-rose-500/20', desc: 'Trim, crop & edit directly in browser.', badge: 'HOT' },
   { name: 'Auto Captions', icon: <Subtitles />, href: '/tools/auto-captions', color: 'from-cyan-500 to-blue-600', shadow: 'shadow-cyan-500/20', desc: 'Burn AI captions directly into video.', badge: 'AI' },
@@ -32,6 +33,7 @@ const categories = [
     name: 'Video Powerhouse',
     icon: <Video size={20} />,
     tools: [
+      { name: 'Shorts Maker', icon: <Zap />, href: '/tools/shorts-maker', color: 'from-violet-500 to-fuchsia-600', desc: 'Auto-extract viral clips from podcasts.', badge: 'AI' },
       { name: 'YT Download', icon: <Download />, href: '/tools/yt-downloader', color: 'from-red-500 to-red-600', desc: '4K High speed download.', badge: 'HOT' },
       { name: 'Reel Saver', icon: <Download />, href: '/tools/reel-downloader', color: 'from-pink-500 to-pink-600', desc: 'No watermark IG reels.' },
       { name: 'Video Editor', icon: <Scissors />, href: '/tools/video-editor', color: 'from-rose-500 to-rose-600', desc: 'Trim, crop & edit videos.', badge: 'NEW' },

@@ -22,6 +22,7 @@ export const WASM_COEP_TOOL_SLUGS = new Set([
   'mp4-to-text',
   'speech-to-text',
   'image-converter',
+  'shorts-maker',
 ]);
 
 export const ADSENSE_SCRIPT_URL = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;

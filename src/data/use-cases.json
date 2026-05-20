@@ -685,5 +685,51 @@
         "answer": "Yes. Open the tool in Safari or Chrome on your phone."
       }
     ]
+  },
+  {
+    "slug": "ai-shorts-maker-from-podcast",
+    "title": "Free AI Shorts Maker for Podcasts (2026) | Seloice",
+    "description": "Free AI shorts maker for Podcasts. Auto-extract viral clips from long podcast videos. Browser-based, no watermark.",
+    "h1": "Free AI Shorts Maker for Podcasts",
+    "platform": "Podcast",
+    "primaryTool": "shorts-maker",
+    "relatedTools": [
+      "video-editor",
+      "auto-captions",
+      "video-compressor"
+    ],
+    "faqs": [
+      {
+        "question": "Is this AI shorts maker free?",
+        "answer": "Yes. Seloice tools are free for creators with no watermark on standard exports."
+      },
+      {
+        "question": "Does it work on mobile?",
+        "answer": "Yes. Open the tool in Safari or Chrome on your phone."
+      }
+    ]
+  },
+  {
+    "slug": "youtube-shorts-auto-clipper",
+    "title": "Free YouTube Shorts Auto Clipper (2026) | Seloice",
+    "description": "Free auto clipper for YouTube Shorts. AI finds the best moments from long videos and exports 9:16 clips. No watermark.",
+    "h1": "Free YouTube Shorts Auto Clipper",
+    "platform": "YouTube Shorts",
+    "primaryTool": "shorts-maker",
+    "relatedTools": [
+      "video-compressor",
+      "reel-fitter",
+      "viral-hooks"
+    ],
+    "faqs": [
+      {
+        "question": "Is this auto clipper free?",
+        "answer": "Yes. Seloice tools are free for creators with no watermark on standard exports."
+      },
+      {
+        "question": "Does it work on mobile?",
+        "answer": "Yes. Open the tool in Safari or Chrome on your phone."
+      }
+    ]
   }
 ]

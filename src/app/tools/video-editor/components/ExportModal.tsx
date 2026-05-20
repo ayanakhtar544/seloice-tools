@@ -18,8 +18,18 @@ export default function ExportModal({
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isOpen && !isExporting && !downloadUrl) {
-      startExport();
+    if (isOpen) {
+      setProgress(0);
+      setStatus('Preparing export...');
+      setIsExporting(false);
+      setDownloadUrl(null);
+
+      // Safe mounting delay to ensure preview-canvas is fully mounted in the DOM
+      const timer = setTimeout(() => {
+        startExport();
+      }, 100);
+
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 

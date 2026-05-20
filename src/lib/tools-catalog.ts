@@ -122,6 +122,7 @@ const SLUG_ICONS: Record<string, LucideIcon> = {
   'viral-hooks': Zap,
   'watermark-adder': Shield,
   'whatsapp-mockup': MessageCircle,
+  'shorts-maker': Scissors,
   'yt-downloader': Download,
   'yt-tag-extractor': Hash,
   'yt-title-generator': Type,
@@ -152,6 +153,7 @@ const TOOL_BADGES: Partial<Record<string, string>> = {
   'audio-editor': 'PRO',
   'viral-hooks': 'AI',
   'speech-to-text': 'PRO',
+  'shorts-maker': 'AI',
 };
 
 const TOOL_COLORS: Partial<Record<string, string>> = {
@@ -178,6 +180,7 @@ const TOOL_COLORS: Partial<Record<string, string>> = {
   'mp4-to-mp3': 'bg-emerald-500',
   'speech-to-text': 'bg-green-500',
   'file-converter': 'bg-blue-500',
+  'shorts-maker': 'bg-fuchsia-500',
 };
 
 const CATEGORY_COLORS: Record<ToolCategory, string> = {

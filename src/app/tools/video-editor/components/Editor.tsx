@@ -18,7 +18,7 @@ import { useShortcuts } from '../hooks/useShortcuts';
 import { Film, Type, Sparkles, MessageSquare, Music, ChevronLeft, ChevronRight, UploadCloud, Loader2 } from 'lucide-react';
 
 const TABS: { id: PanelTab; label: string; icon: React.ReactNode }[] = [
-  { id: 'media', label: 'Media', icon: <Film size={16} /> },
+  { id: 'media', label: 'MEDIAS', icon: <Film size={16} /> },
   { id: 'audio', label: 'Audio', icon: <Music size={16} /> },
   { id: 'text', label: 'Text', icon: <Type size={16} /> },
   { id: 'effects', label: 'Effects', icon: <Sparkles size={16} /> },
@@ -37,22 +37,17 @@ export default function Editor() {
   
   const restoreMediaAssets = useEditorStore((s) => s.restoreMediaAssets);
 
-  // 🔥 ADVANCED STATES
   const [isBooting, setIsBooting] = useState(true);
   const [isGlobalDragging, setIsGlobalDragging] = useState(false);
 
-  // 🚀 BOOTUP ASSETS WITH CINEMATIC DELAY
   useEffect(() => {
     restoreMediaAssets().finally(() => {
-      // Thoda sa artificial delay taaki loading screen smooth feel ho
       setTimeout(() => setIsBooting(false), 800);
     });
   }, [restoreMediaAssets]);
 
-  // 🚀 KEYBOARD SHORTCUTS HOOK
   useShortcuts();
 
-  // 🚀 RESPONSIVE HANDLER
   useEffect(() => {
     const handleResize = () => setMobileView(window.innerWidth < 768);
     handleResize(); 
@@ -60,7 +55,6 @@ export default function Editor() {
     return () => window.removeEventListener('resize', handleResize);
   }, [setMobileView]);
 
-  // 🚀 GLOBAL DRAG & DROP LISTENER
   useEffect(() => {
     const handleDragOver = (e: DragEvent) => {
       e.preventDefault();
@@ -73,12 +67,9 @@ export default function Editor() {
     const handleDrop = (e: DragEvent) => {
       e.preventDefault();
       setIsGlobalDragging(false);
-      // Agar user ne koi file drop ki hai, toh automatically Media panel open kar do
       if (e.dataTransfer?.files?.length) {
         if (!isPanelOpen) togglePanel();
         setActivePanel('media');
-        // Note: Actual file processing MediaPanel ke dropzone se control hogi, 
-        // par ye UX ko smooth banane ke liye redirect kar dega.
       }
     };
 
@@ -104,33 +95,35 @@ export default function Editor() {
     }
   };
 
-  // 🔥 CINEMATIC BOOT SCREEN
-  if (isBooting) {
-    return (
-      <div className="flex flex-col h-[100dvh] w-full bg-[#060609] items-center justify-center text-white">
-        <Loader2 className="animate-spin text-violet-500 mb-4" size={48} />
-        <h1 className="text-2xl font-black uppercase tracking-widest bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
-          Seloice Studio
-        </h1>
-        <p className="text-xs text-zinc-500 mt-2 uppercase tracking-widest">Restoring your workspace...</p>
-      </div>
-    );
-  }
+ // 🔥 FIX 1: Ghost Click & Event Capture Protection
+  const handleMobileTabClick = (tabId: PanelTab, e: React.SyntheticEvent) => {
+    e.preventDefault();   // Mobile zoom/scroll rokega
+    e.stopPropagation();  // Clicks ko canvas tak leak hone se rokega
+
+    const store = useEditorStore.getState();
+
+    if (store.activePanel === tabId && store.isPanelOpen) {
+      // Same tab par tap kiya -> Close kar do
+      store.togglePanel();
+    } else {
+      // Naya tab -> Active karo aur panel kholo
+      store.setActivePanel(tabId);
+      if (!store.isPanelOpen) {
+        store.togglePanel();
+      }
+    }
+  };
 
   return (
-    // Make sure we have tabIndex=0 to catch keyboard focus
     <div tabIndex={0} className="flex flex-col h-[100dvh] bg-[#060609] overflow-hidden text-white font-sans outline-none relative">
       
-      {/* 🚀 SUBTLE PREMIUM BACKGROUND MESH */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.015] z-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
 
       {!isFullScreen && <Toolbar />}
 
       <div className="flex-1 flex overflow-hidden relative z-10">
         
-        {/* ======================================================= */}
-        {/* DESKTOP SIDEBAR PANEL */}
-        {/* ======================================================= */}
+        {/* DESKTOP SIDEBAR */}
         {!isMobile && !isFullScreen && (
           <div className="flex relative">
             <AnimatePresence initial={false}>
@@ -166,7 +159,6 @@ export default function Editor() {
               )}
             </AnimatePresence>
 
-            {/* 🚀 DESKTOP PANEL COLLAPSE TOGGLE BUTTON */}
             <button 
               onClick={togglePanel}
               className="absolute top-1/2 -right-3 -translate-y-1/2 z-30 w-6 h-12 bg-[#1a1a24] border border-white/10 rounded-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-violet-600/20 hover:border-violet-500/50 transition-all shadow-xl"
@@ -176,41 +168,43 @@ export default function Editor() {
           </div>
         )}
 
-        {/* ======================================================= */}
-        {/* CENTER WORKSPACE (Preview + Timeline) */}
-        {/* ======================================================= */}
+        {/* WORKSPACE */}
         <div className="flex-1 flex flex-col min-w-0 relative z-10">
           <PreviewCanvas />
           <Timeline />
         </div>
 
         {/* ======================================================= */}
-        {/* MOBILE SLIDE-UP PANEL (BottomSheet) */}
+        {/* 🔥 FIX: MOBILE SLIDE-UP PANEL 🔥 */}
         {/* ======================================================= */}
         <AnimatePresence>
           {isMobile && isPanelOpen && (
             <>
+              {/* BACKDROP - Panel ko band karne ke liye */}
               <motion.div 
                 initial={{ opacity: 0 }} 
                 animate={{ opacity: 1 }} 
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm z-[200]"
+                // z-index bohot high hona chahiye taaki Canvas ke upar click na ho
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99990]"
                 onClick={togglePanel} 
               />
               
+              {/* SLIDING PANEL */}
               <motion.div
                 initial={{ y: '100%' }} 
                 animate={{ y: 0 }} 
                 exit={{ y: '100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="absolute bottom-0 left-0 right-0 bg-[#0c0c0f]/95 backdrop-blur-3xl border-t border-white/10 rounded-t-[2rem] z-[210] flex flex-col shadow-[0_-10px_50px_rgba(0,0,0,0.8)]"
-                style={{ height: '75vh' }}
+                // Bottom margin diya taaki floating navbar na chupe
+                className="fixed bottom-[80px] left-0 right-0 bg-[#0c0c0f]/95 backdrop-blur-3xl border-t border-white/10 rounded-t-[2rem] z-[99995] flex flex-col shadow-[0_-10px_50px_rgba(0,0,0,0.8)]"
+                style={{ height: '70dvh' }}
               >
                 <div className="w-full flex justify-center pt-4 pb-2 cursor-pointer" onClick={togglePanel}>
                   <div className="w-12 h-1.5 bg-white/20 hover:bg-white/40 transition-colors rounded-full" />
                 </div>
 
-                <div className="p-5 flex-1 overflow-y-auto no-scrollbar pb-28 relative">
+                <div className="p-5 flex-1 overflow-y-auto no-scrollbar pb-8 relative">
                   <div className="flex items-center gap-3 mb-6">
                     <span className="p-2 bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 border border-violet-500/20 text-violet-400 rounded-xl shadow-lg shadow-violet-500/10">
                       {TABS.find(t => t.id === activePanel)?.icon}
@@ -227,39 +221,36 @@ export default function Editor() {
         </AnimatePresence>
       </div>
 
-      {/* ======================================================= */}
-      {/* COMPACT MOBILE NAVBAR (Glassy Circular Design) */}
+     {/* ======================================================= */}
+      {/* 🔥 FIX 2: MOBILE NAVBAR (Ghost-Click Proof) 🔥 */}
       {/* ======================================================= */}
       {isMobile && !isFullScreen && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[250] w-[85%] max-w-[320px]">
-          <div className="bg-[#050505]/80 backdrop-blur-3xl border border-white/10 p-1.5 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.8)] flex justify-between items-center relative overflow-hidden">
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[99999] w-[90%] max-w-[340px] pointer-events-auto">
+          <div className="bg-[#050505]/95 backdrop-blur-3xl border border-white/15 p-1.5 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.9)] flex justify-between items-center relative overflow-hidden">
             
             <div className="absolute inset-0 bg-gradient-to-r from-violet-500/10 via-transparent to-fuchsia-500/10 pointer-events-none" />
-            <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
             
             {TABS.map((tab) => {
               const isActive = activePanel === tab.id && isPanelOpen;
               return (
                 <button
                   key={tab.id}
-                  onClick={() => {
-                    setActivePanel(tab.id);
-                    if (!isPanelOpen) togglePanel(); 
-                  }}
-                  className={`relative flex flex-col items-center justify-center w-12 h-10 rounded-full transition-all duration-300 z-10 ${
+                  // 🔥 MAIN JADOO YAHAN HAI: onClickCapture pehle hit hota hai
+                  onClickCapture={(e) => handleMobileTabClick(tab.id, e)}
+                  className={`relative flex flex-col items-center justify-center w-14 h-12 rounded-full transition-all duration-300 z-10 cursor-pointer touch-manipulation ${
                     isActive ? 'text-white' : 'text-zinc-500 hover:text-white'
                   }`}
                 >
                   {isActive && (
                     <motion.div 
                       layoutId="mobileNavBubble" 
-                      className="absolute inset-0 bg-white/10 rounded-full border border-white/20 shadow-[inset_0_0_15px_rgba(255,255,255,0.1)]" 
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} 
+                      className="absolute inset-0 bg-white/10 rounded-full border border-white/20 shadow-[inset_0_0_15px_rgba(255,255,255,0.1)] pointer-events-none" 
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.5 }} 
                     />
                   )}
                   <motion.div 
-                    animate={{ scale: isActive ? 1.1 : 1, y: isActive ? -1 : 0 }} 
-                    className="relative z-10"
+                    animate={{ scale: isActive ? 1.15 : 1, y: isActive ? -2 : 0 }} 
+                    className="relative z-10 pointer-events-none"
                   >
                     {tab.icon}
                   </motion.div>
@@ -270,9 +261,7 @@ export default function Editor() {
         </div>
       )}
 
-      {/* ======================================================= */}
-      {/* GLOBAL DRAG & DROP OVERLAY */}
-      {/* ======================================================= */}
+      {/* DRAG & DROP & MODAL */}
       <AnimatePresence>
         {isGlobalDragging && (
           <motion.div 
@@ -288,12 +277,8 @@ export default function Editor() {
         )}
       </AnimatePresence>
 
-      {/* ======================================================= */}
-      {/* EXPORT MODAL */}
-      {/* ======================================================= */}
       <AnimatePresence>
-        {/* 🔥 FIX: Removed isOpen={false} which was blocking the modal */}
-        {isExportModalOpen && <ExportModal onClose={() => useEditorStore.getState().toggleExportModal()} isOpen={false} />}
+        {isExportModalOpen && <ExportModal onClose={() => useEditorStore.getState().toggleExportModal()} isOpen={isExportModalOpen} />}
       </AnimatePresence>
       
     </div>

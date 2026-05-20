@@ -11,6 +11,7 @@ interface SmartLinksProps {
 // Global registry of all tools for quick lookup
 const toolDirectory = [
   { slug: 'reel-downloader', name: 'Instagram Reel Downloader', category: 'Download' },
+  { slug: 'shorts-maker', name: 'AI Shorts Maker', category: 'Video' },
   { slug: 'yt-downloader', name: 'YouTube Downloader', category: 'Download' },
   { slug: 'thumbnail-extractor', name: 'Thumbnail Downloader', category: 'Download' },
   { slug: 'photo-editor', name: 'Photo Editor', category: 'Design' },
