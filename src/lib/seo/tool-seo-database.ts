@@ -36,6 +36,53 @@ function t(input: ToolSEOInput): ToolSEOInput {
 }
 
 export const TOOL_SEO_DATABASE: ToolSEOInput[] = [
+  // 🔥 TERA NAYA FACELESS MAKER SEO RECORD 🔥
+  t({
+    slug: 'faceless-maker',
+    name: 'Faceless AI Maker',
+    shortTitle: 'Faceless Maker',
+    category: 'AI',
+    tagline: '1-Click Viral Reddit Shorts with AI Voice & Gameplay',
+    description:
+      'Generate viral faceless shorts instantly. AI writes the script in Hinglish or English, speaks in a custom voice, and merges it perfectly with background gameplay. Free browser-based video generator.',
+    seoTitle: 'Faceless AI Video Maker — Free Reddit Shorts Generator (2026)',
+    h1: 'Faceless AI Maker for Viral Shorts',
+    metaDescription:
+      'Create faceless Reddit-style shorts in seconds. AI script writing, custom TTS voices, and auto-merge with gameplay. Free browser-based faceless video generator.',
+    primaryKeyword: 'faceless video generator ai',
+    semanticKeywords: ['reddit shorts maker', 'ai voice over video', 'faceless channel ai tool', 'auto shorts generator', 'text to speech video maker', 'hindi faceless channel maker'],
+    relatedSlugs: ['video-editor', 'shorts-maker', 'auto-captions', 'viral-hooks'],
+    features: ['AI Script Generation (Hindi/Hinglish)', 'Premium TTS Voices', 'Auto 9:16 Cropping', 'Direct Editor Integration for Captions'],
+    howToSteps: [
+      { title: 'Enter topic & language', desc: 'Type your story idea and select a language (English, Hindi, or Hinglish).' },
+      { title: 'Upload gameplay', desc: 'Add background footage like GTA, Minecraft parkour, or ASMR sand slicing.' },
+      { title: 'Generate & render', desc: 'Review the AI script, pick a voice, and let FFmpeg merge it into a viral short.' }
+    ],
+    faqs: [
+      { question: 'What is a faceless video maker?', answer: 'It is a tool that combines AI scripts, voiceovers, and background gameplay to create viral shorts without showing your face.' },
+      { question: 'Does this use my server storage?', answer: 'No, all video rendering and audio generation happens locally in your browser using WebAssembly. Your files stay private.' },
+      { question: 'Can I add auto-captions to the final video?', answer: 'Yes! After rendering, click "Send to Editor" to instantly push the video to the Seloice Editor and auto-generate Hormozi-style animated captions.' }
+    ],
+    benefits: ['No face or mic needed', 'Zero editing skills required', 'Instant local rendering', '100% Free'],
+    creatorTips: [
+      'Use Hinglish scripts for Indian audiences to maximize algorithm engagement on Instagram Reels.', 
+      'Always send the final video to the Editor to add Hormozi-style captions for higher retention.', 
+      'Use the "Creepy Girl" voice for scary stories and "Reddit Guy" for funny anecdotes.'
+    ],
+    troubleshooting: [
+      { issue: 'Voice generation failed', fix: 'Ensure your text isn\'t too long for the free TTS engine or try a different voice.' },
+      { issue: 'Video fails to render or is black', fix: 'Make sure your background gameplay file is under 500MB and in MP4/WebM format.' }
+    ],
+    useCases: [
+      { title: 'Reddit Story Channels', desc: 'Automate content creation for story-time niches and confessions.' },
+      { title: 'Motivation Shorts', desc: 'Combine Sigma Male voice with aesthetic or luxury backgrounds.' },
+      { title: 'Horror & True Crime', desc: 'Use the creepy voice overlay on dark, atmospheric gameplay footage.' }
+    ],
+    comparisonNote: 'Unlike expensive cloud-based faceless tools that charge per minute, Seloice renders everything locally in your browser for free.',
+    featuredSnippet: 'To make a faceless video: enter a topic, let AI write the script, upload background gameplay, and render the final MP4 with auto-generated voiceover directly in your browser.',
+    wasmHeavy: true,
+    videoTool: true
+  }),
   t({
     slug: 'yt-downloader',
     name: 'YouTube Video Downloader',
@@ -337,6 +384,71 @@ export const TOOL_SEO_DATABASE: ToolSEOInput[] = [
     comparisonNote: 'Specialized for short-form retention — not generic ChatGPT walls of text.',
     featuredSnippet: 'A viral video hook is a 1–3 second opener that creates curiosity. Generate hooks by describing your topic to an AI hook tool, then film the best line first.',
   }),
+  t({
+    slug: 'shorts-maker',
+    name: 'AI Shorts Maker',
+    shortTitle: 'Shorts Maker',
+    category: 'AI',
+    tagline: 'Turn long videos into viral Shorts, Reels & TikToks instantly',
+    description:
+      'Upload a long podcast, webinar, or talk and let local AI scan speech patterns to auto-detect viral moments. Auto-crop to 9:16 and render HD vertical clips right in your browser via client-side WebAssembly FFmpeg.',
+    seoTitle: 'Free AI Shorts Maker — Convert Long Videos to Viral Clips (2026)',
+    h1: 'Free AI Shorts Maker Online',
+    metaDescription:
+      'AI Shorts Maker — automatically extract viral short clips from long videos. Free, no watermark, secure browser-based WebAssembly. Paste links or upload files.',
+    primaryKeyword: 'ai short maker',
+    semanticKeywords: [
+      'youtube video to shorts ai',
+      'ai reel clip generator',
+      'convert long video to shorts',
+      'podcast to shorts generator',
+      'auto crop video 9:16',
+      'video clip finder ai'
+    ],
+    relatedSlugs: ['video-editor', 'auto-captions', 'reel-fitter', 'video-compressor'],
+    features: [
+      'AI Moment Detection & Scoring',
+      'Smart Auto 9:16 Cropping & Speaker Tracking',
+      'Local Client-Side WebAssembly (WASM) Processing',
+      'High-Impact Animated Kinetic Captions'
+    ],
+    howToSteps: [
+      { title: 'Upload video or link', desc: 'Drag and drop your MP4/WebM video or paste a public video URL.' },
+      { title: 'Analyze viral moments', desc: 'Let our on-device AI analyze speech energy, pacing, and hooks to clip top highlights.' },
+      { title: 'Customize style & download', desc: 'Choose a kinetic caption theme, verify the 9:16 speaker crop, and export in HD without watermarks.' },
+    ],
+    faqs: [
+      { question: 'How does the AI determine viral potential?', answer: 'Our localized AI processes the video audio stream to index speech pacing, structural audience triggers, volume shifts, and keyword clusters, calculating a real-time virality probability score.' },
+      { question: 'Is my media uploaded to a server?', answer: 'No. Unlike other video SaaS tools, Seloice processes and renders your video entirely in your browser using high-performance WebAssembly (WASM) and client-side FFmpeg. Your data never leaves your device.' },
+      { question: 'Can I choose standard caption styles?', answer: 'Yes. You can style subtitles with custom animated fonts, highlighted words (Hormozi style), and placement presets.' },
+      { question: 'Is there a video file size limit?', answer: 'The browser processing supports video files up to 200MB or up to 20 minutes of footage depending on your device RAM.' },
+    ],
+    benefits: [
+      '100% Secure & Private',
+      'No Signups or Paywalls',
+      'HD 1080p Export',
+      'No App Installs'
+    ],
+    creatorTips: [
+      'Verify that the first 3 seconds contain a strong visual pattern interrupt and caption hook.',
+      'Use the video compressor tool to shrink files before upload if you are on a restricted mobile network.',
+      'A/B test three different dynamic hook variants to see which segment captures the platform algorithm fastest.'
+    ],
+    troubleshooting: [
+      { issue: 'AI analysis fails to start', fix: 'Ensure you have a stable network to fetch initial WASM modules and that your browser supports WebAssembly.' },
+      { issue: 'Crop frame cuts off speaker', fix: 'Use the manual slider in the preview workspace to adjust and lock the 9:16 bounding box on active participants.' },
+      { issue: 'Export times are slow', fix: 'Close other browser tabs to free up system memory (RAM). Browser-based editing is CPU-heavy.' }
+    ],
+    useCases: [
+      { title: 'Podcast clipping', desc: 'Extract 8-10 bite-sized TikTok clips from a single episodic session.' },
+      { title: 'Webinar snippets', desc: 'Pull high-impact educational frames to build LinkedIn authority.' },
+      { title: 'Gaming highlight reels', desc: 'Condense multi-hour gameplay streams into fast-paced viral Shorts.' }
+    ],
+    comparisonNote: 'While other tools charge $20+/mo and require slow cloud uploads, Seloice is free, secure, and processes everything on-device.',
+    featuredSnippet: 'To convert long videos to shorts using AI: upload your video to the Seloice AI Shorts Maker, wait for the local moment analysis, choose your 9:16 layout, style the subtitles, and save the viral clip.',
+    wasmHeavy: true,
+    videoTool: true
+  }),
 ];
 
 function buildRemainingTools(): ToolSEOInput[] {
@@ -376,7 +488,6 @@ function buildRemainingTools(): ToolSEOInput[] {
     { slug: 'color-extractor', name: 'Color Palette Extractor', shortTitle: 'Color Extractor', category: 'Design', primaryKeyword: 'color palette extractor', seoTitle: 'Color Palette Extractor — HEX from Image Free', h1: 'Image Color Palette Extractor', metaDescription: 'Extract dominant colors & HEX codes from any image. Brand palette tool for designers.', tagline: 'Steal color palettes', description: 'Upload an image and get dominant colors with HEX and RGB codes — perfect for brand consistency.', relatedSlugs: ['photo-editor', 'grid-maker', 'image-converter'] },
     { slug: 'qr-generator', name: 'QR Code Generator', shortTitle: 'QR Generator', category: 'Utility', primaryKeyword: 'qr code generator free', seoTitle: 'QR Code Generator — Custom Logo & Colors Free', h1: 'Free QR Code Generator', metaDescription: 'Create custom QR codes with logo & colors. SVG/PNG export for links, Wi-Fi, payments.', tagline: 'Branded QR codes', description: 'Generate branded QR codes for URLs, Wi-Fi, and payments — embed your logo and brand colors.', relatedSlugs: ['image-converter', 'whatsapp-mockup', 'photo-editor'] },
     { slug: 'watermark-adder', name: 'Watermark Adder', shortTitle: 'Watermark Adder', category: 'Video', primaryKeyword: 'add watermark to video', seoTitle: 'Watermark Adder — Logo on Video & Image Free', h1: 'Video & Image Watermark Tool', metaDescription: 'Add logo or text watermark to videos and images. Batch apply, opacity control, free.', tagline: 'Protect your content', description: 'Apply logo or text watermarks to protect your videos and images — opacity and position control.', relatedSlugs: ['video-editor', 'photo-editor', 'video-compressor'], wasmHeavy: true, videoTool: true },
-    { slug: 'shorts-maker', name: 'AI Shorts Maker', shortTitle: 'Shorts Maker', category: 'AI' as ToolCategory, primaryKeyword: 'ai shorts maker', seoTitle: 'AI Shorts Maker — Auto Viral Clips from Long Videos (2026)', h1: 'Free AI Shorts Maker Online', metaDescription: 'AI Shorts Maker — automatically extract viral short clips from long videos. Client-side FFmpeg + AI analysis. Free, no watermark, no upload.', tagline: 'AI-powered viral clip extraction', description: 'Upload a long video and let AI find the most viral moments. Auto-crops to 9:16, renders HD clips in your browser with FFmpeg WebAssembly — no server upload required.', relatedSlugs: ['video-editor', 'auto-captions', 'reel-fitter', 'video-compressor'], wasmHeavy: true, videoTool: true },
   ];
 
   return defs.map((d) => {

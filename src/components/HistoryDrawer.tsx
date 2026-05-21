@@ -1,155 +1,145 @@
 // File: src/components/HistoryDrawer.tsx
-"use client";
+'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { History, X, Trash2, ArrowRight, Clock } from 'lucide-react';
-import { getHistory, clearHistory, HistoryItem } from '@/lib/history';
-import Link from 'next/link';
+import { X, Clock, Trash2, ExternalLink, Activity } from 'lucide-react';
 
-export default function HistoryDrawer() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+interface HistoryItem {
+  id: string;
+  title: string;
+  date: string;
+  type: string;
+  url?: string;
+}
 
+interface HistoryDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  // Jab tera asli data aaye, toh is type ko update kar lena
+  historyItems?: HistoryItem[]; 
+  onClearAll?: () => void;
+}
+
+export default function HistoryDrawer({ 
+  isOpen, 
+  onClose, 
+  historyItems = [], 
+  onClearAll 
+}: HistoryDrawerProps) {
+
+  // Prevent background scrolling when drawer is open
   useEffect(() => {
-    setIsMounted(true);
-    // Initial load
-    setHistory(getHistory());
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isOpen]);
 
-    // Listen for custom event from lib/history.ts
-    const handleUpdate = () => {
-      setHistory(getHistory());
-    };
-    window.addEventListener('history_updated', handleUpdate);
-    return () => window.removeEventListener('history_updated', handleUpdate);
-  }, []);
-
-  const handleClear = () => {
-    clearHistory();
-    setHistory([]); // Instant UI feedback
-    setShowConfirm(false);
-  };
-
-  const formatTime = (ts: number) => {
-    const diff = Date.now() - ts;
-    const minutes = Math.floor(diff / 60000);
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
-  };
-
-  // Prevent rendering on server to avoid hydration mismatch
-  if (!isMounted) return null;
+  // Dummy data just for UI preview (Isko baad me remove kar dena)
+  const previewData: HistoryItem[] = historyItems.length > 0 ? historyItems : [
+    { id: '1', title: 'Faceless Viral Short', type: 'Video Export', date: '2 mins ago', url: '#' },
+    { id: '2', title: 'Reddit Story Script', type: 'AI Generation', date: '1 hour ago', url: '#' },
+    { id: '3', title: 'Sigma Male Voiceover', type: 'TTS Audio', date: 'Yesterday', url: '#' }
+  ];
 
   return (
-    <>
-      <button 
-        onClick={() => setIsOpen(true)}
-        className="p-2 sm:p-2.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center relative group"
-        title="Recent Activity"
-      >
-        <History size={16} className="sm:w-[18px] sm:h-[18px] group-hover:-rotate-45 transition-transform" />
-        {history.length > 0 && (
-          <span className="absolute top-0 right-0 w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
-        )}
-      </button>
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* BACKDROP BLUR */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm transition-opacity"
+          />
 
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]"
-            />
-
-            {/* Drawer */}
-            <motion.div 
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 bottom-0 w-full sm:w-[400px] bg-[#0a0a0a] border-l border-white/10 z-[201] shadow-2xl flex flex-col"
-            >
-              <div className="flex items-center justify-between p-6 border-b border-white/5">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">
-                    <History size={16} />
-                  </div>
-                  <h2 className="text-white font-black italic uppercase text-lg">Your History</h2>
+          {/* DRAWER PANEL */}
+          <motion.div
+            initial={{ x: '100%', opacity: 0.5 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '100%', opacity: 0.5 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed top-0 right-0 z-[101] h-full w-full md:w-[420px] bg-[#0a0a0f]/95 border-l border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col backdrop-blur-xl"
+          >
+            {/* HEADER */}
+            <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-rose-500/10 rounded-xl border border-rose-500/20">
+                  <Clock size={20} className="text-rose-400" />
                 </div>
-                <button onClick={() => setIsOpen(false)} className="p-2 text-gray-500 hover:text-white rounded-full hover:bg-white/5 transition-colors">
-                  <X size={20} />
+                <div>
+                  <h2 className="text-lg font-black uppercase tracking-widest text-white">Activity Log</h2>
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Your recent generations</p>
+                </div>
+              </div>
+              <button 
+                onClick={onClose}
+                className="p-2 rounded-full hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* SCROLLABLE HISTORY LIST */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+              {previewData.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-center opacity-50 space-y-4">
+                  <Activity size={48} className="text-zinc-600" />
+                  <p className="text-sm font-medium text-zinc-400">No recent activity found.<br/>Start creating magic! ✨</p>
+                </div>
+              ) : (
+                previewData.map((item) => (
+                  <motion.div 
+                    key={item.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="group p-4 rounded-2xl bg-black/40 border border-white/5 hover:border-rose-500/30 hover:bg-white/[0.02] transition-all cursor-pointer relative overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    
+                    <div className="relative z-10 flex justify-between items-start">
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded-full inline-block mb-2">
+                          {item.type}
+                        </span>
+                        <h4 className="text-sm font-bold text-zinc-200 group-hover:text-white transition-colors line-clamp-1">
+                          {item.title}
+                        </h4>
+                        <p className="text-xs text-zinc-500 mt-1 flex items-center gap-1">
+                          {item.date}
+                        </p>
+                      </div>
+                      
+                      {item.url && (
+                        <button className="p-2 bg-white/5 rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500 hover:text-white text-zinc-400">
+                          <ExternalLink size={14} />
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </div>
+
+            {/* FOOTER ACTIONS */}
+            {previewData.length > 0 && (
+              <div className="p-6 border-t border-white/10 shrink-0 bg-black/20">
+                <button 
+                  onClick={onClearAll}
+                  className="w-full py-3 rounded-xl flex items-center justify-center gap-2 text-sm font-bold uppercase tracking-widest text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors border border-transparent hover:border-rose-500/20"
+                >
+                  <Trash2 size={16} /> Clear All History
                 </button>
               </div>
-
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
-                {history.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-gray-500 gap-4 opacity-50">
-                    <Clock size={48} className="text-gray-600" />
-                    <p className="text-sm font-bold uppercase tracking-widest text-center">No recent activity.</p>
-                  </div>
-                ) : (
-                  history.map((item) => (
-                    <div key={item.id} className="bg-[#111] border border-white/5 rounded-2xl p-4 hover:border-indigo-500/30 transition-colors group flex flex-col">
-                      <div className="flex items-start justify-between mb-2">
-                        <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{formatTime(item.timestamp)}</span>
-                        <span className="text-[10px] bg-white/5 px-2 py-1 rounded-md text-gray-400">{item.toolName}</span>
-                      </div>
-                      <p className="text-gray-300 text-sm mb-4 leading-snug flex-1">{item.actionDesc}</p>
-                      <Link 
-                        href={`/tools/${item.toolSlug}`} 
-                        onClick={() => setIsOpen(false)}
-                        className="inline-flex items-center gap-2 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors mt-auto"
-                      >
-                        Open Tool <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {history.length > 0 && (
-                <div className="p-4 border-t border-white/5 bg-[#0a0a0a]">
-                  {!showConfirm ? (
-                    <button 
-                      onClick={() => setShowConfirm(true)}
-                      className="w-full py-3 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500/20 font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-                    >
-                      <Trash2 size={14} /> Clear History
-                    </button>
-                  ) : (
-                    <div className="flex flex-col gap-2">
-                      <p className="text-[10px] text-gray-500 text-center uppercase font-bold tracking-widest">Are you sure?</p>
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={handleClear}
-                          className="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-widest transition-all"
-                        >
-                          Yes, Clear
-                        </button>
-                        <button 
-                          onClick={() => setShowConfirm(false)}
-                          className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 font-bold text-xs uppercase tracking-widest transition-all"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </>
+            )}
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

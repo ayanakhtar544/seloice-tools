@@ -19,6 +19,7 @@ import ResponsiveAd from '@/components/ResponsiveAd';
 // ==========================================
 
 const featuredTools = [
+   { name: 'Faceless Story Video', icon: <Wand2 />, href: '/tools/faceless-maker', color: 'from-fuchsia-500 to-violet-600', shadow: 'shadow-fuchsia-500/20', desc: 'Make Faceless Stories in Seconds.', badge: 'AI' },
   { name: 'AI Shorts Maker', icon: <Wand2 />, href: '/tools/shorts-maker', color: 'from-fuchsia-500 to-violet-600', shadow: 'shadow-fuchsia-500/20', desc: 'Auto-extract 5 viral reels from long videos.', badge: 'BETA' },
   { name: 'Photo Editor', icon: <Wand2 />, href: '/tools/photo-editor', color: 'from-indigo-500 to-purple-600', shadow: 'shadow-indigo-500/20', desc: 'Pro layers, filters & advanced crop.', badge: 'PRO' },
   { name: 'Video Editor', icon: <Scissors />, href: '/tools/video-editor', color: 'from-rose-500 to-pink-600', shadow: 'shadow-rose-500/20', desc: 'Trim, crop & edit directly in browser.', badge: 'HOT' },

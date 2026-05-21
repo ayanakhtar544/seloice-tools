@@ -122,22 +122,21 @@ export default function ShortsMakerClient() {
         setCurrentAction('Extracting Audio Track');
         
         const ff = await initFFmpeg();
-        const audioName = `extracted_audio_${Date.now()}.mp3`;
+        const audioName = `extracted_audio_${Date.now()}.m4a`;
         
-        // 🔥 SPEED HACK: -threads 4 aur sirf audio track map karna
+        // 🔥 SPEED HACK: Use native AAC encoder, no threads flag to prevent WASM hangs
         await ff.exec([
           '-i', masterFileName, 
-          '-map', '0:a:0', // Sirf pehla audio track pakdo, video ko ignore maaro (Super fast)
-          '-c:a', 'libmp3lame', 
+          '-vn', // Ignore video stream completely
+          '-c:a', 'aac', // Native FFmpeg encoder (extremely fast)
           '-ar', '16000', 
           '-ac', '1', 
           '-b:a', '32k', 
-          '-threads', '4', // CPU ke 4 cores use karega
           audioName
         ]);
 
        const audioFileData = await ff.readFile(audioName);
-      const audioBlob = new Blob([audioFileData as any], { type: 'audio/mp3' });
+      const audioBlob = new Blob([audioFileData as any], { type: 'audio/mp4' });
         // Delete audio from memory to save RAM
         await ff.deleteFile(audioName);
 
@@ -145,7 +144,7 @@ export default function ShortsMakerClient() {
         setCurrentAction(`AI Mapping ${clipCount} Viral Hooks`);
 
         const formData = new FormData();
-        formData.append('audio', audioBlob, 'audio.mp3');
+        formData.append('audio', audioBlob, 'audio.m4a');
         formData.append('clipCount', clipCount.toString());
 
         // Groq API hit

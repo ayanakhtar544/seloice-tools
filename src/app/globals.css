@@ -148,7 +148,19 @@ svg {
 .ad-slot-reserved {
   min-height: 90px;
 }
-
+custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(244, 63, 94, 0.5); /* Rose-500 color */
+}
 @media (min-width: 768px) {
   .ad-slot-reserved {
     min-height: 250px;

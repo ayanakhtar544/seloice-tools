@@ -1,72 +1,76 @@
 [
   {
-    "slug": "how-to-go-viral-on-instagram-reels",
-    "title": "How to Go Viral on Instagram Reels in 2026",
-    "description": "The ultimate creator guide to going viral on Instagram Reels. Learn the algorithms, hook strategies, and the best tools to use.",
-    "author": "Seloice Creator Team",
-    "date": "2026-05-12",
-    "readTime": "6 min read",
-    "category": "Growth Guides",
-    "content": [
-      {
-        "type": "h2",
-        "text": "The 2026 Instagram Algorithm Explained"
-      },
-      {
-        "type": "p",
-        "text": "Instagram's algorithm now heavily favors watch time and retention. If your video can keep viewers watching past the first 3 seconds, it will be pushed to the explore page."
-      },
-      {
-        "type": "h2",
-        "text": "1. Master the Hook"
-      },
-      {
-        "type": "p",
-        "text": "Your first 3 seconds are make-or-break. Use our **Viral Hooks** tool to generate scroll-stopping intros. Combine visual movement with a strong text hook on-screen."
-      },
-      {
-        "type": "h2",
-        "text": "2. High-Quality Edits & Subtitles"
-      },
-      {
-        "type": "p",
-        "text": "Over 70% of viewers watch Reels on mute. You absolutely need dynamic subtitles. Use our **Auto Captions** tool to instantly burn Hormozi-style subtitles into your videos, increasing retention by up to 80%."
-      },
-      {
-        "type": "h2",
-        "text": "3. Analyze Competitors"
-      }
-    ],
+    "slug": "youtube-shorts-algorithm-2026",
+    "title": "How the YouTube Shorts Algorithm Works in 2026",
+    "description": "A complete breakdown of the YouTube Shorts ranking algorithm, retention metrics, and why AI clipping tools dominate the feed.",
+    "h1": "The 2026 Guide to the YouTube Shorts Algorithm",
+    "publishedAt": "2026-05-21T12:22:44.765Z",
+    "updatedAt": "2026-05-21T12:22:44.769Z",
+    "author": "Seloice Editorial",
+    "category": "YouTube Growth",
     "relatedTools": [
-      "auto-captions",
-      "reel-downloader",
-      "viral-hooks"
+      "shorts-maker",
+      "yt-title-generator",
+      "yt-tag-extractor"
     ]
   },
   {
-    "slug": "youtube-shorts-vs-tiktok-monetization",
-    "title": "YouTube Shorts vs TikTok: Which Pays More?",
-    "description": "A deep dive into creator monetization in 2026. Compare YouTube Shorts revenue versus the TikTok Creator Rewards Program.",
-    "author": "Seloice Research Team",
-    "date": "2026-05-10",
-    "readTime": "8 min read",
-    "category": "Creator Monetization",
-    "content": [
-      {
-        "type": "h2",
-        "text": "The Current Landscape"
-      },
-      {
-        "type": "p",
-        "text": "Both YouTube and TikTok have aggressive monetization strategies. However, the RPM (Revenue Per Mille) differs vastly based on your niche and audience geography."
-      },
-      {
-        "type": "h2",
-        "text": "Repurposing Content is Key"
-      }
-    ],
+    "slug": "start-faceless-youtube-channel-ai",
+    "title": "How to Start a Faceless YouTube Channel Using AI",
+    "description": "Learn how to automate content creation and build a highly profitable faceless cash cow channel using local AI video tools.",
+    "h1": "Automating a Faceless Channel from Scratch",
+    "publishedAt": "2026-05-21T12:22:44.769Z",
+    "updatedAt": "2026-05-21T12:22:44.769Z",
+    "author": "Seloice Editorial",
+    "category": "Creator Economy",
     "relatedTools": [
-      "yt-downloader",
+      "shorts-maker",
+      "tweet-generator",
+      "auto-captions"
+    ]
+  },
+  {
+    "slug": "anatomy-of-a-viral-hook",
+    "title": "The Anatomy of a Perfect 3-Second Viral Hook",
+    "description": "Discover the exact psychological triggers, visual patterns, and audio cues that stop users from scrolling on TikTok and Reels.",
+    "h1": "Psychology of a 3-Second Viral Hook",
+    "publishedAt": "2026-05-21T12:22:44.769Z",
+    "updatedAt": "2026-05-21T12:22:44.769Z",
+    "author": "Seloice Editorial",
+    "category": "Viral Storytelling",
+    "relatedTools": [
+      "viral-hooks",
+      "shorts-maker",
+      "smart-captions"
+    ]
+  },
+  {
+    "slug": "repurpose-podcasts-ai-clips",
+    "title": "Repurposing Podcasts: The AI Workflow for 10x Output",
+    "description": "How to take a single 1-hour podcast and automatically extract 30 high-retention video clips using on-device AI clipping engines.",
+    "h1": "How to Turn a 1 Hour Podcast into 30 Shorts",
+    "publishedAt": "2026-05-21T12:22:44.769Z",
+    "updatedAt": "2026-05-21T12:22:44.769Z",
+    "author": "Seloice Editorial",
+    "category": "Content Automation",
+    "relatedTools": [
+      "shorts-maker",
+      "mp4-to-text",
+      "audio-editor"
+    ]
+  },
+  {
+    "slug": "opus-clip-alternative-free",
+    "title": "Seloice vs Opus Clip: The Best Free AI Shorts Maker in 2026",
+    "description": "A detailed comparison of AI clipping tools. Why creators are shifting from cloud-based subscriptions to fast, local WebAssembly engines.",
+    "h1": "The Best Free Opus Clip Alternative",
+    "publishedAt": "2026-05-21T12:22:44.769Z",
+    "updatedAt": "2026-05-21T12:22:44.769Z",
+    "author": "Seloice Editorial",
+    "category": "AI Video Editing",
+    "relatedTools": [
+      "shorts-maker",
+      "video-editor",
       "video-compressor"
     ]
   }
