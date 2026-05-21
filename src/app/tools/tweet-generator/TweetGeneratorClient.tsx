@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Download, Heart, Repeat, Share, MessageCircle, BadgeCheck, Settings, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { toPng } from 'html-to-image';
+import { addHistory } from '@/lib/history';
 
 export default function TweetGeneratorClient() {
   const [name, setName] = useState('Abushahma Akhtar');
@@ -52,6 +53,13 @@ export default function TweetGeneratorClient() {
       link.download = `viral_tweet_${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
+
+      // Save to retention history
+      addHistory({
+        toolSlug: 'tweet-generator',
+        toolName: 'Tweet Generator',
+        actionDesc: `Generated viral tweet image for "${name}" (@${username})`,
+      });
     } catch (err) {
       setError("Failed to generate image. Please refresh and try again.");
     } finally {

@@ -43,10 +43,14 @@ export default function VideoEditorClient() {
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
 
   // SHORTS MAKER AUTO-JUMP LOGIC
+ // SHORTS MAKER AUTO-JUMP LOGIC (Is block ko replace kar)
   useEffect(() => {
-    const pendingUrl = localStorage.getItem('seloice_pending_edit');
-    if (pendingUrl) {
-      setActiveProjectId(`imported_proj_${Date.now()}`);
+    const pendingTransfer = localStorage.getItem('seloice_pending_edit');
+    // Hum ab URL ki jagah 'true' check kar rahe hain
+    if (pendingTransfer === 'true') {
+      console.log("Auto-creating New Project for Imported Clip...");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveProjectId(`imported_proj_${Date.now()}`); // Ye Naya Project create kar dega
     }
   }, []);
 

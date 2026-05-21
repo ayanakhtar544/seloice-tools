@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Hash, ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2, TrendingUp, Target, Gem } from 'lucide-react';
 import Link from 'next/link';
+import { addHistory } from '@/lib/history';
 
 interface HashtagData {
   viral: string[];
@@ -35,6 +36,13 @@ export default function HashtagGeneratorClient() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
       setHashtags(data);
+
+      // Save to retention history
+      addHistory({
+        toolSlug: 'hashtag-generator',
+        toolName: 'Hashtag Generator',
+        actionDesc: `Generated hashtags for "${topic}"`,
+      });
     } catch (err: any) {
       alert("Error: " + err.message);
     } finally {

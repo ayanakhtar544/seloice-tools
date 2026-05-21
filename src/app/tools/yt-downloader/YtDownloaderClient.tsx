@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PlaySquare, ArrowLeft, Loader2, Link as LinkIcon, AlertCircle, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import ToolInterfaceShell from '@/components/seo/ToolInterfaceShell';
+import { addHistory } from '@/lib/history';
 
 export default function YtDownloaderClient() {
   const [url, setUrl] = useState('');
@@ -35,6 +36,11 @@ export default function YtDownloaderClient() {
         window.open(redirectUrl, '_blank');
         setIsLoading(false);
         setUrl('');
+        addHistory({
+          toolSlug: 'yt-downloader',
+          toolName: 'YouTube Downloader',
+          actionDesc: `Requested download for YouTube video: ${normalizedUrl}`,
+        });
     }, 800);
   };
 

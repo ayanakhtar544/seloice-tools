@@ -1,3 +1,4 @@
+// File: src/app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -14,6 +15,7 @@ import JsonLd from "@/components/seo/JsonLd";
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister';
 import RouteScrollManager from "@/components/RouteScrollManager";
 import { GTM_ID } from "@/lib/analytics";
+
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap", preload: false, adjustFontFallback: true });
 
 export const viewport: Viewport = {
@@ -79,7 +81,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth">
+    <html lang="en" className="scroll-smooth" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <ConsentModeScript />
         <JsonLd
@@ -127,7 +129,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
 
-      <body className={`${inter.variable} font-sans bg-[#050505] text-white antialiased overflow-x-hidden page-shell`}>
+      {/* 🔥 THE FIX: Added suppressHydrationWarning to BODY tag as well */}
+      <body suppressHydrationWarning className={`${inter.variable} font-sans bg-[#050505] text-white antialiased overflow-x-hidden page-shell`}>
         <AnalyticsProvider>
           <RouteScrollManager />
           <SkipLink />

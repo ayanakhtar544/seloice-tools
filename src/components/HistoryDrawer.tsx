@@ -11,12 +11,14 @@ export default function HistoryDrawer() {
   const [isOpen, setIsOpen] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     // Initial load
     setHistory(getHistory());
 
-    // Listen for custom event
+    // Listen for custom event from lib/history.ts
     const handleUpdate = () => {
       setHistory(getHistory());
     };
@@ -26,6 +28,7 @@ export default function HistoryDrawer() {
 
   const handleClear = () => {
     clearHistory();
+    setHistory([]); // Instant UI feedback
     setShowConfirm(false);
   };
 
@@ -38,6 +41,9 @@ export default function HistoryDrawer() {
     if (hours < 24) return `${hours}h ago`;
     return `${Math.floor(hours / 24)}d ago`;
   };
+
+  // Prevent rendering on server to avoid hydration mismatch
+  if (!isMounted) return null;
 
   return (
     <>
@@ -92,16 +98,16 @@ export default function HistoryDrawer() {
                   </div>
                 ) : (
                   history.map((item) => (
-                    <div key={item.id} className="bg-[#111] border border-white/5 rounded-2xl p-4 hover:border-indigo-500/30 transition-colors group">
+                    <div key={item.id} className="bg-[#111] border border-white/5 rounded-2xl p-4 hover:border-indigo-500/30 transition-colors group flex flex-col">
                       <div className="flex items-start justify-between mb-2">
                         <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{formatTime(item.timestamp)}</span>
                         <span className="text-[10px] bg-white/5 px-2 py-1 rounded-md text-gray-400">{item.toolName}</span>
                       </div>
-                      <p className="text-gray-300 text-sm mb-4 leading-snug">{item.actionDesc}</p>
+                      <p className="text-gray-300 text-sm mb-4 leading-snug flex-1">{item.actionDesc}</p>
                       <Link 
                         href={`/tools/${item.toolSlug}`} 
                         onClick={() => setIsOpen(false)}
-                        className="inline-flex items-center gap-2 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
+                        className="inline-flex items-center gap-2 text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors mt-auto"
                       >
                         Open Tool <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                       </Link>
@@ -125,13 +131,13 @@ export default function HistoryDrawer() {
                       <div className="flex gap-2">
                         <button 
                           onClick={handleClear}
-                          className="flex-1 py-3 rounded-xl bg-red-600 text-white font-bold text-xs uppercase tracking-widest transition-all"
+                          className="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs uppercase tracking-widest transition-all"
                         >
                           Yes, Clear
                         </button>
                         <button 
                           onClick={() => setShowConfirm(false)}
-                          className="flex-1 py-3 rounded-xl bg-white/5 text-gray-400 font-bold text-xs uppercase tracking-widest transition-all"
+                          className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 font-bold text-xs uppercase tracking-widest transition-all"
                         >
                           Cancel
                         </button>

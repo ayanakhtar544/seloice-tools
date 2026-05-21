@@ -2,49 +2,52 @@
 
 export interface HistoryItem {
   id: string;
-  toolSlug: string;
   toolName: string;
-  actionDesc: string; // e.g. "Generated Titles for 'iPhone 15'"
+  toolSlug: string;
+  actionDesc: string;
   timestamp: number;
-  outputData?: any; // To allow re-opening or displaying
+  [key: string]: any; // Allow any custom data properties like outputData
 }
 
-const HISTORY_KEY = 'seloice_creator_history';
+export interface AddHistoryInput {
+  toolName: string;
+  toolSlug: string;
+  actionDesc: string;
+  [key: string]: any;
+}
 
-export const saveHistory = (item: Omit<HistoryItem, 'id' | 'timestamp'>) => {
-  if (typeof window === 'undefined') return;
+const HISTORY_KEY = 'seloice_user_history';
+const MAX_HISTORY_ITEMS = 50; // 50 se zyada save nahi karenge taaki storage na bhare
 
-  try {
-    const existing = localStorage.getItem(HISTORY_KEY);
-    let history: HistoryItem[] = existing ? JSON.parse(existing) : [];
-
-    const newItem: HistoryItem = {
-      ...item,
-      id: Math.random().toString(36).substring(2, 9),
-      timestamp: Date.now(),
-    };
-
-    // Add to front, keep only last 20
-    history = [newItem, ...history].slice(0, 20);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-    
-    // Dispatch custom event to update Drawer instantly
-    window.dispatchEvent(new Event('history_updated'));
-  } catch (err) {
-    console.error('Failed to save history', err);
-  }
-};
-
+// 🚀 Get History
 export const getHistory = (): HistoryItem[] => {
   if (typeof window === 'undefined') return [];
-  try {
-    const existing = localStorage.getItem(HISTORY_KEY);
-    return existing ? JSON.parse(existing) : [];
-  } catch (err) {
-    return [];
-  }
+  const data = localStorage.getItem(HISTORY_KEY);
+  return data ? JSON.parse(data) : [];
 };
 
+// 🚀 Add New History (Tools me use karne ke liye)
+export const addHistory = (item: AddHistoryInput) => {
+  if (typeof window === 'undefined') return;
+  
+  const currentHistory = getHistory();
+  const newItem: HistoryItem = {
+    ...item,
+    id: `hist_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+    timestamp: Date.now(),
+  };
+
+  const updatedHistory = [newItem, ...currentHistory].slice(0, MAX_HISTORY_ITEMS);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(updatedHistory));
+
+  // 🔥 MAIN JADOO: Ye event drawer ko bolega ki UI update karo!
+  window.dispatchEvent(new Event('history_updated'));
+};
+
+// 🚀 Compatibility Alias for saveHistory (Fix for tools importing saveHistory)
+export const saveHistory = addHistory;
+
+// 🚀 Clear History
 export const clearHistory = () => {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(HISTORY_KEY);

@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, ArrowLeft, Sparkles, Loader2, Copy, CheckCircle2, AlertCircle, Eye, Flame, BookOpen } from 'lucide-react';
 import Link from 'next/link';
+import { addHistory } from '@/lib/history';
 
 // TypeScript interfaces
 interface HooksData {
@@ -43,6 +44,13 @@ export default function ViralHooksClient() {
       const data = await response.json();
       setHooks(data);
       
+      // Save to retention history
+      addHistory({
+        toolSlug: 'viral-hooks',
+        toolName: 'Viral Hooks Generator',
+        actionDesc: `Generated viral hooks for "${topic}"`,
+      });
+
       // Auto-scroll to results
       setTimeout(() => {
         window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
