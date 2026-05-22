@@ -127,7 +127,9 @@ export default function Navbar() {
               <Search size={16} className="sm:w-[18px] sm:h-[18px]" />
             </button>
 
-            <HistoryDrawer />
+            <HistoryDrawer isOpen={false} onClose={function (): void {
+              throw new Error('Function not implemented.');
+            } } />
 
             <Link href="/tools" className="hidden sm:inline-flex px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-white text-black font-black text-[10px] sm:text-xs shadow-[0_4px_0_0_#d1d5db] active:translate-y-1 active:shadow-none hover:bg-gray-100 transition-all uppercase tracking-widest whitespace-nowrap min-h-[42px] items-center">
               All Tools
