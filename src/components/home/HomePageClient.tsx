@@ -61,7 +61,7 @@ const categories = [
     name: 'Image & Design',
     icon: <ImageIcon size={20} />,
     tools: [
-      { name: 'Fake WhatsApp', icon: <MessageCircle />, href: '/tools/whatsapp-mockup', color: 'from-[#25D366] to-[#128C7E]', desc: 'Hyper-realistic original chats.', badge: 'HOT' },
+      { name: 'Chat Mockup', icon: <MessageCircle />, href: '/tools/whatsapp-mockup', color: 'from-[#25D366] to-[#128C7E]', desc: 'Design realistic chat screenshots.', badge: 'HOT' },
       { name: 'Photo Editor', icon: <Wand2 />, href: '/tools/photo-editor', color: 'from-indigo-500 to-indigo-600', desc: 'Pro layers, filters & crop.', badge: 'NEW' },
       { name: 'BG Remover', icon: <Scissors />, href: '/tools/bg-remover', color: 'from-purple-500 to-purple-600', desc: 'AI background cutout.' },
       { name: 'Image Conv.', icon: <ImageIcon />, href: '/tools/image-converter', color: 'from-violet-500 to-violet-600', desc: 'WebP, PNG, JPG locally.' },
@@ -89,14 +89,7 @@ const faqs = [
   { q: "Is there any limit on file size?", a: "Because processing happens locally on your device, the file size limit depends on your device's RAM. Most modern phones and PCs handle up to 1GB effortlessly." }
 ];
 
-const liveActivities = [
-  "🔥 A creator from India just generated a Fake WhatsApp Chat.",
-  "✨ Someone generated AI Captions for their Reel.",
-  "📥 A 1080p YouTube video was just downloaded.",
-  "✂️ A vlog was just trimmed using our Video Editor.",
-  "🎵 Extracted MP3 from a 10-minute podcast.",
-  "📸 A background was removed in 1.2 seconds."
-];
+// liveActivities removed
 
 // ==========================================
 // 2. MAIN COMPONENT (ULTRA MODERN UI WITH SOLID MOBILE CONTRAST)
@@ -105,19 +98,11 @@ const liveActivities = [
 export default function HomePageClient() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
-  const [activityIndex, setActivityIndex] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 40);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActivityIndex((prev) => (prev + 1) % liveActivities.length);
-    }, 4000);
-    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -133,20 +118,6 @@ export default function HomePageClient() {
       </div>
 
       <Navbar />
-
-      {/* LIVE ACTIVITY TICKER */}
-      {/* 🔥 FIX: Mobile pe 100% solid color bg-[#18181b] */}
-      <div className="w-full bg-[#18181b] md:bg-white/[0.02] border-b border-white/20 md:border-white/[0.05] md:backdrop-blur-md relative z-50 pt-[80px] md:pt-[90px] pb-2 px-4 flex justify-center">
-        <AnimatePresence mode="wait">
-          <motion.p 
-            key={activityIndex}
-            initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }} transition={{ duration: 0.5 }}
-            className="text-[10px] md:text-xs font-bold text-indigo-200 md:text-indigo-300 uppercase tracking-widest text-center flex items-center gap-2"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" /> {liveActivities[activityIndex]}
-          </motion.p>
-        </AnimatePresence>
-      </div>
 
       {/* 🚀 HERO SECTION */}
       <section className="relative pt-16 md:pt-32 pb-16 px-4 md:px-6 max-w-7xl mx-auto flex flex-col items-center text-center z-10">

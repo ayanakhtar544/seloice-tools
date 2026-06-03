@@ -37,7 +37,7 @@ export async function generateMetadata({
       images: [{ url: `${SITE}/api/og?title=${encodeURIComponent(data.h1)}`, width: 1200, height: 630 }],
     },
     twitter: { card: 'summary_large_image', title: data.title, description: data.description },
-    robots: { index: true, follow: true },
+    robots: { index: !(data as any).noindex, follow: !(data as any).noindex },
   };
 }
 

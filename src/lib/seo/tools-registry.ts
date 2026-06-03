@@ -36,6 +36,10 @@ export interface ToolRecord extends ToolSEOExtension {
   benefits: string[];
   comparisonNote: string;
   featuredSnippet: string;
+  whyUseContent: string;
+  workflowContent: string;
+  commonMistakes: string[];
+  bestPractices: string[];
 }
 
 function seoToToolRecord(seo: NonNullable<ReturnType<typeof getToolSEOBySlug>>): ToolRecord {
@@ -65,6 +69,10 @@ function seoToToolRecord(seo: NonNullable<ReturnType<typeof getToolSEOBySlug>>):
     wasmHeavy: seo.wasmHeavy,
     videoTool: seo.videoTool,
     discoverTitle: seo.discoverTitle,
+    whyUseContent: seo.whyUseContent,
+    workflowContent: seo.workflowContent,
+    commonMistakes: seo.commonMistakes,
+    bestPractices: seo.bestPractices,
   };
 }
 

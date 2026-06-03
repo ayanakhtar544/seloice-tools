@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { isSafeExternalUrl } from '@/lib/security/ssrf';
 import { fetchWithRetry } from '@/lib/server/http';
+import { checkRateLimit } from '@/lib/security/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -8,6 +9,12 @@ export const maxDuration = 60;
 
 export async function GET(req: Request) {
   try {
+    const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
+    const { limited, retryAfter } = await checkRateLimit(ip, "/api/force-download");
+    if (limited) {
+      return new NextResponse(`Rate limit exceeded. Try again in ${retryAfter} seconds.`, { status: 429 });
+    }
+
     const { searchParams } = new URL(req.url);
     const videoUrl = searchParams.get('url');
     const title = (searchParams.get('title') || 'Seloice_Video').slice(0, 120);

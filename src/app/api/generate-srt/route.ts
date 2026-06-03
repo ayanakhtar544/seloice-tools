@@ -3,6 +3,7 @@ import {
   type VerboseTranscriptionResponse,
   transcribeWithGroq,
 } from '@/lib/server/groq-transcription';
+import { checkRateLimit } from '@/lib/security/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -18,6 +19,18 @@ function formatTime(secNum: number) {
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || 'anonymous';
+    const { limited, retryAfter } = await checkRateLimit(ip, "/api/generate-srt");
+
+    if (limited) {
+      return NextResponse.json({ 
+        error: `Rate limit exceeded. Please wait ${Math.ceil(retryAfter)} seconds.` 
+      }, { 
+        status: 429,
+        headers: { 'Retry-After': Math.ceil(retryAfter).toString() }
+      });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as Blob | null;
     const language = formData.get('language') as string | null;

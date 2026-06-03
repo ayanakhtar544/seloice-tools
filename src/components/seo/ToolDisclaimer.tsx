@@ -3,7 +3,7 @@ import { AlertTriangle, Info } from 'lucide-react';
 
 const DISCLAIMERS: Record<
   string,
-  { title: string; body: string; variant: 'download' | 'mockup' }
+  { title: string; body: string; variant: 'download' | 'mockup' | 'info' }
 > = {
   'reel-downloader': {
     title: 'Responsible use notice',
@@ -23,15 +23,33 @@ const DISCLAIMERS: Record<
     body:
       'This tool creates mockup screenshots for memes, marketing storyboards, and entertainment. Do not use outputs to impersonate real people, spread misinformation, or defraud others. Clearly label fictional content when publishing.',
   },
+  'faceless-maker': {
+    title: 'AI content notice',
+    variant: 'info',
+    body:
+      'This tool generates synthetic media using AI. Do not use this tool to generate deepfakes, misleading news, or deceptive content. You are responsible for ensuring your generated content complies with platform policies.',
+  },
+  'ig-shadowban-checker': {
+    title: 'Estimates only',
+    variant: 'info',
+    body:
+      'This tool provides estimates based on public metadata. It is not officially affiliated with Instagram or Meta. A clean check does not guarantee your account is in good standing with the algorithm.',
+  },
+  'yt-health-checker': {
+    title: 'Educational tool',
+    variant: 'info',
+    body:
+      'The channel health score is a metric calculated from public statistics. It does not reflect YouTube’s internal algorithms. This tool is for educational purposes only.',
+  },
 };
 
 export default function ToolDisclaimer({ slug }: { slug: string }) {
   const data = DISCLAIMERS[slug];
   if (!data) return null;
 
-  const Icon = data.variant === 'mockup' ? Info : AlertTriangle;
-  const border = data.variant === 'mockup' ? 'border-amber-500/30 bg-amber-500/5' : 'border-orange-500/30 bg-orange-500/5';
-  const iconColor = data.variant === 'mockup' ? 'text-amber-400' : 'text-orange-400';
+  const Icon = data.variant === 'download' ? AlertTriangle : Info;
+  const border = data.variant === 'download' ? 'border-orange-500/30 bg-orange-500/5' : data.variant === 'mockup' ? 'border-amber-500/30 bg-amber-500/5' : 'border-blue-500/30 bg-blue-500/5';
+  const iconColor = data.variant === 'download' ? 'text-orange-400' : data.variant === 'mockup' ? 'text-amber-400' : 'text-blue-400';
 
   return (
     <aside

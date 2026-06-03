@@ -111,7 +111,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <link rel="manifest" href="/manifest.json" />
         <link rel="apple-touch-icon" href="/favicon.png" />
-        <meta name="theme-color" content="#10b981" />
+        <meta name="theme-color" content="#050505" />
         <meta name="application-name" content="Seloice Tools" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />

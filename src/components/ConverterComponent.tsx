@@ -17,6 +17,7 @@ export default function ConverterComponent() {
   const [progress, setProgress] = useState(0);
   const [convertedUrl, setConvertedUrl] = useState<string | null>(null);
   const [isFfmpegReady, setIsFfmpegReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const ffmpegRef = useRef(new FFmpeg());
@@ -46,6 +47,7 @@ export default function ConverterComponent() {
   const processSelectedFile = (selectedFile: File) => {
     setFile(selectedFile);
     setConvertedUrl(null);
+    setError(null);
     setProgress(0);
     if (selectedFile.type.startsWith('image/')) { setFileCategory('image'); setTargetFormat('png'); }
     else if (selectedFile.type.startsWith('video/')) { setFileCategory('video'); setTargetFormat('mp4'); }
@@ -89,7 +91,10 @@ export default function ConverterComponent() {
         setConvertedUrl(URL.createObjectURL(blob));
         setIsConverting(false);
       }
-    } catch (err) { setIsConverting(false); alert("Error!"); }
+    } catch (err: any) { 
+        setIsConverting(false); 
+        setError(err.message || "An error occurred during conversion."); 
+    }
   };
 
   return (
@@ -105,6 +110,12 @@ export default function ConverterComponent() {
           <h1 className="text-6xl font-black italic tracking-tighter uppercase">Universal <span className="text-indigo-500">Converter</span></h1>
           <p className="text-gray-400 mt-2 font-medium tracking-wide">Convert Image, Video, & Audio instantly in your browser.</p>
         </div>
+
+        {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm font-medium text-center">
+                {error}
+            </div>
+        )}
 
         <div className="bg-[#111] border border-white/10 rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
           <AnimatePresence mode="wait">

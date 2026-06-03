@@ -59,7 +59,7 @@ export async function generateMetadata({
       images: [{ url: `${SITE}/api/og?title=${encodeURIComponent(page.h1)}`, width: 1200, height: 630 }],
     },
     twitter: { card: 'summary_large_image', title: page.title, description: page.description },
-    robots: { index: true, follow: true },
+    robots: { index: !(page as any).noindex, follow: !(page as any).noindex },
   };
 }
 

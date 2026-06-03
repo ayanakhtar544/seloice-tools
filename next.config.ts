@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import webpack from 'webpack';
 import withPWAInit from '@ducanh2912/next-pwa';
 import { WASM_COEP_TOOL_SLUGS } from './src/lib/adsense/constants';
 
@@ -53,6 +54,22 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
+  },
+  webpack(config, { isServer }) {
+    config.ignoreWarnings = config.ignoreWarnings || [];
+    config.ignoreWarnings.push({
+      message: /Critical dependency: the request of a dependency is an expression/,
+      module: /@protobufjs\/inquire/
+    });
+
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...(config.resolve.fallback || {}),
+        fs: false,
+      };
+    }
+
+    return config;
   },
   async headers() {
     return [

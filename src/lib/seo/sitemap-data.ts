@@ -13,6 +13,8 @@ export const STATIC_ROUTES: { path: string; priority: number; changeFrequency: '
   { path: '/contact', priority: 0.5, changeFrequency: 'monthly' },
   { path: '/privacy', priority: 0.3, changeFrequency: 'monthly' },
   { path: '/terms', priority: 0.3, changeFrequency: 'monthly' },
+  { path: '/disclaimer', priority: 0.3, changeFrequency: 'monthly' },
+  { path: '/cookie-policy', priority: 0.3, changeFrequency: 'monthly' },
 ];
 
 export function getUseCaseSlugsForSitemap(): string[] {

@@ -180,6 +180,9 @@ export default function ReelDownloaderClient() {
           )}
         </button>
       </motion.div>
+      <p className="text-xs text-zinc-500 text-center mb-6 max-w-xl mx-auto">
+        By using this tool, you agree to only download content for which you have explicit permission or ownership. Do not download or redistribute copyrighted material.
+      </p>
 
       <AnimatePresence>
         {error && (

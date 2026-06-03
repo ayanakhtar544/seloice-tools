@@ -37,7 +37,6 @@ export default function Footer() {
             <li><Link href="/blogs" className="text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-2 justify-center md:justify-start">Seloice Insights <span className="text-[8px] bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">BLOG</span></Link></li>
             <li><Link href="/tools" className="hover:text-indigo-400 transition-colors">All 28+ Tools</Link></li>
             <li><Link href="/#features" className="hover:text-indigo-400 transition-colors">Features</Link></li>
-            <li><Link href="/tools" className="hover:text-indigo-400 transition-colors">All Tools</Link></li>
             <li><Link href="/#faq" className="hover:text-indigo-400 transition-colors">FAQ</Link></li>
           </ul>
         </div>
@@ -57,6 +56,8 @@ export default function Footer() {
            <ul className="space-y-4 text-gray-500 font-bold text-sm">
             <li><Link href="/privacy" className="hover:text-indigo-400 transition-colors">Privacy Policy</Link></li>
             <li><Link href="/terms" className="hover:text-indigo-400 transition-colors">Terms of Service</Link></li>
+            <li><Link href="/disclaimer" className="hover:text-indigo-400 transition-colors">Disclaimer</Link></li>
+            <li><Link href="/cookie-policy" className="hover:text-indigo-400 transition-colors">Cookie Policy</Link></li>
             <li><Link href="/about" className="hover:text-indigo-400 transition-colors">About Us</Link></li>
             <li><Link href="/contact" className="hover:text-indigo-400 transition-colors">Contact Us</Link></li>
             <li><Link href="/contact" className="hover:text-indigo-400 transition-colors">Report a Bug</Link></li>
@@ -65,7 +66,12 @@ export default function Footer() {
       </div>
       
       <div className="max-w-7xl mx-auto px-6 pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-center">
-        <p className="text-gray-600 text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">© {new Date().getFullYear()} SELOICE TOOLS. All rights reserved.</p>
+        <div className="flex flex-col gap-2 items-center md:items-start">
+          <p className="text-gray-600 text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">© {new Date().getFullYear()} SELOICE TOOLS. All rights reserved.</p>
+          <p className="text-gray-600 text-[9px] md:text-[10px] uppercase tracking-[0.1em] max-w-xl text-center md:text-left">
+            Advertiser Disclosure: This site may contain third-party advertisements. We do not endorse or guarantee the products or services advertised.
+          </p>
+        </div>
         <div className="flex items-center justify-center gap-2 text-gray-600 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] bg-white/5 px-4 py-2 rounded-full border border-white/5">
           BUILT WITH <img 
               src="/favicon.png" 

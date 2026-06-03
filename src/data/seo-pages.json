@@ -367,9 +367,9 @@
     "slug": "ai-viral-shorts-maker",
     "baseTool": "shorts-maker",
     "title": "Free AI Viral Shorts Maker | Auto-Extract Clips from Long Videos",
-    "description": "AI Shorts Maker — automatically find and clip viral moments from podcasts and long videos. Free, private, browser-based.",
+    "description": "AI Shorts Maker \u2014 automatically find and clip viral moments from podcasts and long videos. Free, private, browser-based.",
     "h1": "AI Viral Shorts Maker",
-    "intro": "Stop manually scrubbing through hours of footage. Our AI analyzes your video audio, finds the most engaging moments, and auto-clips them into 9:16 shorts — all processed in your browser.",
+    "intro": "Stop manually scrubbing through hours of footage. Our AI analyzes your video audio, finds the most engaging moments, and auto-clips them into 9:16 shorts \u2014 all processed in your browser.",
     "features": [
       "AI-Powered Moment Detection",
       "Auto 9:16 Crop",
@@ -389,7 +389,7 @@
       {
         "step": "3",
         "title": "Download Shorts",
-        "desc": "Preview generated clips and download HD MP4 files — no watermark."
+        "desc": "Preview generated clips and download HD MP4 files \u2014 no watermark."
       }
     ],
     "faqs": [
@@ -517,7 +517,8 @@
         "q": "Does this work well for Real Estate?",
         "a": "Yes! Our AI is trained to recognize the speech patterns and engagement hooks specific to Real Estate."
       }
-    ]
+    ],
+    "noindex": true
   },
   {
     "slug": "pastors-ai-shorts-generator",
@@ -553,7 +554,8 @@
         "q": "Does this work well for Pastors?",
         "a": "Yes! Our AI is trained to recognize the speech patterns and engagement hooks specific to Pastors."
       }
-    ]
+    ],
+    "noindex": true
   },
   {
     "slug": "gamers-ai-shorts-generator",
@@ -589,7 +591,8 @@
         "q": "Does this work well for Gamers?",
         "a": "Yes! Our AI is trained to recognize the speech patterns and engagement hooks specific to Gamers."
       }
-    ]
+    ],
+    "noindex": true
   },
   {
     "slug": "podcasters-ai-shorts-generator",
@@ -625,7 +628,8 @@
         "q": "Does this work well for Podcasters?",
         "a": "Yes! Our AI is trained to recognize the speech patterns and engagement hooks specific to Podcasters."
       }
-    ]
+    ],
+    "noindex": true
   },
   {
     "slug": "comedians-ai-shorts-generator",
@@ -661,7 +665,8 @@
         "q": "Does this work well for Comedians?",
         "a": "Yes! Our AI is trained to recognize the speech patterns and engagement hooks specific to Comedians."
       }
-    ]
+    ],
+    "noindex": true
   },
   {
     "slug": "fitness-coaches-ai-shorts-generator",
@@ -697,7 +702,8 @@
         "q": "Does this work well for Fitness Coaches?",
         "a": "Yes! Our AI is trained to recognize the speech patterns and engagement hooks specific to Fitness Coaches."
       }
-    ]
+    ],
+    "noindex": true
   },
   {
     "slug": "marketing-agencies-ai-shorts-generator",
@@ -733,7 +739,8 @@
         "q": "Does this work well for Marketing Agencies?",
         "a": "Yes! Our AI is trained to recognize the speech patterns and engagement hooks specific to Marketing Agencies."
       }
-    ]
+    ],
+    "noindex": true
   },
   {
     "slug": "vtubers-ai-shorts-generator",
@@ -769,7 +776,8 @@
         "q": "Does this work well for VTubers?",
         "a": "Yes! Our AI is trained to recognize the speech patterns and engagement hooks specific to VTubers."
       }
-    ]
+    ],
+    "noindex": true
   },
   {
     "slug": "educators-ai-shorts-generator",
@@ -805,7 +813,8 @@
         "q": "Does this work well for Educators?",
         "a": "Yes! Our AI is trained to recognize the speech patterns and engagement hooks specific to Educators."
       }
-    ]
+    ],
+    "noindex": true
   },
   {
     "slug": "crypto-influencers-ai-shorts-generator",
@@ -841,7 +850,8 @@
         "q": "Does this work well for Crypto Influencers?",
         "a": "Yes! Our AI is trained to recognize the speech patterns and engagement hooks specific to Crypto Influencers."
       }
-    ]
+    ],
+    "noindex": true
   },
   {
     "slug": "best-free-opus-clip-alternative",
@@ -877,7 +887,8 @@
         "q": "Why is this better than Opus Clip?",
         "a": "Unlike Opus Clip, we process video locally in your browser, ensuring maximum privacy, zero upload wait times, and it's completely free."
       }
-    ]
+    ],
+    "noindex": true
   },
   {
     "slug": "best-free-veedio-alternative",
@@ -913,7 +924,8 @@
         "q": "Why is this better than Veed.io?",
         "a": "Unlike Veed.io, we process video locally in your browser, ensuring maximum privacy, zero upload wait times, and it's completely free."
       }
-    ]
+    ],
+    "noindex": true
   },
   {
     "slug": "best-free-klap-alternative",
@@ -949,7 +961,8 @@
         "q": "Why is this better than Klap?",
         "a": "Unlike Klap, we process video locally in your browser, ensuring maximum privacy, zero upload wait times, and it's completely free."
       }
-    ]
+    ],
+    "noindex": true
   },
   {
     "slug": "best-free-kapwing-alternative",
@@ -985,7 +998,8 @@
         "q": "Why is this better than Kapwing?",
         "a": "Unlike Kapwing, we process video locally in your browser, ensuring maximum privacy, zero upload wait times, and it's completely free."
       }
-    ]
+    ],
+    "noindex": true
   },
   {
     "slug": "best-free-munch-alternative",
@@ -1021,7 +1035,8 @@
         "q": "Why is this better than Munch?",
         "a": "Unlike Munch, we process video locally in your browser, ensuring maximum privacy, zero upload wait times, and it's completely free."
       }
-    ]
+    ],
+    "noindex": true
   },
   {
     "slug": "best-free-submagic-alternative",
@@ -1057,6 +1072,7 @@
         "q": "Why is this better than Submagic?",
         "a": "Unlike Submagic, we process video locally in your browser, ensuring maximum privacy, zero upload wait times, and it's completely free."
       }
-    ]
+    ],
+    "noindex": true
   }
 ]

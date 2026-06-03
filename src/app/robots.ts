@@ -9,7 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           '/api/',
           '/admin/',
-          '/*?*', // Disallow dynamic query parameters to prevent duplicate content crawling
           '/cgi-bin/',
         ],
       },

@@ -53,6 +53,16 @@ export const STATIC_PAGES: StaticPageSEO[] = [
     title: 'Terms of Service | Seloice Tools',
     description: 'Terms of use for Seloice free creator tools, acceptable use, and disclaimers.',
   },
+  {
+    path: '/disclaimer',
+    title: 'Disclaimer | Seloice Tools',
+    description: 'Detailed disclaimer regarding AI-generated content, tool usage, downloads, and fair use.',
+  },
+  {
+    path: '/cookie-policy',
+    title: 'Cookie Policy | Seloice Tools',
+    description: 'Detailed information on how we use cookies, including Google AdSense and analytics.',
+  },
 ];
 
 export function buildStaticMetadata(page: StaticPageSEO): Metadata {

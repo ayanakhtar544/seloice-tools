@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 const stats = [
-  { label: 'Free Tools', value: '26+' },
+  { label: 'Free Tools', value: '28+' },
   { label: 'Monthly Users', value: '50K+' },
   { label: 'Countries', value: '80+' },
   { label: 'Uptime', value: '99.9%' },
@@ -24,25 +24,29 @@ const values = [
     icon: <Zap size={20} />,
     title: 'Always Free',
     desc: 'Every core tool on Seloice is free to use. No hidden fees, no credit cards, no limits on basic usage.',
-    color: 'yellow',
+    bgClass: 'bg-yellow-500/10',
+    textClass: 'text-yellow-400',
   },
   {
     icon: <Shield size={20} />,
     title: 'Privacy First',
     desc: 'Most tools run entirely in your browser. Your files never touch our servers. Your data stays yours.',
-    color: 'emerald',
+    bgClass: 'bg-emerald-500/10',
+    textClass: 'text-emerald-400',
   },
   {
     icon: <Sparkles size={20} />,
     title: 'AI-Powered',
     desc: 'We use Google Gemini and other cutting-edge AI to deliver professional-grade outputs in seconds.',
-    color: 'indigo',
+    bgClass: 'bg-indigo-500/10',
+    textClass: 'text-indigo-400',
   },
   {
     icon: <Globe size={20} />,
     title: 'Built for Global Creators',
     desc: 'From YouTube to Instagram, from Bihar to Berlin — Seloice is built for every creator, everywhere.',
-    color: 'cyan',
+    bgClass: 'bg-cyan-500/10',
+    textClass: 'text-cyan-400',
   },
 ];
 
@@ -99,7 +103,7 @@ export default function About() {
           <Target size={32} className="text-indigo-400 mb-4" />
           <h2 className="text-3xl md:text-4xl font-black italic mb-4">Our Mission</h2>
           <p className="text-gray-300 text-lg leading-relaxed max-w-3xl">
-            The creator economy is booming, but the best tools are still hidden behind paywalls. Seloice breaks that barrier by providing 26+ professional-grade tools — completely free. We believe that every creator, regardless of budget, deserves access to tools that help them grow faster, create better, and build a sustainable career online.
+            The creator economy is booming, but the best tools are still hidden behind paywalls. Seloice breaks that barrier by providing 28+ professional-grade tools — completely free. We believe that every creator, regardless of budget, deserves access to tools that help them grow faster, create better, and build a sustainable career online.
           </p>
         </div>
 
@@ -109,7 +113,7 @@ export default function About() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {values.map((v) => (
               <div key={v.title} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-colors">
-                <div className={`w-10 h-10 bg-${v.color}-500/10 text-${v.color}-400 rounded-xl flex items-center justify-center mb-4`}>
+                <div className={`w-10 h-10 ${v.bgClass} ${v.textClass} rounded-xl flex items-center justify-center mb-4`}>
                   {v.icon}
                 </div>
                 <h3 className="font-black text-white mb-2">{v.title}</h3>
@@ -156,11 +160,38 @@ export default function About() {
           </div>
         </div>
 
+        {/* Future Roadmap */}
+        <div className="mb-20">
+          <div className="flex items-center gap-3 mb-8">
+            <Target size={24} className="text-indigo-400" />
+            <h2 className="text-3xl font-black italic uppercase">Future Roadmap</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <div className="text-sm font-bold text-indigo-400 mb-2 uppercase tracking-widest">Q3 2026</div>
+              <h3 className="text-xl font-black text-white mb-2">More AI Tools</h3>
+              <p className="text-gray-400 text-sm">Expanding our AI suite with advanced video script generation and AI voice cloning.</p>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <div className="text-sm font-bold text-emerald-400 mb-2 uppercase tracking-widest">Q4 2026</div>
+              <h3 className="text-xl font-black text-white mb-2">Creator Hub</h3>
+              <p className="text-gray-400 text-sm">A centralized dashboard for creators to save their projects, histories, and custom presets.</p>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <div className="text-sm font-bold text-pink-400 mb-2 uppercase tracking-widest">2027</div>
+              <h3 className="text-xl font-black text-white mb-2">Mobile Apps</h3>
+              <p className="text-gray-400 text-sm">Native iOS and Android apps to take the power of Seloice tools on the go.</p>
+            </div>
+          </div>
+        </div>
+
+
+
         {/* CTA */}
         <div className="text-center bg-gradient-to-br from-indigo-900/40 to-purple-900/20 border border-indigo-500/30 rounded-3xl p-12">
           <Sparkles size={40} className="text-indigo-400 mx-auto mb-4" />
           <h2 className="text-3xl md:text-4xl font-black italic mb-3">Ready to Create?</h2>
-          <p className="text-gray-400 mb-8">26+ free tools. No signup required. Start creating today.</p>
+          <p className="text-gray-400 mb-8">28+ free tools. No signup required. Start creating today.</p>
           <Link
             href="/"
             className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest px-8 py-4 rounded-2xl transition-colors text-sm shadow-[0_0_30px_rgba(79,70,229,0.3)]"

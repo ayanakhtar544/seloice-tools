@@ -1,40 +1,29 @@
-// File: src/app/blogs/page.tsx
-"use client";
+import React from 'react';
 
-import React, { useEffect, useState } from 'react';
+export const dynamic = 'force-dynamic';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { Eye, Heart, Calendar } from 'lucide-react';
 import { getPublishedBlogs } from '@/lib/blogService';
 
-export default function PublicBlogFeed() {
-  const [blogs, setBlogs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
-  useEffect(() => {
-    async function fetchBlogs() {
-      const data = await getPublishedBlogs();
-      setBlogs(data);
-      setLoading(false);
-    }
-    fetchBlogs();
-  }, []);
+export default async function PublicBlogFeed() {
+  const blogs = await getPublishedBlogs();
 
   return (
-    <div className="min-h-screen bg-[#030305] text-white pt-24 pb-20 px-4 md:px-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="page-shell min-h-dvh bg-[#030305] text-white selection:bg-indigo-500/30 overflow-x-hidden font-sans relative">
+      <Navbar />
+      <div className="pt-24 pb-20 px-4 md:px-8 max-w-6xl mx-auto z-10 relative">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic">Seloice <span className="text-emerald-500">Insights</span></h1>
           <p className="text-gray-400 mt-4 text-sm uppercase tracking-widest font-bold">Thoughts, Updates, and Engineering Secrets</p>
         </div>
 
-        {loading ? (
-           <div className="text-center text-emerald-500 font-black animate-pulse">Loading Blogs...</div>
-        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogs.map((blog, i) => (
-              <motion.div 
-                key={blog.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
+            {blogs.map((blog: any, i: number) => (
+              <div 
+                key={blog.id}
                 className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden hover:border-emerald-500/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] transition-all group flex flex-col relative"
               >
                 <div className="h-48 overflow-hidden relative">
@@ -54,11 +43,11 @@ export default function PublicBlogFeed() {
                    </div>
                 </div>
                 <Link href={`/blogs/${blog.slug}`} className="absolute inset-0 z-10" />
-              </motion.div>
+              </div>
             ))}
           </div>
-        )}
       </div>
+      <Footer />
     </div>
   );
 }

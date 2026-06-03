@@ -78,19 +78,12 @@ export default function YtDownloaderClient() {
                 <LinkIcon size={16} /> Paste Video or Shorts Link
               </label>
               <input 
-  type="text"
-  placeholder="Click to download YouTube video..."
-  className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white focus:border-red-500 outline-none cursor-pointer"
-  
-  // 🔥 Yahan hai asli magic 🔥
-  onFocus={(e) => {
-    // Ye tab ko naye window mein khol dega
-    window.open('https://vidssave.com', '_blank');
-    
-    // User ko wapas apne site par laane ke liye focus hata do
-    e.target.blur();
-  }}
-/>
+                type="text"
+                placeholder="Paste YouTube link here..."
+                className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white focus:border-red-500 outline-none"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+              />
             </div>
 
             <AnimatePresence>
@@ -109,11 +102,14 @@ export default function YtDownloaderClient() {
               className="w-full py-4 rounded-xl bg-gradient-to-r from-red-600 to-red-700 text-white font-black uppercase tracking-widest text-sm shadow-[0_6px_0_0_#7f1d1d] active:translate-y-1 active:shadow-none transition-all hover:brightness-110 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
-                <><Loader2 size={18} className="animate-spin" /> BYPASSING SECURELY...</>
+                <><Loader2 size={18} className="animate-spin" /> REDIRECTING SECURELY...</>
               ) : (
-                <><ExternalLink size={18} /> OPEN DOWNLOADER </>
+                <><ExternalLink size={18} /> OPEN PARTNER DOWNLOADER</>
               )}
             </button>
+            <p className="text-xs text-zinc-500 text-center mt-4">
+              By clicking this button, you will be securely redirected to our partner service (y2mate) to process your download. Please ensure you have the rights to download this content.
+            </p>
           </form>
 
           <div className="mt-6 flex items-center justify-center gap-2 text-xs text-zinc-500 font-bold tracking-wider uppercase">

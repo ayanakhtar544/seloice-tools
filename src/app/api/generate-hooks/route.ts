@@ -1,13 +1,23 @@
-// File: src/app/api/generate-hooks/route.ts
 import { NextResponse } from 'next/server';
+import { checkRateLimit } from '@/lib/security/rate-limit';
+import { validateRequest, GenerateHooksRequestSchema, sanitizeInput } from '@/lib/security/validation';
 
 export async function POST(request: Request) {
   try {
-    const { topic } = await request.json();
-
-    if (!topic) {
-      return NextResponse.json({ error: "Please enter a topic" }, { status: 400 });
+    const ip = request.headers.get("x-forwarded-for") || "127.0.0.1";
+    const { limited, retryAfter } = await checkRateLimit(ip, "/api/generate-hooks");
+    if (limited) {
+      return NextResponse.json({ error: `Rate limit exceeded. Try again in ${retryAfter} seconds.` }, { status: 429 });
     }
+
+    const body = await request.json();
+    const validated = validateRequest(GenerateHooksRequestSchema, body);
+    
+    if (!validated.success) {
+      return NextResponse.json({ error: validated.error }, { status: 400 });
+    }
+
+    const topic = sanitizeInput(validated.data.topic);
 
     if (!process.env.GROQ_API_KEY) {
       return NextResponse.json({ error: "Groq API key is missing" }, { status: 500 });

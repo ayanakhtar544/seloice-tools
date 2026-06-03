@@ -50,30 +50,34 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Contact Form Mockup */}
-          <div className="bg-gradient-to-b from-white/[0.05] to-transparent border border-white/10 p-8 rounded-3xl">
-            <h3 className="text-2xl font-black text-white mb-6 italic">Send a Message</h3>
+          {/* Direct Contact */}
+          <div className="bg-gradient-to-b from-white/[0.05] to-transparent border border-white/10 p-8 rounded-3xl flex flex-col justify-center text-center">
+            <h3 className="text-3xl font-black text-white mb-4 italic">Ready to reach out?</h3>
+            <p className="text-gray-400 mb-8 max-w-sm mx-auto">
+              Skip the forms. We prefer direct communication. Click below to open your email client and send us a message directly.
+            </p>
             
-            {/* 🔥 FIX: Removed onSubmit and changed button type to "button" */}
-            <form className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Name</label>
-                <input type="text" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Ansari Bhaiya" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Email</label>
-                <input type="email" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" placeholder="you@example.com" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Message</label>
-                <textarea rows={4} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors" placeholder="How can we help you?"></textarea>
-              </div>
-              
-              {/* 🔥 FIX: Changed to type="button" */}
-              <button type="button" className="w-full bg-indigo-600 text-white font-black text-sm uppercase tracking-widest py-4 rounded-xl hover:bg-indigo-700 transition-colors">
-                Send Message
-              </button>
-            </form>
+            <a 
+              href="mailto:hello@seloice.com" 
+              className="w-full bg-indigo-600 text-white font-black text-sm uppercase tracking-widest py-5 rounded-xl hover:bg-indigo-700 transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] flex items-center justify-center gap-3"
+            >
+              <Mail size={18} /> Send an Email
+            </a>
+            
+            <div className="mt-8 pt-8 border-t border-white/10">
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4">Or connect with us on</p>
+              <a 
+                href="https://twitter.com/seloice" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-white/70 hover:text-white hover:bg-white/5 px-6 py-3 rounded-xl transition-colors border border-transparent hover:border-white/10"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5 fill-current">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.008 5.95H5.078z"></path>
+                </svg>
+                Twitter / X
+              </a>
+            </div>
           </div>
         </div>
 

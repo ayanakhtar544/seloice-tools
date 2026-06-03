@@ -15,6 +15,18 @@ export const CaptionRequestSchema = z.object({
   language: z.string().min(2).max(5).default('en'),
 });
 
+export const GenerateHooksRequestSchema = z.object({
+  topic: z.string().min(2, "Topic is too short").max(150, "Topic is too long"),
+});
+
+export const GenerateHashtagsRequestSchema = z.object({
+  topic: z.string().min(2, "Topic is too short").max(150, "Topic is too long"),
+});
+
+export const GenerateTitlesRequestSchema = z.object({
+  topic: z.string().min(2, "Topic is too short").max(150, "Topic is too long"),
+});
+
 // --- SANITIZATION UTILITIES ---
 
 export function sanitizeInput(input: string): string {

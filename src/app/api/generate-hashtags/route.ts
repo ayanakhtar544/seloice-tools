@@ -1,13 +1,23 @@
-// File: src/app/api/generate-hashtags/route.ts
 import { NextResponse } from 'next/server';
+import { checkRateLimit } from '@/lib/security/rate-limit';
+import { validateRequest, GenerateHashtagsRequestSchema, sanitizeInput } from '@/lib/security/validation';
 
 export async function POST(request: Request) {
   try {
-    const { topic } = await request.json();
-
-    if (!topic) {
-      return NextResponse.json({ error: "Topic is required" }, { status: 400 });
+    const ip = request.headers.get("x-forwarded-for") || "127.0.0.1";
+    const { limited, retryAfter } = await checkRateLimit(ip, "/api/generate-hashtags");
+    if (limited) {
+      return NextResponse.json({ error: `Rate limit exceeded. Try again in ${retryAfter} seconds.` }, { status: 429 });
     }
+
+    const body = await request.json();
+    const validated = validateRequest(GenerateHashtagsRequestSchema, body);
+    
+    if (!validated.success) {
+      return NextResponse.json({ error: validated.error }, { status: 400 });
+    }
+
+    const topic = sanitizeInput(validated.data.topic);
 
     if (!process.env.GROQ_API_KEY) {
       return NextResponse.json({ error: "API key missing" }, { status: 500 });

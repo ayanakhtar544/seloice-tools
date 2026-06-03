@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { DownloadRequestSchema, validateRequest } from '@/lib/security/validation';
 import { fetchWithRetry } from '@/lib/server/http';
+import { checkRateLimit } from '@/lib/security/rate-limit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,6 +10,18 @@ export const maxDuration = 60; // Vercel hobby pe ye ignore hota hai (10s limit)
 
 export async function POST(req: Request) {
   try {
+    const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+    const { limited, retryAfter } = await checkRateLimit(ip, "/api/ig-download");
+
+    if (limited) {
+      return NextResponse.json({ 
+        error: `Rate limit exceeded. Please wait ${Math.ceil(retryAfter)} seconds.` 
+      }, { 
+        status: 429,
+        headers: { 'Retry-After': Math.ceil(retryAfter).toString() }
+      });
+    }
+
     const body = await req.json();
 
     // ─── 1. SECURITY VALIDATION ─────────────────────────────────

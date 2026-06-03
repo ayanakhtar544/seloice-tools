@@ -76,15 +76,34 @@ export default function ToolPageContent({ slug }: ToolPageContentProps) {
         <section className="mb-10">
           <h3 className="text-lg font-bold text-white mb-3">How {tool.shortTitle} helps creators publish faster</h3>
           <p className="text-gray-400 leading-relaxed mb-4">
-            Many creators need a simple way to finish tasks without losing momentum. {tool.shortTitle} removes complexity by combining the most common editing, exporting, and optimization steps into one interface. This means less switching between apps and more time spent publishing.
+            {tool.whyUseContent}
           </p>
           <p className="text-gray-400 leading-relaxed mb-4">
-            The tool is built with fast load times in mind. It keeps assets on your device when possible, so you can work privately and avoid unnecessary uploads. That helps creators stay productive on mobile, desktop, and low-bandwidth connections.
-          </p>
-          <p className="text-gray-400 leading-relaxed">
-            Whether you are a beginner or a professional, this tool gives you actionable controls with simple defaults. Use the included presets for the fastest result, then fine tune the output as needed for brand-safe, platform-ready content.
+            {tool.workflowContent}
           </p>
         </section>
+
+        {tool.bestPractices && tool.bestPractices.length > 0 && (
+          <section className="mb-10">
+            <h3 className="text-lg font-bold text-white mb-3">Best practices</h3>
+            <ul className="space-y-2 text-sm text-gray-400 list-disc pl-5">
+              {tool.bestPractices.map((practice, idx) => (
+                <li key={idx}>{practice}</li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {tool.commonMistakes && tool.commonMistakes.length > 0 && (
+          <section className="mb-10">
+            <h3 className="text-lg font-bold text-white mb-3">Common mistakes to avoid</h3>
+            <ul className="space-y-2 text-sm text-gray-400 list-disc pl-5">
+              {tool.commonMistakes.map((mistake, idx) => (
+                <li key={idx}>{mistake}</li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <h3 className="text-lg font-bold text-white mb-4">How to use {tool.shortTitle}</h3>
         <ol className="space-y-4 list-none p-0 mb-10">
@@ -161,9 +180,6 @@ export default function ToolPageContent({ slug }: ToolPageContentProps) {
           </div>
         </section>
 
-        <p className="text-[10px] text-gray-600 mt-8 uppercase tracking-widest">
-          Keywords: {tool.semanticKeywords.slice(0, 5).join(' · ')}
-        </p>
       </article>
 
       <nav className="mt-12" aria-label="Related creator tools">
