@@ -32,6 +32,7 @@ const TOOL_COMPONENTS: Record<string, ComponentType> = {
   'image-converter': createToolComponent('image-converter', () => import('@/app/tools/image-converter/ImageConverterClient')),
   'mp4-to-mp3': createToolComponent('mp4-to-mp3', () => import('@/app/tools/mp4-to-mp3/Mp4ToMp3Client')),
   'mp4-to-text': createToolComponent('mp4-to-text', () => import('@/app/tools/mp4-to-text/Mp4ToTextClient')),
+  'pdf-grid-maker': createToolComponent('pdf-grid-maker', () => import('@/app/tools/pdf-grid-maker/PdfGridClient')),
   'photo-editor': createToolComponent('photo-editor', () => import('@/app/tools/photo-editor/PhotoEditorClient')),
   'qr-generator': createToolComponent('qr-generator', () => import('@/app/tools/qr-generator/QrGeneratorClient')),
   'reel-downloader': createToolComponent('reel-downloader', () => import('@/app/tools/reel-downloader/ReelDownloaderClient')),
@@ -49,7 +50,6 @@ const TOOL_COMPONENTS: Record<string, ComponentType> = {
   'yt-downloader': createToolComponent('yt-downloader', () => import('@/app/tools/yt-downloader/YtDownloaderClient')),
   'yt-tag-extractor': createToolComponent('yt-tag-extractor', () => import('@/app/tools/yt-tag-extractor/YtTagExtractorClient')),
   'yt-title-generator': createToolComponent('yt-title-generator', () => import('@/app/tools/yt-title-generator/YtTitleGeneratorClient')),
-  'shorts-maker': createToolComponent('shorts-maker', () => import('@/app/tools/shorts-maker/ShortsMakerClient')),
 };
 
 interface ToolClientProps {

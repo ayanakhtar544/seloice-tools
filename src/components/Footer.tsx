@@ -68,9 +68,6 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-center">
         <div className="flex flex-col gap-2 items-center md:items-start">
           <p className="text-gray-600 text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">© {new Date().getFullYear()} SELOICE TOOLS. All rights reserved.</p>
-          <p className="text-gray-600 text-[9px] md:text-[10px] uppercase tracking-[0.1em] max-w-xl text-center md:text-left">
-            Advertiser Disclosure: This site may contain third-party advertisements. We do not endorse or guarantee the products or services advertised.
-          </p>
         </div>
         <div className="flex items-center justify-center gap-2 text-gray-600 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] bg-white/5 px-4 py-2 rounded-full border border-white/5">
           BUILT WITH <img 

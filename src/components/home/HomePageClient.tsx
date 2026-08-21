@@ -12,15 +12,13 @@ import {
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import ResponsiveAd from '@/components/ResponsiveAd';
 
 // ==========================================
 // 1. DATA STRUCTURES (FULL & COMPLETE)
 // ==========================================
 
 const featuredTools = [
-   { name: 'Faceless Story Video', icon: <Wand2 />, href: '/tools/faceless-maker', color: 'from-fuchsia-500 to-violet-600', shadow: 'shadow-fuchsia-500/20', desc: 'Make Faceless Stories in Seconds.', badge: 'AI' },
-  { name: 'AI Shorts Maker', icon: <Wand2 />, href: '/tools/shorts-maker', color: 'from-fuchsia-500 to-violet-600', shadow: 'shadow-fuchsia-500/20', desc: 'Auto-extract 5 viral reels from long videos.', badge: 'BETA' },
+  { name: 'PDF Grid Maker', icon: <Grid />, href: '/tools/pdf-grid-maker', color: 'from-red-500 to-rose-500', shadow: 'shadow-rose-500/20', desc: 'Merge 2, 4, or 9 PDF pages onto one sheet.', badge: 'STUDENT FAV 📚' },
   { name: 'Photo Editor', icon: <Wand2 />, href: '/tools/photo-editor', color: 'from-indigo-500 to-purple-600', shadow: 'shadow-indigo-500/20', desc: 'Pro layers, filters & advanced crop.', badge: 'PRO' },
   { name: 'Video Editor', icon: <Scissors />, href: '/tools/video-editor', color: 'from-rose-500 to-pink-600', shadow: 'shadow-rose-500/20', desc: 'Trim, crop & edit directly in browser.', badge: 'HOT' },
   { name: 'Auto Captions', icon: <Subtitles />, href: '/tools/auto-captions', color: 'from-cyan-500 to-blue-600', shadow: 'shadow-cyan-500/20', desc: 'Burn AI captions directly into video.', badge: 'AI' },
@@ -34,7 +32,6 @@ const categories = [
     name: 'Video Powerhouse',
     icon: <Video size={20} />,
     tools: [
-      { name: 'Shorts Maker', icon: <Zap />, href: '/tools/shorts-maker', color: 'from-violet-500 to-fuchsia-600', desc: 'Auto-extract viral clips from podcasts.', badge: 'AI' },
       { name: 'YT Download', icon: <Download />, href: '/tools/yt-downloader', color: 'from-red-500 to-red-600', desc: '4K High speed download.', badge: 'HOT' },
       { name: 'Reel Saver', icon: <Download />, href: '/tools/reel-downloader', color: 'from-pink-500 to-pink-600', desc: 'No watermark IG reels.' },
       { name: 'Video Editor', icon: <Scissors />, href: '/tools/video-editor', color: 'from-rose-500 to-rose-600', desc: 'Trim, crop & edit videos.', badge: 'NEW' },
@@ -89,12 +86,6 @@ const faqs = [
   { q: "Is there any limit on file size?", a: "Because processing happens locally on your device, the file size limit depends on your device's RAM. Most modern phones and PCs handle up to 1GB effortlessly." }
 ];
 
-// liveActivities removed
-
-// ==========================================
-// 2. MAIN COMPONENT (ULTRA MODERN UI WITH SOLID MOBILE CONTRAST)
-// ==========================================
-
 export default function HomePageClient() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
@@ -119,52 +110,229 @@ export default function HomePageClient() {
 
       <Navbar />
 
-      {/* 🚀 HERO SECTION */}
-      <section className="relative pt-16 md:pt-32 pb-16 px-4 md:px-6 max-w-7xl mx-auto flex flex-col items-center text-center z-10">
-        {/* 🔥 FIX: Mobile pe solid pill bg-[#1e1e24] */}
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#1e1e24] md:bg-indigo-500/10 border border-indigo-500/50 md:border-indigo-500/20 text-indigo-300 text-[10px] md:text-xs font-black uppercase tracking-widest mb-6 md:mb-8 md:backdrop-blur-md shadow-[0_0_20px_rgba(99,102,241,0.2)]">
-           <Zap size={14} className="fill-indigo-400" /> The Modern Creator OS
+      {/* 🚀 ANTI-GRAVITY HERO SECTION */}
+      <section className="relative pt-16 md:pt-28 pb-16 md:pb-24 px-4 md:px-6 max-w-7xl mx-auto flex flex-col items-center text-center z-10 perspective-[1000px]">
+        
+        {/* Floating Background Orbs / Glow Effects */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-gradient-to-tr from-indigo-600/20 via-purple-600/15 to-cyan-500/10 rounded-full blur-[120px] pointer-events-none -z-10 animate-pulse" />
+
+        {/* 🌟 DESKTOP FLOATING 3D CARDS (ZERO-GRAVITY) */}
+        
+        {/* Card 1: Top-Left Floating Studio Card */}
+        <motion.div
+          initial={{ opacity: 0, x: -60, y: -40 }}
+          animate={{ 
+            opacity: 1, 
+            x: 0, 
+            y: [-12, 12, -12],
+            rotate: [-3, 3, -3],
+          }}
+          transition={{
+            opacity: { duration: 0.8 },
+            x: { duration: 0.8 },
+            y: { duration: 5.2, repeat: Infinity, ease: 'easeInOut' },
+            rotate: { duration: 6, repeat: Infinity, ease: 'easeInOut' },
+          }}
+          className="hidden xl:flex absolute top-12 left-0 w-64 p-4 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/15 shadow-[0_20px_50px_rgba(79,70,229,0.25)] items-center gap-3 hover:scale-105 hover:border-indigo-400/50 transition-all cursor-pointer pointer-events-auto group z-20"
+          onClick={() => window.location.href = '/tools/video-editor'}
+        >
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shrink-0 group-hover:scale-110 transition-transform">
+            <Video size={22} className="text-white" />
+          </div>
+          <div className="text-left">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-black text-white group-hover:text-indigo-300 transition-colors">Video Editor</span>
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">PRO</span>
+            </div>
+            <p className="text-[10px] text-gray-400 font-medium leading-tight mt-0.5">Timeline & Local WASM Render</p>
+          </div>
+        </motion.div>
+
+        {/* Card 2: Top-Right Floating Auto Captions Card */}
+        <motion.div
+          initial={{ opacity: 0, x: 60, y: -40 }}
+          animate={{ 
+            opacity: 1, 
+            x: 0, 
+            y: [14, -14, 14],
+            rotate: [4, -3, 4],
+          }}
+          transition={{
+            opacity: { duration: 0.8 },
+            x: { duration: 0.8 },
+            y: { duration: 5.8, repeat: Infinity, ease: 'easeInOut' },
+            rotate: { duration: 6.5, repeat: Infinity, ease: 'easeInOut' },
+          }}
+          className="hidden xl:flex absolute top-14 right-0 w-64 p-4 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/15 shadow-[0_20px_50px_rgba(6,182,212,0.25)] items-center gap-3 hover:scale-105 hover:border-cyan-400/50 transition-all cursor-pointer pointer-events-auto group z-20"
+          onClick={() => window.location.href = '/tools/auto-captions'}
+        >
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg shrink-0 group-hover:scale-110 transition-transform">
+            <Subtitles size={22} className="text-white" />
+          </div>
+          <div className="text-left">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-black text-white group-hover:text-cyan-300 transition-colors">Auto Captions</span>
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">AI</span>
+            </div>
+            <p className="text-[10px] text-gray-400 font-medium leading-tight mt-0.5">Dynamic Subtitle Animation</p>
+          </div>
+        </motion.div>
+
+        {/* Card 3: Bottom-Left Floating Audio Engine Card */}
+        <motion.div
+          initial={{ opacity: 0, x: -50, y: 50 }}
+          animate={{ 
+            opacity: 1, 
+            x: 0, 
+            y: [-16, 10, -16],
+            rotate: [-2, 4, -2],
+          }}
+          transition={{
+            opacity: { duration: 0.8, delay: 0.2 },
+            x: { duration: 0.8, delay: 0.2 },
+            y: { duration: 4.8, repeat: Infinity, ease: 'easeInOut' },
+            rotate: { duration: 5.5, repeat: Infinity, ease: 'easeInOut' },
+          }}
+          className="hidden xl:flex absolute bottom-8 left-4 w-60 p-3.5 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/15 shadow-[0_20px_50px_rgba(16,185,129,0.25)] items-center gap-3 hover:scale-105 hover:border-emerald-400/50 transition-all cursor-pointer pointer-events-auto group z-20"
+          onClick={() => window.location.href = '/tools/audio-editor'}
+        >
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-lg shrink-0 group-hover:scale-110 transition-transform">
+            <AudioWaveform size={20} className="text-white" />
+          </div>
+          <div className="text-left">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-black text-white group-hover:text-emerald-300 transition-colors">Audio Studio</span>
+            </div>
+            <p className="text-[10px] text-gray-400 font-medium leading-tight mt-0.5">EQ, Noise Removal & FX</p>
+          </div>
+        </motion.div>
+
+        {/* Card 4: Bottom-Right Floating Photo Editor Card */}
+        <motion.div
+          initial={{ opacity: 0, x: 50, y: 50 }}
+          animate={{ 
+            opacity: 1, 
+            x: 0, 
+            y: [12, -18, 12],
+            rotate: [3, -4, 3],
+          }}
+          transition={{
+            opacity: { duration: 0.8, delay: 0.2 },
+            x: { duration: 0.8, delay: 0.2 },
+            y: { duration: 6.2, repeat: Infinity, ease: 'easeInOut' },
+            rotate: { duration: 6.8, repeat: Infinity, ease: 'easeInOut' },
+          }}
+          className="hidden xl:flex absolute bottom-8 right-4 w-60 p-3.5 rounded-2xl bg-white/[0.03] backdrop-blur-xl border border-white/15 shadow-[0_20px_50px_rgba(244,63,94,0.25)] items-center gap-3 hover:scale-105 hover:border-rose-400/50 transition-all cursor-pointer pointer-events-auto group z-20"
+          onClick={() => window.location.href = '/tools/photo-editor'}
+        >
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-white shadow-lg shrink-0 group-hover:scale-110 transition-transform">
+            <Wand2 size={20} className="text-white" />
+          </div>
+          <div className="text-left">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-black text-white group-hover:text-rose-300 transition-colors">Photo Editor</span>
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">HOT</span>
+            </div>
+            <p className="text-[10px] text-gray-400 font-medium leading-tight mt-0.5">Layers, Filters & Cutout</p>
+          </div>
+        </motion.div>
+
+        {/* 🚀 HERO CORE CONTENT */}
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }} 
+          animate={{ opacity: 1, scale: 1 }} 
+          transition={{ duration: 0.5 }} 
+          className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-[#1e1e24] md:bg-indigo-500/10 border border-indigo-500/50 md:border-indigo-500/30 text-indigo-300 text-[10px] md:text-xs font-black uppercase tracking-widest mb-6 md:mb-8 md:backdrop-blur-md shadow-[0_0_25px_rgba(99,102,241,0.3)]"
+        >
+           <motion.div animate={{ rotate: 360 }} transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}>
+             <Sparkles size={14} className="fill-indigo-400 text-indigo-300" />
+           </motion.div>
+           Anti-Gravity Creator OS
         </motion.div>
         
         <motion.h1 
-          initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, type: 'spring' }} 
-          className="text-[2.8rem] leading-[1] sm:text-5xl md:text-[8rem] font-black tracking-tighter md:leading-[0.85] mb-6 md:mb-8 text-white drop-shadow-2xl"
+          initial={{ opacity: 0, y: 30 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.8, type: 'spring' }} 
+          className="text-[2.6rem] leading-[1] sm:text-5xl md:text-[7.5rem] font-black tracking-tighter md:leading-[0.85] mb-6 md:mb-8 text-white drop-shadow-2xl max-w-5xl"
         >
           THE FUTURE OF <br className="hidden md:block" /> 
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-indigo-500 to-purple-500">CREATION.</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-indigo-400 to-purple-400 drop-shadow-[0_10px_30px_rgba(99,102,241,0.5)]">
+            CREATION.
+          </span>
         </motion.h1>
         
         <motion.p 
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.8, delay: 0.2 }} 
           className="text-gray-200 md:text-zinc-400 text-sm md:text-2xl max-w-2xl mb-8 md:mb-12 font-medium px-4 leading-relaxed tracking-tight"
         >
           An elite suite of 26+ browser-based tools. <br className="hidden md:block"/>
-          <span className="text-white">No limits. No watermarks. Pure speed.</span>
+          <span className="text-white font-semibold">Zero limits. Zero watermarks. Zero gravity speed.</span>
         </motion.p>
         
-        {/* FAST TOOL SEARCH */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.3 }} className="w-full max-w-2xl mx-auto mb-8 relative group">
-          <div className="absolute inset-0 bg-indigo-500/20 blur-xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity hidden md:block" />
-          {/* 🔥 FIX: Mobile pe solid search bar bg-[#18181b] */}
-          <div className="relative bg-[#18181b] md:bg-white/[0.03] border border-white/30 md:border-white/10 group-focus-within:border-indigo-500/80 md:group-focus-within:border-indigo-500/50 md:backdrop-blur-xl rounded-full flex items-center p-2 pr-4 shadow-[0_8px_32px_rgba(0,0,0,0.5)] transition-all">
-            <div className="pl-4 text-gray-300 md:text-gray-500"><Search size={18} className="md:w-5 md:h-5" /></div>
+        {/* FAST TOOL SEARCH WITH GLOW */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 0.6, delay: 0.3 }} 
+          className="w-full max-w-2xl mx-auto mb-10 relative group"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/30 to-purple-500/30 blur-2xl rounded-full opacity-60 group-focus-within:opacity-100 transition-opacity" />
+          <div className="relative bg-[#18181b] md:bg-white/[0.04] border border-white/30 md:border-white/20 group-focus-within:border-indigo-400 md:backdrop-blur-2xl rounded-full flex items-center p-2 pr-4 shadow-[0_10px_40px_rgba(0,0,0,0.6)] transition-all">
+            <div className="pl-4 text-indigo-400"><Search size={20} /></div>
             <input 
               type="search"
               aria-label="Search creator tools"
-              placeholder="What do you want to build today?" 
+              placeholder="Search 26+ creator tools — e.g. Video Editor, Auto Captions…" 
               onClick={() => window.dispatchEvent(new Event('open_search'))}
               onKeyDown={(e) => e.key === 'Enter' && window.dispatchEvent(new Event('open_search'))}
               readOnly
-              className="w-full bg-transparent border-none outline-none text-white px-3 py-2 md:py-3 cursor-pointer placeholder:text-gray-400 text-sm md:text-base font-medium min-h-[44px]"
+              className="w-full bg-transparent border-none outline-none text-white px-3 py-2 md:py-3.5 cursor-pointer placeholder:text-gray-400 text-sm md:text-base font-medium min-h-[44px]"
             />
+            <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-white/10 text-gray-400 border border-white/10 shrink-0">
+              ⌘K
+            </span>
           </div>
         </motion.div>
-      </section>
 
-      {/* AD UNIT */}
-      <div className="max-w-4xl mx-auto px-4 py-4 z-10 relative">
-        <ResponsiveAd variant="leaderboard" />
-      </div>
+        {/* 🌟 MOBILE & TABLET FLOATING CARDS SHOWCASE (RESPONSIVE ANTI-GRAVITY STRIP) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          className="xl:hidden grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-2xl mx-auto pt-2"
+        >
+          {[
+            { name: 'Video Editor', icon: <Video size={16} />, color: 'from-indigo-500 to-purple-600', href: '/tools/video-editor', badge: 'PRO' },
+            { name: 'Auto Captions', icon: <Subtitles size={16} />, color: 'from-cyan-500 to-blue-600', href: '/tools/auto-captions', badge: 'AI' },
+            { name: 'Audio Studio', icon: <AudioWaveform size={16} />, color: 'from-emerald-500 to-teal-600', href: '/tools/audio-editor' },
+            { name: 'Photo Editor', icon: <Wand2 size={16} />, color: 'from-rose-500 to-pink-600', href: '/tools/photo-editor', badge: 'HOT' }
+          ].map((item, idx) => (
+            <motion.a
+              key={idx}
+              href={item.href}
+              animate={{ y: idx % 2 === 0 ? [-5, 5, -5] : [5, -5, 5] }}
+              transition={{ duration: 4 + idx, repeat: Infinity, ease: 'easeInOut' }}
+              className="bg-[#1c1c22] border border-white/15 rounded-xl p-3 flex flex-col items-start gap-1.5 shadow-lg text-left hover:border-white/30 transition-all"
+            >
+              <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${item.color} flex items-center justify-center text-white`}>
+                {item.icon}
+              </div>
+              <div className="flex items-center justify-between w-full">
+                <span className="text-xs font-bold text-white truncate">{item.name}</span>
+                {item.badge && (
+                  <span className="text-[8px] font-black px-1 rounded bg-white/10 text-gray-300">
+                    {item.badge}
+                  </span>
+                )}
+              </div>
+            </motion.a>
+          ))}
+        </motion.div>
+
+      </section>
 
       {/* 🔥 THE HIGHLIGHTED PREMIUM TOOLS SECTION */}
       <section className="relative py-12 px-3 sm:px-4 md:px-8 max-w-[1440px] mx-auto z-10">

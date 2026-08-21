@@ -1,29 +1,12 @@
 import type { NextConfig } from 'next';
 import webpack from 'webpack';
 import withPWAInit from '@ducanh2912/next-pwa';
-import { WASM_COEP_TOOL_SLUGS } from './src/lib/adsense/constants';
-
 const withPWA = withPWAInit({
   dest: 'public',
   cacheOnFrontEndNav: true,
   aggressiveFrontEndNavCaching: true,
   reloadOnOnline: true,
   disable: process.env.NODE_ENV === 'development',
-  workboxOptions: {
-    disableDevLogs: true,
-    runtimeCaching: [
-      {
-        urlPattern: /^https:\/\/pagead2\.googlesyndication\.com\/.*/i,
-        handler: 'NetworkOnly',
-        options: { cacheName: 'adsense-bypass' },
-      },
-      {
-        urlPattern: /^https:\/\/(googleads|tpc)\.g\.doubleclick\.net\/.*/i,
-        handler: 'NetworkOnly',
-        options: { cacheName: 'doubleclick-bypass' },
-      },
-    ],
-  },
 });
 
 const securityHeaders = [
@@ -40,7 +23,7 @@ const wasmHeaders = [
   { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
 ];
 
-const WASM_TOOL_SLUGS = [...WASM_COEP_TOOL_SLUGS];
+const WASM_TOOL_SLUGS = ['auto-captions', 'video-editor', 'audio-editor', 'video-compressor', 'mp4-to-text', 'speech-to-text', 'pdf-grid-maker', 'photo-editor'];
 
 const nextConfig: NextConfig = {
   turbopack: {},

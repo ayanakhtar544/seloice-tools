@@ -1,8 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import SmartLinks from './SmartLinks';
-import ResponsiveAd from './ResponsiveAd';
-import { canShowAdsOnTool } from '@/lib/adsense/tool-ads';
 import ErrorBoundary from './ErrorBoundary';
 import { ArrowLeft, ChevronRight, Sparkles, Zap, Video, Type, Image as ImageIcon, Link as LinkIcon, Share2, ShieldCheck, AlertCircle, RefreshCw } from 'lucide-react';
 
@@ -109,14 +107,6 @@ export default function ToolLayout({ title, description, children, icon, color =
             {children}
           </ErrorBoundary>
         </div>
-
-        {/* Ad Unit: Below tool interface — natural content break, high viewability */}
-        {/* Only renders after user accepts cookies (consent-gated inside ResponsiveAd) */}
-        {(!toolSlug || canShowAdsOnTool(toolSlug)) && (
-          <div className="mb-10">
-            <ResponsiveAd variant="rectangle" />
-          </div>
-        )}
 
         {/* Use Cases Section */}
         {useCases && useCases.length > 0 && (

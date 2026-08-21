@@ -37,135 +37,6 @@ export type ToolSEOInput = ToolSEOExtension & {
 
 export const ALL_TOOL_SEO: ToolSEOInput[] = [
   {
-    "slug": "faceless-maker",
-    "name": "Faceless AI Maker",
-    "shortTitle": "Faceless Maker",
-    "category": "AI",
-    "tagline": "1-Click Viral Reddit Shorts with AI Voice & Gameplay",
-    "description": "Generate viral faceless shorts instantly. AI writes the script in Hinglish or English, speaks in a custom voice, and merges it perfectly with background gameplay. Free browser-based video generator.",
-    "seoTitle": "Faceless AI Video Maker — Free Reddit Shorts Generator (2026)",
-    "h1": "Faceless AI Maker for Viral Shorts",
-    "metaDescription": "Create faceless Reddit-style shorts in seconds. AI script writing, custom TTS voices, and auto-merge with gameplay. Free browser-based faceless video generator.",
-    "primaryKeyword": "faceless video generator ai",
-    "semanticKeywords": [
-      "reddit shorts maker",
-      "ai voice over video",
-      "faceless channel ai tool",
-      "auto shorts generator",
-      "text to speech video maker",
-      "hindi faceless channel maker"
-    ],
-    "relatedSlugs": [
-      "video-editor",
-      "shorts-maker",
-      "auto-captions",
-      "viral-hooks"
-    ],
-    "features": [
-      "AI Script Generation (Hindi/Hinglish)",
-      "Premium TTS Voices",
-      "Auto 9:16 Cropping",
-      "Direct Editor Integration for Captions"
-    ],
-    "howToSteps": [
-      {
-        "title": "Enter topic & language",
-        "desc": "Type your story idea and select a language (English, Hindi, or Hinglish)."
-      },
-      {
-        "title": "Upload gameplay",
-        "desc": "Add background footage like GTA, Minecraft parkour, or ASMR sand slicing."
-      },
-      {
-        "title": "Generate & render",
-        "desc": "Review the AI script, pick a voice, and let FFmpeg merge it into a viral short."
-      },
-      {
-        "title": "Download or Edit",
-        "desc": "Save your MP4 instantly or send to the editor to add kinetic captions."
-      }
-    ],
-    "faqs": [
-      {
-        "question": "What is a faceless video maker?",
-        "answer": "It is a tool that combines AI scripts, voiceovers, and background gameplay to create viral shorts without showing your face."
-      },
-      {
-        "question": "Does this use my server storage?",
-        "answer": "No, all video rendering and audio generation happens locally in your browser using WebAssembly. Your files stay private."
-      },
-      {
-        "question": "Can I add auto-captions to the final video?",
-        "answer": "Yes! After rendering, click \"Send to Editor\" to instantly push the video to the Seloice Editor and auto-generate Hormozi-style animated captions."
-      },
-      {
-        "question": "Is the generated voice realistic?",
-        "answer": "Yes, we use advanced text-to-speech models that sound natural, engaging, and indistinguishable from real human voices."
-      },
-      {
-        "question": "Can I monetize videos made with this tool?",
-        "answer": "Absolutely! Our generated videos are 100% original and safe for YouTube Shorts or Instagram monetization programs."
-      }
-    ],
-    "benefits": [
-      "No face or mic needed",
-      "Zero editing skills required",
-      "Instant local rendering",
-      "100% Free"
-    ],
-    "creatorTips": [
-      "Use Hinglish scripts for Indian audiences to maximize algorithm engagement on Instagram Reels.",
-      "Always send the final video to the Editor to add Hormozi-style captions for higher retention.",
-      "Use the \"Creepy Girl\" voice for scary stories and \"Reddit Guy\" for funny anecdotes."
-    ],
-    "troubleshooting": [
-      {
-        "issue": "Voice generation failed",
-        "fix": "Ensure your text isn't too long for the free TTS engine or try a different voice."
-      },
-      {
-        "issue": "Video fails to render or is black",
-        "fix": "Make sure your background gameplay file is under 500MB and in MP4/WebM format."
-      },
-      {
-        "issue": "Browser crashes during render",
-        "fix": "Close other unused tabs to free up RAM, especially on older mobile devices."
-      }
-    ],
-    "useCases": [
-      {
-        "title": "Reddit Story Channels",
-        "desc": "Automate content creation for story-time niches and confessions."
-      },
-      {
-        "title": "Motivation Shorts",
-        "desc": "Combine Sigma Male voice with aesthetic or luxury backgrounds."
-      },
-      {
-        "title": "Horror & True Crime",
-        "desc": "Use the creepy voice overlay on dark, atmospheric gameplay footage."
-      }
-    ],
-    "comparisonNote": "Unlike expensive cloud-based faceless tools that charge per minute, Seloice renders everything locally in your browser for free.",
-    "featuredSnippet": "To make a faceless video: enter a topic, let AI write the script, upload background gameplay, and render the final MP4 with auto-generated voiceover directly in your browser.",
-    "wasmHeavy": true,
-    "videoTool": true,
-    "whyUseContent": "Creating faceless videos traditionally takes hours of scriptwriting, recording voiceovers, finding gameplay footage, and editing everything together. The Faceless AI Maker automates this entire pipeline into a single click. It combines premium text-to-speech, clever script generation, and fast WebAssembly rendering to let you produce high-retention Reddit stories or motivation clips natively in your browser.",
-    "workflowContent": "Start by providing a simple text prompt or concept. The AI expands this into a full script while you upload a background clip like GTA V or ASMR footage. Choose an engaging voice, hit render, and the tool merges audio and video instantly. For maximum retention, send the rendered MP4 to the auto-captions tool to overlay dynamic subtitles before publishing.",
-    "commonMistakes": [
-      "Using overly long scripts that make the pacing feel dragged out.",
-      "Forgetting to add captions, which severely drops viewer retention on silent scrolling.",
-      "Using generic gameplay that does not visually match the energy of the spoken story.",
-      "Not experimenting with different AI voices to find the perfect character fit for the niche."
-    ],
-    "bestPractices": [
-      "Keep your initial script prompts tight and focused on a single engaging narrative.",
-      "Use fast-paced, visually satisfying background footage to retain attention.",
-      "Always include an immediate hook in the first 3 seconds to stop the scroll.",
-      "Leverage local Hinglish or slang to better connect with specific target demographics."
-    ]
-  },
-  {
     "slug": "yt-downloader",
     "name": "YouTube Video Downloader",
     "shortTitle": "YouTube Downloader",
@@ -291,6 +162,7 @@ export const ALL_TOOL_SEO: ToolSEOInput[] = [
       "Only download content for fair-use commentary or personal offline viewing."
     ]
   },
+  
   {
     "slug": "reel-downloader",
     "name": "Instagram Reel Downloader",
@@ -1046,135 +918,6 @@ export const ALL_TOOL_SEO: ToolSEOInput[] = [
       "Write your hook before you even begin outlining the rest of the video script.",
       "Film three different hook variations for the same video so you can A/B test them later.",
       "Speak the hook energetically while displaying it prominently in on-screen captions."
-    ]
-  },
-  {
-    "slug": "shorts-maker",
-    "name": "AI Shorts Maker",
-    "shortTitle": "Shorts Maker",
-    "category": "AI",
-    "tagline": "Turn long videos into viral Shorts, Reels & TikToks instantly",
-    "description": "Upload a long podcast, webinar, or talk and let local AI scan speech patterns to auto-detect viral moments. Auto-crop to 9:16 and render HD vertical clips right in your browser via client-side WebAssembly FFmpeg.",
-    "seoTitle": "Free AI Shorts Maker — Convert Long Videos to Viral Clips (2026)",
-    "h1": "Free AI Shorts Maker Online",
-    "metaDescription": "AI Shorts Maker — automatically extract viral short clips from long videos. Free, no watermark, secure browser-based WebAssembly. Paste links or upload files.",
-    "primaryKeyword": "ai short maker",
-    "semanticKeywords": [
-      "youtube video to shorts ai",
-      "ai reel clip generator",
-      "convert long video to shorts",
-      "podcast to shorts generator",
-      "auto crop video 9:16",
-      "video clip finder ai"
-    ],
-    "relatedSlugs": [
-      "video-editor",
-      "auto-captions",
-      "reel-fitter",
-      "video-compressor"
-    ],
-    "features": [
-      "AI Moment Detection & Scoring",
-      "Smart Auto 9:16 Cropping & Speaker Tracking",
-      "Local Client-Side WebAssembly (WASM) Processing",
-      "High-Impact Animated Kinetic Captions"
-    ],
-    "howToSteps": [
-      {
-        "title": "Upload video or link",
-        "desc": "Drag and drop your MP4/WebM video or paste a public video URL."
-      },
-      {
-        "title": "Analyze viral moments",
-        "desc": "Let our on-device AI analyze speech energy, pacing, and hooks to clip top highlights."
-      },
-      {
-        "title": "Customize style & download",
-        "desc": "Choose a kinetic caption theme, verify the 9:16 speaker crop, and export in HD without watermarks."
-      },
-      {
-        "title": "Publish across platforms",
-        "desc": "Distribute the generated vertical clips to YouTube Shorts, TikTok, and Instagram Reels."
-      }
-    ],
-    "faqs": [
-      {
-        "question": "How does the AI determine viral potential?",
-        "answer": "Our localized AI processes the video audio stream to index speech pacing, structural audience triggers, volume shifts, and keyword clusters, calculating a real-time virality probability score."
-      },
-      {
-        "question": "Is my media uploaded to a server?",
-        "answer": "No. Unlike other video SaaS tools, Seloice processes and renders your video entirely in your browser using high-performance WebAssembly (WASM) and client-side FFmpeg. Your data never leaves your device."
-      },
-      {
-        "question": "Can I choose standard caption styles?",
-        "answer": "Yes. You can style subtitles with custom animated fonts, highlighted words (Hormozi style), and placement presets."
-      },
-      {
-        "question": "Is there a video file size limit?",
-        "answer": "The browser processing supports video files up to 200MB or up to 20 minutes of footage depending on your device RAM."
-      },
-      {
-        "question": "What languages does the AI Shorts Maker support?",
-        "answer": "The AI transcript extraction engine supports over 50 global languages, accurately capturing multilingual spoken content."
-      }
-    ],
-    "benefits": [
-      "100% Secure & Private",
-      "No Signups or Paywalls",
-      "HD 1080p Export",
-      "No App Installs"
-    ],
-    "creatorTips": [
-      "Verify that the first 3 seconds contain a strong visual pattern interrupt and caption hook.",
-      "Use the video compressor tool to shrink files before upload if you are on a restricted mobile network.",
-      "A/B test three different dynamic hook variants to see which segment captures the platform algorithm fastest."
-    ],
-    "troubleshooting": [
-      {
-        "issue": "AI analysis fails to start",
-        "fix": "Ensure you have a stable network to fetch initial WASM modules and that your browser supports WebAssembly."
-      },
-      {
-        "issue": "Crop frame cuts off speaker",
-        "fix": "Use the manual slider in the preview workspace to adjust and lock the 9:16 bounding box on active participants."
-      },
-      {
-        "issue": "Export times are slow",
-        "fix": "Close other browser tabs to free up system memory (RAM). Browser-based editing is CPU-heavy."
-      }
-    ],
-    "useCases": [
-      {
-        "title": "Podcast clipping",
-        "desc": "Extract 8-10 bite-sized TikTok clips from a single episodic session."
-      },
-      {
-        "title": "Webinar snippets",
-        "desc": "Pull high-impact educational frames to build LinkedIn authority."
-      },
-      {
-        "title": "Gaming highlight reels",
-        "desc": "Condense multi-hour gameplay streams into fast-paced viral Shorts."
-      }
-    ],
-    "comparisonNote": "While other tools charge $20+/mo and require slow cloud uploads, Seloice is free, secure, and processes everything on-device.",
-    "featuredSnippet": "To convert long videos to shorts using AI: upload your video to the Seloice AI Shorts Maker, wait for the local moment analysis, choose your 9:16 layout, style the subtitles, and save the viral clip.",
-    "wasmHeavy": true,
-    "videoTool": true,
-    "whyUseContent": "The AI Shorts Maker streamlines short-form content creation by automatically identifying the most engaging segments of any long-form video. It eliminates hours of tedious scrubbing and manual clipping, leveraging intelligent algorithms to isolate high-retention moments. With built-in kinetic captions and precise speaker tracking, it ensures your shorts are perfectly optimized for modern algorithms while maintaining complete data privacy via client-side processing.",
-    "workflowContent": "Start by importing your source footage, whether it is an MP4 file or a public link. The AI will instantly analyze the audio and visual cues to surface the best moments. Once the segments are identified, you can adjust the start and end points, tweak the dynamic subtitles, and finalize the vertical formatting. The robust WebAssembly engine then renders the final clips directly in your browser, ready for immediate distribution across TikTok, Instagram, and YouTube.",
-    "commonMistakes": [
-      "Uploading videos with extremely low audio quality, which hinders accurate moment detection.",
-      "Ignoring the 9:16 crop framing and accidentally cutting off the main speaker.",
-      "Exporting clips without adding visual hooks or engaging caption styles.",
-      "Attempting to process 4K hour-long videos on low-RAM mobile devices."
-    ],
-    "bestPractices": [
-      "Always review the AI-selected clips to ensure context is maintained before exporting.",
-      "Use high-contrast colors for your animated captions to maximize mobile readability.",
-      "Combine multiple short moments into a fast-paced compilation for higher retention.",
-      "Consistently monitor which clip formats perform best on specific social platforms."
     ]
   },
   {
@@ -3933,6 +3676,104 @@ export const ALL_TOOL_SEO: ToolSEOInput[] = [
     "shortTitle": "Unknown Tool",
     "category": "Utility",
     "tagline": "Best Unknown Tool tool online."
+  },
+  {
+    "slug": "pdf-grid-maker",
+    "name": "PDF Grid Maker",
+    "shortTitle": "PDF Grid Maker",
+    "category": "Utility",
+    "tagline": "Combine multiple PDF pages into 2-in-1, 4-in-1, or 9-in-1 single sheet grids",
+    "description": "Merge 2, 4, or more PDF pages onto a single sheet. Perfect for printing college notes, lecture slides, or presentations to save paper. 100% private browser processing.",
+    "seoTitle": "PDF Grid Maker — Combine Multiple Pages into One Sheet Free (2026)",
+    "h1": "PDF Grid Maker — Merge Pages onto One Sheet",
+    "metaDescription": "Combine multiple PDF pages onto one page (2-up, 4-up, 9-up grid). Free online N-up PDF maker for notes, slides, and cheat sheets.",
+    "primaryKeyword": "pdf grid maker online",
+    "semanticKeywords": [
+      "n-up pdf maker",
+      "combine pdf pages on one page",
+      "2 in 1 pdf grid",
+      "4 in 1 pdf grid maker",
+      "print slides on one page",
+      "pdf note grid generator"
+    ],
+    "relatedSlugs": [
+      "file-converter",
+      "image-converter",
+      "grid-maker",
+      "safe-zone"
+    ],
+    "features": [
+      "Flexible N-Up Layouts (2-Up, 4-Up, 9-Up Grids)",
+      "Custom Page Margins & Borders",
+      "Client-Side Fast PDF Rendering",
+      "100% Secure & Private Browser Processing"
+    ],
+    "howToSteps": [
+      {
+        "title": "Upload PDF Document",
+        "desc": "Select or drag and drop your PDF file into the grid builder."
+      },
+      {
+        "title": "Choose Grid Format",
+        "desc": "Select how many pages per sheet (2, 4, 6, or 9 pages per page)."
+      },
+      {
+        "title": "Customize Spacing & Order",
+        "desc": "Adjust borders, grid orientation, and page ordering."
+      },
+      {
+        "title": "Download Gridded PDF",
+        "desc": "Generate and download your compressed grid PDF instantly."
+      }
+    ],
+    "faqs": [
+      {
+        "question": "Is my PDF uploaded to any server?",
+        "answer": "No. All PDF processing happens locally in your web browser using WebAssembly. Your documents remain 100% private."
+      },
+      {
+        "question": "Can I print college slides 4 per page?",
+        "answer": "Yes! PDF Grid Maker lets you arrange 2, 4, 6, or 9 slides per page with custom borders to save paper and printing costs."
+      }
+    ],
+    "benefits": [
+      "Save Paper & Ink",
+      "100% Local & Private",
+      "No File Size Limit",
+      "Instant Download"
+    ],
+    "creatorTips": [
+      "Use 4-in-1 grid format with thin borders for the cleanest readable study notes.",
+      "Export landscape slides in portrait 2-up or 4-up for maximum paper coverage."
+    ],
+    "troubleshooting": [
+      {
+        "issue": "PDF fails to load",
+        "fix": "Ensure the PDF file is not password protected before uploading."
+      }
+    ],
+    "useCases": [
+      {
+        "title": "College Lecture Slides",
+        "desc": "Print 4 presentation slides on a single sheet of paper for lightweight class notes."
+      },
+      {
+        "title": "Study Cheat Sheets",
+        "desc": "Compact multi-page revision notes into high-density grid pages."
+      }
+    ],
+    "comparisonNote": "Unlike cloud tools requiring slow file uploads, Seloice renders PDF grids locally in seconds.",
+    "featuredSnippet": "To combine PDF pages onto one page: upload your document, select 2-up or 4-up layout, set borders, and download the grid PDF.",
+    "wasmHeavy": false,
+    "videoTool": false,
+    "whyUseContent": "PDF Grid Maker is designed for students, educators, and professionals looking to save paper and organize study material efficiently. By placing 2, 4, or 9 pages onto a single sheet, you shrink reading stacks while keeping content crisp and clear.",
+    "workflowContent": "Import your multi-page PDF, pick your target grid layout, toggle page borders if desired, and click render. The output PDF downloads directly without server latency.",
+    "commonMistakes": [
+      "Using 9-up layout for small font documents where text becomes hard to read."
+    ],
+    "bestPractices": [
+      "Use 4-up for presentation slides and 2-up for dense textbook pages."
+    ]
   }
 ];
 

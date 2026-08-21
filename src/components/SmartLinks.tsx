@@ -11,7 +11,6 @@ interface SmartLinksProps {
 // Global registry of all tools for quick lookup
 const toolDirectory = [
   { slug: 'reel-downloader', name: 'Instagram Reel Downloader', category: 'Download' },
-  { slug: 'shorts-maker', name: 'AI Shorts Maker', category: 'Video' },
   { slug: 'yt-downloader', name: 'YouTube Downloader', category: 'Download' },
   { slug: 'thumbnail-extractor', name: 'Thumbnail Downloader', category: 'Download' },
   { slug: 'photo-editor', name: 'Photo Editor', category: 'Design' },
@@ -30,6 +29,7 @@ const toolDirectory = [
   { slug: 'yt-tag-extractor', name: 'SEO Tags Extractor', category: 'SEO' },
   { slug: 'qr-generator', name: 'QR Builder', category: 'Misc' },
   { slug: 'image-converter', name: 'Image Converter', category: 'Design' },
+  { slug: 'pdf-grid-maker', name: 'PDF Grid Maker', category: 'Utility' },
 ];
 
 export default function SmartLinks({ currentTool, currentBlog }: SmartLinksProps) {

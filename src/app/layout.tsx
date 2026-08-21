@@ -8,7 +8,6 @@ import CookieBanner from "@/components/CookieBanner";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import SkipLink from '@/components/seo/SkipLink';
-import AdHealthChecker from "@/components/ads/AdHealthChecker";
 import ConsentModeScript from "@/components/ConsentModeScript";
 import { GoogleTagManager } from "@next/third-parties/google";
 import JsonLd from "@/components/seo/JsonLd";
@@ -144,7 +143,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <PWAInstallPrompt />
           <ServiceWorkerRegister />
           <CookieBanner />
-          <AdHealthChecker />
         </AnalyticsProvider>
       </body>
     </html>

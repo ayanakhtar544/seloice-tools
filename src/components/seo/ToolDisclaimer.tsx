@@ -23,12 +23,6 @@ const DISCLAIMERS: Record<
     body:
       'This tool creates mockup screenshots for memes, marketing storyboards, and entertainment. Do not use outputs to impersonate real people, spread misinformation, or defraud others. Clearly label fictional content when publishing.',
   },
-  'faceless-maker': {
-    title: 'AI content notice',
-    variant: 'info',
-    body:
-      'This tool generates synthetic media using AI. Do not use this tool to generate deepfakes, misleading news, or deceptive content. You are responsible for ensuring your generated content complies with platform policies.',
-  },
   'ig-shadowban-checker': {
     title: 'Estimates only',
     variant: 'info',

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { buildAdSenseCsp } from '@/lib/adsense/csp';
 import { checkRateLimit } from '@/lib/security/rate-limit';
 import { hashToken } from '@/lib/security/admin-auth';
 
@@ -60,7 +59,6 @@ export async function proxy(request: NextRequest) {
 
   const response = NextResponse.next();
   response.headers.set('x-pathname', pathname);
-  response.headers.set('Content-Security-Policy', buildAdSenseCsp());
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'SAMEORIGIN');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');

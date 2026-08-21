@@ -3,8 +3,6 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import AdUnit from '@/components/AdUnit';
-import { canShowAdsOnTool } from '@/lib/adsense/tool-ads';
 import ToolPageContent from '@/components/seo/ToolPageContent';
 import ToolPageHeader from '@/components/seo/ToolPageHeader';
 import ToolLazyGate from '@/components/seo/ToolLazyGate';
@@ -53,12 +51,6 @@ export default async function ToolsLayout({ children }: { children: React.ReactN
         {toolSlug && <ToolDisclaimer slug={toolSlug} />}
         {toolSlug ? <ToolLazyGate slug={toolSlug}>{children}</ToolLazyGate> : children}
         {toolSlug && <ToolPageContent slug={toolSlug} />}
-
-        {(!toolSlug || canShowAdsOnTool(toolSlug)) && (
-          <div className="mt-20 max-w-4xl mx-auto w-full">
-            <AdUnit slot="banner" variant="leaderboard" />
-          </div>
-        )}
       </main>
 
       <Footer />

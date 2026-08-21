@@ -8,22 +8,14 @@ import {
   hasMadeChoice,
   acceptConsent,
   rejectConsent,
-  acceptNonPersonalizedAds,
 } from '@/lib/cookieConsent';
 
 export default function CookieBanner() {
   const [showBanner, setShowBanner] = useState(false);
-  const [strictRegion, setStrictRegion] = useState(true);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    
-    // Fetch region strictly in background
-    fetch('/api/consent/region')
-      .then((r) => r.json())
-      .then((d: { strict?: boolean }) => setStrictRegion(d.strict !== false))
-      .catch(() => setStrictRegion(true));
 
     const checkConsent = () => {
       if (hasMadeChoice()) {
@@ -75,9 +67,7 @@ export default function CookieBanner() {
               <div>
                 <h3 className="text-sm font-bold text-white mb-1">Privacy & cookies</h3>
                 <p className="text-xs text-gray-400 leading-relaxed">
-                  We use cookies for Google Analytics, Microsoft Clarity, and Google AdSense ads.
-                  You can accept all, use limited non-personalized ads only, or decline optional
-                  cookies.{' '}
+                  We use cookies for Google Analytics and Microsoft Clarity to analyze traffic and improve user experience.{' '}
                   <Link href="/privacy" className="text-indigo-400 hover:underline">
                     Privacy Policy
                   </Link>
@@ -96,18 +86,6 @@ export default function CookieBanner() {
               >
                 <Check size={14} /> Accept all
               </button>
-              {!strictRegion && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    acceptNonPersonalizedAds();
-                    close();
-                  }}
-                  className="w-full py-2.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-gray-200 text-xs font-bold transition-colors"
-                >
-                  Limited ads only (no personalization)
-                </button>
-              )}
               <button
                 type="button"
                 onClick={() => {
